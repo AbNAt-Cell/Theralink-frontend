@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormControl,
@@ -20,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
-import { Lock } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Loader } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -31,6 +32,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ClientLogin() {
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -93,9 +95,12 @@ export default function ClientLogin() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-sm font-medium text-gray-900'>Email</FormLabel>
+                    <FormLabel className='text-gray-800'>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email"  {...field} />
+                      <div className="relative">
+                        <Mail className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
+                        <Input className='mt-0 pl-10' placeholder="Enter your email" {...field} />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,25 +111,46 @@ export default function ClientLogin() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-sm font-medium text-gray-900'>Password</FormLabel>
+                    <FormLabel className='text-gray-800'>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your password" type="password" {...field} />
+                      <div className="relative">
+                        <Lock className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
+                        <Input 
+                          placeholder="Enter your password" 
+                          type={showPassword ? "text" : "password"} 
+                          className="pl-10 pr-10"
+                          {...field} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
+                {form.formState.isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <Loader className='spinner-border animate-spin' />
+                    <span className="ml-2">Logging in...</span>
+                  </div>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <Link href="/admin/login" className="text-sm text-blue-600 hover:text-blue-500">
-            Admin Login
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );
