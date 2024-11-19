@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
+import { Lock } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -77,7 +78,7 @@ export default function ClientLogin() {
       </Link>
       <Card className="w-full max-w-md shadow-xl rounded-md border-none">
         <CardHeader>
-          <p className='font-bold text-[20px]'>Sign in to your account</p>
+          <p className='font-bold text-lg inline-flex items-center'><Lock className='mr-1' /> Sign in to your account</p>
         </CardHeader>
         <CardContent>
           {error && (
@@ -92,9 +93,9 @@ export default function ClientLogin() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className='text-sm font-medium text-gray-900'>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" type="email" {...field} />
+                      <Input placeholder="Enter your email"  {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -105,7 +106,7 @@ export default function ClientLogin() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className='text-sm font-medium text-gray-900'>Password</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter your password" type="password" {...field} />
                     </FormControl>
