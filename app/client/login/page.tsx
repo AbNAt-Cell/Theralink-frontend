@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
 import { Lock, Mail, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
@@ -63,6 +63,7 @@ export default function ClientLogin() {
       }
     } catch (err) {
       setError('An error occurred during login');
+      console.error(err);
     }
   };
 
