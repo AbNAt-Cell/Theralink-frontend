@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
-import { Lock, Mail, Eye, EyeOff, Loader } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -111,7 +111,12 @@ export default function ClientLogin() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-800'>Password</FormLabel>
+                    <FormLabel className='text-gray-800 flex justify-between'>
+                      Password
+                      <Link href="/client/forgot-password" className="text-xs text-primary underline">
+                        Forgot password?
+                      </Link>
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
@@ -140,12 +145,12 @@ export default function ClientLogin() {
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? (
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center font-bold">
                     <Loader className='spinner-border animate-spin' />
                     <span className="ml-2">Logging in...</span>
                   </div>
                 ) : (
-                  "Login"
+                  <span className='font-bold'>Login <ArrowRight className='inline-block ml-1' /></span>
                 )}
               </Button>
             </form>
