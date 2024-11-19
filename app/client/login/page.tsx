@@ -95,7 +95,7 @@ export default function ClientLogin() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-800'>Email</FormLabel>
+                    <FormLabel className='text-gray-800 font-semibold'>Email</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
@@ -112,7 +112,7 @@ export default function ClientLogin() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='text-gray-800 flex justify-between'>
-                      Password
+                      <span className='font-semibold'>Password</span>
                       <Link href="/client/forgot-password" className="text-xs text-primary underline">
                         Forgot password?
                       </Link>
