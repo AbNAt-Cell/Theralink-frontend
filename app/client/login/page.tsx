@@ -20,12 +20,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import Image from 'next/image';
 import { Lock, Mail, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  guardianLogin: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,6 +42,7 @@ export default function ClientLogin() {
     defaultValues: {
       email: "",
       password: "",
+      guardianLogin: false,
     },
   });
 
@@ -81,7 +84,7 @@ export default function ClientLogin() {
       </Link>
       <Card className="w-full max-w-md shadow-xl rounded-md border-none">
         <CardHeader>
-          <p className='font-bold text-lg inline-flex items-center'><Lock className='mr-1' /> Sign in to your account</p>
+          <p className='font-bold text-lg inline-flex items-center'><Lock className='mr-1' /> Log into Client Portal</p>
         </CardHeader>
         <CardContent>
           {error && (
@@ -144,7 +147,26 @@ export default function ClientLogin() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              <FormField
+                control={form.control}
+                name="guardianLogin"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Login as guardian
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button variant="secondary" type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? (
                   <div className="flex items-center justify-center font-bold">
                     <Loader className='spinner-border animate-spin' />
