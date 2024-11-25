@@ -30,13 +30,11 @@ const ClientHeader = () => {
               />
             </div>
             <div className="flex items-center space-x-3">
-
-
-              <Link href="/client/dashboard">Home</Link>
-              <Link href="/client/diagnosis">Diagnosis</Link>
-              <Link href="/client/dashboard">Care Plan</Link>
-              <Link href="/client/dashboard">Appointments</Link>
-              <Link href="/client/dashboard">Messaging</Link>
+              <Link className='text-primary border-b-2 border-primary hover:text-primary' href="/client/dashboard">Home</Link>
+              <Link className='hover:text-primary' href="/client/diagnosis">Diagnosis</Link>
+              <Link className='hover:text-primary' href="/client/dashboard">Care Plan</Link>
+              <Link className='hover:text-primary' href="/client/dashboard">Appointments</Link>
+              <Link className='hover:text-primary' href="/client/dashboard">Messaging</Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
