@@ -68,6 +68,8 @@ export default function ClientLogin() {
       setError('An error occurred during login');
       console.error(err);
     }
+
+    router.push('/client/dashboard');
   };
 
   return (
