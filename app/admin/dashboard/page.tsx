@@ -1,11 +1,9 @@
 "use client"
 
 import AdminHeader from "@/components/AdminHeader"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search, Settings, Mail, HelpCircle, Bell, Building2, ChevronRight, Users2, User2, User } from 'lucide-react'
+import { Building2, ChevronRight, Users2, User } from 'lucide-react'
 
 export default function AdminDashboard() {
   return (

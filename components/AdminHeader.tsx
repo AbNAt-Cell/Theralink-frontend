@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { Search, AlarmClock, HelpCircle, Mail, Bell, SettingsIcon, PlusCircle, User, UserCircle, ChevronDown } from 'lucide-react'
+import { Search, AlarmClock, Mail, Bell, PlusCircle, UserCircle, ChevronDown } from 'lucide-react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import {
