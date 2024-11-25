@@ -64,6 +64,8 @@ export default function AdminLogin() {
       setError('An error occurred during login');
       console.error(err);
     }
+
+    router.push('/admin/dashboard')
   };
 
   return (
