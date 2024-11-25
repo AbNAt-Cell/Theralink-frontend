@@ -93,7 +93,7 @@ export default function AdminDashboard() {
           {/* Today's Appointments */}
           <Card>
             <CardHeader>
-              <CardTitle>Today's Appointments</CardTitle>
+              <CardTitle>Today&apos;s Appointments</CardTitle>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[200px]">
