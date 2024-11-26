@@ -126,11 +126,11 @@ export default function ClientDashboard() {
               <div className="space-y-4">
                 <p className="font-medium">Client Signature</p>
                 <div className="border rounded-lg p-4 h-24 bg-gray-50">
-                  <img
+                  {/* <img
                     src="/placeholder.svg?height=80&width=200"
                     alt="Signature placeholder"
                     className="opacity-30"
-                  />
+                  /> */}
                 </div>
                 <Button variant="secondary" className="w-full">
                   Update Signature
