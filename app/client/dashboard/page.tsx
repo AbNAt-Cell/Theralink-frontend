@@ -16,11 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Calendar, Cigarette, Globe, SpaceIcon as Mars, Phone, BellRingIcon as Ring } from 'lucide-react'
+import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
 
 export default function ClientDashboard() {
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         {/* Client Information Card */}
         <Card>
@@ -31,7 +31,7 @@ export default function ClientDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold">
+              <h3 className="font-semibold text-secondary">
                 Auspicious Community Service, LLC
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -43,7 +43,7 @@ export default function ClientDashboard() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-emerald-100 rounded-lg">
                   <Calendar className="w-7 h-7 text-emerald-600" />
                 </div>
@@ -53,7 +53,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <Cigarette className="w-7 h-7 text-cyan-600" />
                 </div>
@@ -65,9 +65,9 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-orange-100 rounded-lg">
-                  <Mars className="w-7 h-7 text-orange-600" />
+                  <Dna className="w-7 h-7 text-orange-600" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Sex:</p>
@@ -75,9 +75,9 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-violet-100 rounded-lg">
-                  <Ring className="w-7 h-7 text-violet-600" />
+                  <LoaderCircle className="w-7 h-7 text-violet-600" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Ethnicity:</p>
@@ -85,7 +85,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-pink-100 rounded-lg">
                   <Globe className="w-7 h-7 text-pink-600" />
                 </div>
@@ -107,7 +107,7 @@ export default function ClientDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold">
+              <h3 className="font-semibold text-secondary">
                 Auspicious Community Service, LLC
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -116,7 +116,7 @@ export default function ClientDashboard() {
               <p className="text-sm text-muted-foreground">
                 Dickinson, TX 77539-1628
               </p>
-              <div className="flex items-center gap-2 mt-2 text-emerald-600">
+              <div className="flex items-center gap-2 border rounded-lg p-2 mt-2 text-emerald-600">
                 <Phone className="w-4 h-4" />
                 <span>(832) 774-7144</span>
               </div>
@@ -165,7 +165,7 @@ export default function ClientDashboard() {
             </TabsList>
             <TabsContent value="pending" className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 border rounded-lg p-2">
                   <span className="text-sm text-muted-foreground">
                     Rows per page
                   </span>
