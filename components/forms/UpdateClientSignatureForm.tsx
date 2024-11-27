@@ -1,6 +1,6 @@
 'use client'
 import React, { useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import SignatureCanvas from 'react-signature-canvas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { DialogClose } from '../ui/dialog';
 
 interface UpdateClientSignatureFormProps {
   onSignatureUpdate: (signature: string) => void;
+  setOpen: (open: boolean) => void;
 }
 
 const formSchema = z.object({
@@ -22,7 +23,7 @@ const formSchema = z.object({
   path: ["confirmPin"],
 });
 
-const UpdateClientSignatureForm = ({ onSignatureUpdate }: UpdateClientSignatureFormProps) => {
+const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientSignatureFormProps) => {
   const sigCanvas = useRef<SignatureCanvas | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,6 +42,7 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate }: UpdateClientSignatureF
       console.log('Form values:', values);
       console.log('Signature:', dataURL);
       // Handle form submission here
+      setOpen(false);
     }
   };
 

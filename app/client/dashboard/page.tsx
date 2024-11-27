@@ -28,13 +28,28 @@ import {
 
 import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
 import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
+import ChangePinForm from "@/components/forms/ChangePinForm"
 
 import { useState } from "react"
 import Image from "next/image"
 
 export default function ClientDashboard() {
+  const [openClientSignature, setOpenClientSignature] = useState(false);
+  const [openParentSignature, setOpenParentSignature] = useState(false);
+  const [openClientPin, setOpenClientPin] = useState(false);
+  const [openParentPin, setOpenParentPin] = useState(false);
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
+
+  const handleClientPinChange = (oldPin: string, newPin: string) => {
+    console.log('Changing client PIN:', { oldPin, newPin });
+    // Add API call to change PIN here
+  };
+
+  const handleParentPinChange = (oldPin: string, newPin: string) => {
+    console.log('Changing parent PIN:', { oldPin, newPin });
+    // Add API call to change PIN here
+  };
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
@@ -146,10 +161,10 @@ export default function ClientDashboard() {
                   {clientSignature ? (
                     <Image src={clientSignature} alt="Client Signature" height={100} width={100} className="h-full w-auto" />
                   ) : (
-                    <p className="text-muted-foreground text-sm">No clientSignature available</p>
+                    <p className="text-muted-foreground text-sm">No client signature available</p>
                   )}
                 </div>
-                <Dialog>
+                <Dialog open={openClientSignature} onOpenChange={setOpenClientSignature}>
                   <DialogTrigger asChild>
                     <Button variant="secondary" className="w-full">
                       Update Signature
@@ -158,16 +173,25 @@ export default function ClientDashboard() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
-                      <UpdateClientSignatureForm onSignatureUpdate={setClientSignature} />
+                      <UpdateClientSignatureForm onSignatureUpdate={setClientSignature} setOpen={setOpenClientSignature} />
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
                 <Button
                   variant="outline"
                   className="w-full"
+                  onClick={() => setOpenClientPin(true)}
                 >
                   Change PIN?
                 </Button>
+                <Dialog open={openClientPin} onOpenChange={setOpenClientPin}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Change Client PIN</DialogTitle>
+                    </DialogHeader>
+                    <ChangePinForm setOpen={setOpenClientPin} onPinChange={handleClientPinChange} />
+                  </DialogContent>
+                </Dialog>
               </div>
 
               <div className="space-y-4">
@@ -179,7 +203,7 @@ export default function ClientDashboard() {
                     <p className="text-muted-foreground text-sm">No parent signature available</p>
                   )}
                 </div>
-                <Dialog>
+                <Dialog open={openParentSignature} onOpenChange={setOpenParentSignature}>
                   <DialogTrigger asChild>
                     <Button variant="secondary" className="w-full">
                       Add Signature
@@ -189,17 +213,28 @@ export default function ClientDashboard() {
                     <DialogHeader>
                       <DialogTitle>Add Parent Signature</DialogTitle>
                     </DialogHeader>
-                    <UpdateClientSignatureForm onSignatureUpdate={setParentSignature} />
+                    <UpdateClientSignatureForm onSignatureUpdate={setParentSignature} setOpen={setOpenParentSignature} />
                   </DialogContent>
                 </Dialog>
-                {/* {parentSignature && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Change PIN?
-                  </Button>
-                )} */}
+                {parentSignature && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setOpenParentPin(true)}
+                    >
+                      Change PIN?
+                    </Button>
+                    <Dialog open={openParentPin} onOpenChange={setOpenParentPin}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Change Parent PIN</DialogTitle>
+                        </DialogHeader>
+                        <ChangePinForm setOpen={setOpenParentPin} onPinChange={handleParentPinChange} />
+                      </DialogContent>
+                    </Dialog>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
