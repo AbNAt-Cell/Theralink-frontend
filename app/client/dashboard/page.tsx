@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,7 +30,11 @@ import {
 import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
 import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
 
+import { useState } from "react"
+
 export default function ClientDashboard() {
+  const [signature, setSignature] = useState<string | null>(null);
+
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
@@ -135,12 +141,12 @@ export default function ClientDashboard() {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <p className="font-medium">Client Signature</p>
-                <div className="border rounded-lg p-4 h-24 bg-gray-50">
-                  {/* <img
-                    src="/placeholder.svg?height=80&width=200"
-                    alt="Signature placeholder"
-                    className="opacity-30"
-                  /> */}
+                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
+                  {signature ? (
+                    <img src={signature} alt="Client Signature" className="h-full w-auto" />
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No signature available</p>
+                  )}
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
@@ -151,7 +157,7 @@ export default function ClientDashboard() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
-                      <UpdateClientSignatureForm />
+                      <UpdateClientSignatureForm onSignatureUpdate={setSignature} />
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
@@ -246,4 +252,3 @@ export default function ClientDashboard() {
     </div>
   )
 }
-
