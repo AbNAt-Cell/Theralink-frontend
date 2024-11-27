@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
+import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
 
 export default function ClientDashboard() {
   return (
@@ -150,10 +151,7 @@ export default function ClientDashboard() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
-                      <DialogDescription>
-                        This action cannot be undone. This will permanently delete your account
-                        and remove your data from our servers.
-                      </DialogDescription>
+                      <UpdateClientSignatureForm />
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
