@@ -33,7 +33,8 @@ import { useState } from "react"
 import Image from "next/image"
 
 export default function ClientDashboard() {
-  const [signature, setSignature] = useState<string | null>(null);
+  const [clientSignature, setClientSignature] = useState<string | null>(null);
+  const [parentSignature, setParentSignature] = useState<string | null>(null);
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
@@ -142,10 +143,10 @@ export default function ClientDashboard() {
               <div className="space-y-4">
                 <p className="font-medium">Client Signature</p>
                 <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
-                  {signature ? (
-                    <Image src={signature} alt="Client Signature" height={100} width={100} className="h-full w-auto" />
+                  {clientSignature ? (
+                    <Image src={clientSignature} alt="Client Signature" height={100} width={100} className="h-full w-auto" />
                   ) : (
-                    <p className="text-muted-foreground text-sm">No signature available</p>
+                    <p className="text-muted-foreground text-sm">No clientSignature available</p>
                   )}
                 </div>
                 <Dialog>
@@ -157,7 +158,7 @@ export default function ClientDashboard() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
-                      <UpdateClientSignatureForm onSignatureUpdate={setSignature} />
+                      <UpdateClientSignatureForm onSignatureUpdate={setClientSignature} />
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
@@ -171,10 +172,34 @@ export default function ClientDashboard() {
 
               <div className="space-y-4">
                 <p className="font-medium">Parent Signature</p>
-                <div className="border rounded-lg p-4 h-24 bg-gray-50" />
-                <Button variant="secondary" className="w-full">
-                  Add Signature
-                </Button>
+                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
+                  {parentSignature ? (
+                    <Image src={parentSignature} alt="Parent Signature" height={100} width={100} className="h-full w-auto" />
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No parent signature available</p>
+                  )}
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" className="w-full">
+                      Add Signature
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Parent Signature</DialogTitle>
+                    </DialogHeader>
+                    <UpdateClientSignatureForm onSignatureUpdate={setParentSignature} />
+                  </DialogContent>
+                </Dialog>
+                {/* {parentSignature && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Change PIN?
+                  </Button>
+                )} */}
               </div>
             </div>
           </CardContent>
