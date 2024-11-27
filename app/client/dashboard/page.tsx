@@ -21,7 +21,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -31,6 +30,7 @@ import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-rea
 import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
 
 import { useState } from "react"
+import Image from "next/image"
 
 export default function ClientDashboard() {
   const [signature, setSignature] = useState<string | null>(null);
@@ -143,7 +143,7 @@ export default function ClientDashboard() {
                 <p className="font-medium">Client Signature</p>
                 <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
                   {signature ? (
-                    <img src={signature} alt="Client Signature" className="h-full w-auto" />
+                    <Image src={signature} alt="Client Signature" height={100} width={100} className="h-full w-auto" />
                   ) : (
                     <p className="text-muted-foreground text-sm">No signature available</p>
                   )}
