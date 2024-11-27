@@ -27,12 +27,14 @@ const ClientHeader = () => {
                 priority
               />
             </div>
-            <div className="flex items-center space-x-3">
-              <Link className='text-primary border-b-2 border-primary hover:text-primary' href="/client/dashboard">Home</Link>
-              <Link className='hover:text-primary' href="/client/diagnosis">Diagnosis</Link>
-              <Link className='hover:text-primary' href="/client/dashboard">Care Plan</Link>
-              <Link className='hover:text-primary' href="/client/dashboard">Appointments</Link>
-              <Link className='hover:text-primary' href="/client/dashboard">Messaging</Link>
+            <div className="flex items-center space-x-9">
+              <div className='hidden md:block space-x-3'>
+                <Link className='text-primary hover:text-primary' href="/client/dashboard">Home</Link>
+                <Link className='hover:text-primary' href="/client/diagnosis">Diagnosis</Link>
+                <Link className='hover:text-primary' href="/client/dashboard">Care Plan</Link>
+                <Link className='hover:text-primary' href="/client/dashboard">Appointments</Link>
+                <Link className='hover:text-primary' href="/client/dashboard">Messaging</Link>
+              </div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

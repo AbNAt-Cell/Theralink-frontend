@@ -16,6 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
 
 export default function ClientDashboard() {
@@ -132,9 +141,22 @@ export default function ClientDashboard() {
                     className="opacity-30"
                   /> */}
                 </div>
-                <Button variant="secondary" className="w-full">
-                  Update Signature
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" className="w-full">
+                      Update Signature
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Update Signature</DialogTitle>
+                      <DialogDescription>
+                        This action cannot be undone. This will permanently delete your account
+                        and remove your data from our servers.
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
                 <Button
                   variant="outline"
                   className="w-full"
