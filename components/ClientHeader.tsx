@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import Image from 'next/image'
 import { Button } from './ui/button'
@@ -10,9 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link'
-
+import { usePathname } from 'next/navigation'
 
 const ClientHeader = () => {
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname === path
+
   return (
     <header className="bg-white border-b">
       <div className='border-b'>
@@ -29,11 +35,11 @@ const ClientHeader = () => {
             </div>
             <div className="flex items-center space-x-9">
               <div className='hidden md:block space-x-3'>
-                <Link className='text-primary hover:text-primary' href="/client/dashboard">Home</Link>
-                <Link className='hover:text-primary' href="/client/diagnosis">Diagnosis</Link>
-                <Link className='hover:text-primary' href="/client/dashboard">Care Plan</Link>
-                <Link className='hover:text-primary' href="/client/dashboard">Appointments</Link>
-                <Link className='hover:text-primary' href="/client/dashboard">Messaging</Link>
+                <Link className={`hover:text-primary ${isActive('/client/dashboard') ? 'text-primary' : ''}`} href="/client/dashboard">Home</Link>
+                <Link className={`hover:text-primary ${isActive('/client/diagnosis') ? 'text-primary' : ''}`} href="/client/diagnosis">Diagnosis</Link>
+                <Link className={`hover:text-primary ${isActive('/client/care-plan') ? 'text-primary' : ''}`} href="/client/care-plan">Care Plan</Link>
+                <Link className={`hover:text-primary ${isActive('/client/appointments') ? 'text-primary' : ''}`} href="/client/appointments">Appointments</Link>
+                <Link className={`hover:text-primary ${isActive('/client/messaging') ? 'text-primary' : ''}`} href="/client/messaging">Messaging</Link>
               </div>
 
               <DropdownMenu>
@@ -57,7 +63,6 @@ const ClientHeader = () => {
                   <DropdownMenuItem>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </div>
           </div>
         </div>
@@ -67,4 +72,3 @@ const ClientHeader = () => {
 }
 
 export default ClientHeader
-
