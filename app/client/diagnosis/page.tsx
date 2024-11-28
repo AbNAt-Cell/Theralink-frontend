@@ -25,7 +25,9 @@ interface Diagnosis {
 
 export default function ClientDiagnosis() {
   const [searchTerm, setSearchTerm] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [startDate, setStartDate] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [endDate, setEndDate] = useState('');
 
   const diagnoses: Diagnosis[] = [
