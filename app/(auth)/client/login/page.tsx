@@ -68,6 +68,8 @@ export default function ClientLogin() {
       setError('An error occurred during login');
       console.error(err);
     }
+
+    router.push('/client/dashboard');
   };
 
   return (
@@ -82,6 +84,7 @@ export default function ClientLogin() {
           priority
         />
       </Link>
+      <p className='text-gray-600 mb-4 text-center max-w-lg' >With Client Portal, you can connect with your staff through a convenient, safe and secure environment.</p>
       <Card className="w-full max-w-md shadow-xl rounded-md border-none">
         <CardHeader>
           <p className='font-bold text-lg inline-flex items-center'><Lock className='mr-1' /> Log into Client Portal</p>
