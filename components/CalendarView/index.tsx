@@ -32,6 +32,7 @@ const CalendarView = ({ events }: { events: Event[] }) => {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderEventContent(eventInfo: any) {
   return (
     <Popover>
