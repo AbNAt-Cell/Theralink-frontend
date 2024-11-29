@@ -92,7 +92,7 @@ export default function ClientDiagnosis() {
 
           <div className="rounded-md border">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-gray-100">
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Diagnosis</TableHead>
