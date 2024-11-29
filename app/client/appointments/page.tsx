@@ -4,7 +4,7 @@ import { Event } from '@/types/calendar'
 import { EventList } from '@/components/EventList'
 import CalendarView from '@/components/CalendarView/index'
 
-export const events: Event[] = [
+const events: Event[] = [
   {
     id: '1',
     title: 'Client Meeting',

@@ -18,11 +18,7 @@ export function EventList({ events }: EventListProps) {
           {events.map((event) => (
             <div key={event.id} className="flex items-start space-x-4">
               <Avatar className="mt-1">
-                <div className={`w-full h-full ${
-                  event.type === 'client-meeting' ? 'bg-blue-500' :
-                  event.type === 'festival' ? 'bg-pink-500' :
-                  event.type === 'staff-meeting' ? 'bg-purple-500' : 'bg-orange-500'
-                }`} />
+                <div className={`w-full h-full bg-[#ff9e58]`}/>
               </Avatar>
               <div className="space-y-1">
                 <h4 className="text-sm font-medium leading-none">{event.title}</h4>
