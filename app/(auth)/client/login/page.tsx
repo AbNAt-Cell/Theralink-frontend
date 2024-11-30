@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import axiosInstance from '@/lib/axios';
+import { login, loginFormSchema, } from '@/lib/auth';
 
 import { Button } from "@/components/ui/button";
 
@@ -25,9 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Image from 'next/image';
 import { Lock, User, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
-const formSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+const formSchema = loginFormSchema.extend({
   guardianLogin: z.boolean().default(false),
 });
 
@@ -51,25 +49,15 @@ export default function ClientLogin() {
     setError('');
 
     try {
-      const response = await axiosInstance.post('/api/auth/login', {
-        username: data.username,
-        password: data.password,
-      });
+      const { user } = await login(data);
 
-      if (response.status === 200) {
-        const { user, token } = response.data;
-        
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-
-        if (user.role === 'ADMIN') {
-          router.push('/admin/dashboard');
-        } else {
-          router.push('/client/dashboard');
-        }
+      if (user.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/client/dashboard');
       }
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       setError(err.response?.data?.error || 'Failed to login. Please try again.');
     }
   };

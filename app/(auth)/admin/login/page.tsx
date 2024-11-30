@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import axiosInstance from '@/lib/axios';
+import { login, loginFormSchema, logout } from '@/lib/auth';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
 import { Lock, User, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
-const formSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+const formSchema = loginFormSchema;
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -47,24 +44,13 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await axiosInstance.post('/api/auth/login', {
-        username: data.username,
-        password: data.password,
-      });
+      const { user } = await login(data);
 
-      if (response.status === 200) {
-        const { user, token } = response.data;
-        
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-
-        if (user.role === 'ADMIN') {
-          router.push('/admin/dashboard');
-        } else {
-          setError('Access denied. Admin privileges required.');
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        }
+      if (user.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        setError('Access denied. Admin privileges required.');
+        logout();
       }
     } catch (err: any) {
       console.log(err);
