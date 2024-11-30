@@ -1,5 +1,6 @@
 import axiosInstance from './axios';
 import { z } from 'zod';
+import Cookies from 'js-cookie';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -29,18 +30,38 @@ export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
   });
 
   const { user, token } = response.data;
-  localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
+  
+  // Set cookies with secure options
+  Cookies.set('token', token, { 
+    secure: true,
+    sameSite: 'strict',
+    expires: 7 // 7 days
+  });
+  
+  Cookies.set('user', JSON.stringify(user), {
+    secure: true,
+    sameSite: 'strict',
+    expires: 7
+  });
 
   return response.data;
 };
 
 export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  Cookies.remove('token');
+  Cookies.remove('user');
 };
 
 export const getStoredUser = (): User | null => {
-  const userStr = localStorage.getItem('user');
+  const userStr = Cookies.get('user');
   return userStr ? JSON.parse(userStr) : null;
+};
+
+export const isAuthenticated = (): boolean => {
+  return !!Cookies.get('token');
+};
+
+export const isAdmin = (): boolean => {
+  const user = getStoredUser();
+  return user?.role === 'ADMIN';
 };
