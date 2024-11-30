@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Eye, Trash2, ChevronLeft, ChevronRight, PenSquare, Inbox, SendHorizontal, Paperclip, X } from 'lucide-react'
+import { Eye, Trash2, ChevronLeft, ChevronRight, PenSquare, Inbox, SendHorizontal, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
