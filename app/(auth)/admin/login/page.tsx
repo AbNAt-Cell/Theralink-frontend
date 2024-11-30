@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { login, loginFormSchema, logout } from '@/lib/auth';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,12 +21,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from 'next/image';
-import { Lock, Mail, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
-const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+const formSchema = loginFormSchema;
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -37,7 +35,7 @@ export default function AdminLogin() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -46,26 +44,19 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const { user } = await login(data);
 
-      if (response.ok) {
+      if (user.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
-        const responseData = await response.json();
-        setError(responseData.message || 'Login failed');
+        setError('Access denied. Admin privileges required.');
+        logout();
       }
-    } catch (err) {
-      setError('An error occurred during login');
-      console.error(err);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.log(err);
+      setError(err.response?.data?.error || 'Failed to login. Please try again.');
     }
-
-    router.push('/admin/dashboard')
   };
 
   return (
@@ -94,14 +85,14 @@ export default function AdminLogin() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-800 font-semibold'>Email</FormLabel>
+                    <FormLabel className='text-gray-800 font-semibold'>Username</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                        <Input className='mt-0 pl-10' placeholder="Enter your email" {...field} />
+                        <User className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
+                        <Input className='mt-0 pl-10' placeholder="Enter your username" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />

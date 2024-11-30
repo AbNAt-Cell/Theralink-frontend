@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { login, loginFormSchema, } from '@/lib/auth';
 
 import { Button } from "@/components/ui/button";
 
@@ -22,11 +23,9 @@ import { Card, CardContent, CardHeader, } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from 'next/image';
-import { Lock, Mail, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 
-const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+const formSchema = loginFormSchema.extend({
   guardianLogin: z.boolean().default(false),
 });
 
@@ -40,7 +39,7 @@ export default function ClientLogin() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
       guardianLogin: false,
     },
@@ -50,26 +49,18 @@ export default function ClientLogin() {
     setError('');
 
     try {
-      const response = await fetch('/api/client/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const { user } = await login(data);
 
-      if (response.ok) {
-        router.push('/client/dashboard');
+      if (user.role === 'ADMIN') {
+        router.push('/admin/dashboard');
       } else {
-        const responseData = await response.json();
-        setError(responseData.message || 'Login failed');
+        router.push('/client/dashboard');
       }
-    } catch (err) {
-      setError('An error occurred during login');
-      console.error(err);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.log(err);
+      setError(err.response?.data?.error || 'Failed to login. Please try again.');
     }
-
-    router.push('/client/dashboard');
   };
 
   return (
@@ -99,14 +90,14 @@ export default function ClientLogin() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-800 font-semibold'>Email</FormLabel>
+                    <FormLabel className='text-gray-800 font-semibold'>Username</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                        <Input className='mt-0 pl-10' placeholder="Enter your email" {...field} />
+                        <User className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
+                        <Input className='mt-0 pl-10' placeholder="Enter your username" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />

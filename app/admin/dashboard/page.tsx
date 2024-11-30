@@ -1,6 +1,5 @@
 "use client"
 
-import AdminHeader from "@/components/AdminHeader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Building2, ChevronRight, Users2, User } from 'lucide-react'
@@ -8,9 +7,6 @@ import { Building2, ChevronRight, Users2, User } from 'lucide-react'
 export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <AdminHeader />
-
       <main className="p-6 mx-auto max-w-[1350px]">
         {/* Action Cards */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">

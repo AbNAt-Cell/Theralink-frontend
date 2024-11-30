@@ -70,8 +70,8 @@ export default function ClientDiagnosis() {
           <CardTitle className="text-lg font-medium">Diagnosis History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-4 items-center">
+          <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -92,7 +92,7 @@ export default function ClientDiagnosis() {
 
           <div className="rounded-md border">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-gray-100">
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Diagnosis</TableHead>
