@@ -52,6 +52,7 @@ export default function AdminLogin() {
         setError('Access denied. Admin privileges required.');
         logout();
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
       setError(err.response?.data?.error || 'Failed to login. Please try again.');

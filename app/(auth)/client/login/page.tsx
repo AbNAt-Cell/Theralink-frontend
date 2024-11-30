@@ -56,6 +56,7 @@ export default function ClientLogin() {
       } else {
         router.push('/client/dashboard');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
       setError(err.response?.data?.error || 'Failed to login. Please try again.');
