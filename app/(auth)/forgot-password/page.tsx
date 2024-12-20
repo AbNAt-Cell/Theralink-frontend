@@ -41,7 +41,7 @@ const ResetPassword = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log('error: ', err);
-      setError(err.response?.data?.error || 'Failed to login. Please try again.');
+      setError(err.response?.data?.error || 'Failed. Please try again.');
     }
   };
 

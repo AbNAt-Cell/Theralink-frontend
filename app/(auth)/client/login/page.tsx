@@ -111,7 +111,7 @@ export default function ClientLogin() {
                   <FormItem>
                     <FormLabel className='text-gray-800 flex justify-between'>
                       <span className='font-semibold'>Password</span>
-                      <Link href="/reset-password" className="text-xs text-primary underline">
+                      <Link href="/forgot-password" className="text-xs text-primary underline">
                         Forgot password?
                       </Link>
                     </FormLabel>
