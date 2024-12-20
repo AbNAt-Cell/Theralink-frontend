@@ -72,3 +72,11 @@ export const sendForgotPassword = async (data: { email: string }): Promise<{ mes
   });
   return response.data;
 };
+
+export const sendResetPassword = async (data: { password: string, token: string }): Promise<{ message: string }> => {
+  const response = await axiosInstance.post('/api/auth/reset-password', {
+    password: data.password,
+    token: data.token,
+  });
+  return response.data;
+};
