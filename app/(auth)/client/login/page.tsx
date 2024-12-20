@@ -56,7 +56,7 @@ export default function ClientLogin() {
       } else {
         router.push('/client/dashboard');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
       setError(err.response?.data?.error || 'Failed to login. Please try again.');
@@ -111,18 +111,18 @@ export default function ClientLogin() {
                   <FormItem>
                     <FormLabel className='text-gray-800 flex justify-between'>
                       <span className='font-semibold'>Password</span>
-                      <Link href="/client/forgot-password" className="text-xs text-primary underline">
+                      <Link href="/reset-password" className="text-xs text-primary underline">
                         Forgot password?
                       </Link>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                        <Input 
-                          placeholder="Enter your password" 
-                          type={showPassword ? "text" : "password"} 
+                        <Input
+                          placeholder="Enter your password"
+                          type={showPassword ? "text" : "password"}
                           className="pl-10 pr-10"
-                          {...field} 
+                          {...field}
                         />
                         <button
                           type="button"

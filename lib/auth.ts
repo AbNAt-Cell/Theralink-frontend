@@ -30,14 +30,14 @@ export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
   });
 
   const { user, token } = response.data;
-  
+
   // Set cookies with secure options
-  Cookies.set('token', token, { 
+  Cookies.set('token', token, {
     secure: true,
     sameSite: 'strict',
     expires: 7 // 7 days
   });
-  
+
   Cookies.set('user', JSON.stringify(user), {
     secure: true,
     sameSite: 'strict',
@@ -64,4 +64,11 @@ export const isAuthenticated = (): boolean => {
 export const isAdmin = (): boolean => {
   const user = getStoredUser();
   return user?.role === 'ADMIN';
+};
+
+export const sendForgotPassword = async (data: { email: string }): Promise<{ message: string }> => {
+  const response = await axiosInstance.post('/api/auth/forgot-password', {
+    email: data.email,
+  });
+  return response.data;
 };
