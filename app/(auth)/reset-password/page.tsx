@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
-import { ArrowRight, Loader, Lock, User } from 'lucide-react'
+import { ArrowRight, Loader, Lock } from 'lucide-react'
 import { z } from 'zod'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -49,7 +49,7 @@ const ResetPassword = () => {
     };
     setError('');
     setSuccess('');
-    let dataWithToken = { password: data.password, token }
+    const dataWithToken = { password: data.password, token }
 
     try {
       const { message } = await sendResetPassword(dataWithToken);
