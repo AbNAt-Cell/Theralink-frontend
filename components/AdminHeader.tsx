@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { getStoredUser, logout } from '@/lib/auth'
 
 const LogoutMenuItem = () => {
@@ -34,6 +34,13 @@ const LogoutMenuItem = () => {
 };
 
 const AdminHeader = () => {
+  const pathname = usePathname();
+
+  const isActivePath = (path: string) => {
+    const currentPath = pathname?.split('/')[2];
+    return currentPath === path ? 'bg-primary text-white' : '';
+  }
+
   return (
     <header className="bg-white border-b">
       <div className='border-b'>
@@ -111,28 +118,28 @@ const AdminHeader = () => {
       <div className='mx-auto max-w-[1350px]'>
         <div className='flex items-center justify-between h-[50px] px-6 py-3'>
           <div className="flex flex-row items-center space-x-4">
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('dashboard')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Dashboard
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('staff')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Staff
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('clients')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Clients
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('messages')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Messages
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('calendar')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Calendar
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('documents')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Documents
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('billing')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               Billing <ChevronDown />
             </Button>
-            <Button className="font-semibold rounded-sm text-[14px] h-7 w-22" variant="pill" size="sm">
+            <Button className={`${isActivePath('more')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
               More <ChevronDown />
             </Button>
           </div>
