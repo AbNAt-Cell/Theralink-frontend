@@ -2,7 +2,7 @@
 
 import ClientHeader from '@/components/ClientHeader'
 import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { isAuthenticated } from '@/lib/auth'
 
 const ClientLayout = ({children}: {children: React.ReactNode}) => {

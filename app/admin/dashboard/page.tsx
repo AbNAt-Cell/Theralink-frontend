@@ -3,8 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Building2, ChevronRight, Users2, User } from 'lucide-react'
+import { useRouter } from 'nextjs-toploader/app'
 
 export default function AdminDashboard() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="p-6 mx-auto max-w-[1350px]">
@@ -40,7 +42,7 @@ export default function AdminDashboard() {
 
             </div>
           </Card>
-          <Card className="bg-primary text-white p-4 cursor-pointer">
+          <Card className="bg-primary text-white p-4 cursor-pointer" onClick={() => router.push('/admin/clients')}>
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row justify-center items-center gap-4">
                 <div className="flex justify-center items-center rounded-full bg-[#E7EAF017] h-14 w-14">

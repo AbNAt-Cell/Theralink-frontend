@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { getStoredUser, logout } from '@/lib/auth'
 
