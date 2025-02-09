@@ -1,6 +1,8 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Raleway } from 'next/font/google'
+import NextTopLoader from 'nextjs-toploader';
+
 
 const raleway = Raleway({ 
   subsets: ['latin'],
@@ -19,6 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <NextTopLoader color="#0448E7" />
       <body className={raleway.className}>{children}</body>
     </html>
   )
