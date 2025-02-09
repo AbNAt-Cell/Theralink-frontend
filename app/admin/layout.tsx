@@ -13,11 +13,11 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // if (!isAuthenticated()) {
-    //   router.push('/admin/login');
-    // } else if (!isAdmin()) {
-    //   router.push('/client/dashboard');
-    // }
+    if (!isAuthenticated()) {
+      router.push('/admin/login');
+    } else if (!isAdmin()) {
+      router.push('/client/dashboard');
+    }
   }, [router]);
 
   return (
