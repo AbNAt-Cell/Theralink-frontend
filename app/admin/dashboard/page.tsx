@@ -12,7 +12,7 @@ export default function AdminDashboard() {
       <main className="p-6 mx-auto max-w-[1350px]">
         {/* Action Cards */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">
-          <Card className="bg-primary text-white p-4 cursor-pointer">
+          <Card className="bg-secondary text-white p-4 cursor-pointer">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row justify-center items-center gap-4">
                 <div className="flex justify-center items-center rounded-full bg-[#E7EAF017] h-14 w-14">
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
             </div>
           </Card>
-          <Card className="bg-primary text-white p-4 cursor-pointer">
+          <Card className="bg-secondary text-white p-4 cursor-pointer">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row justify-center items-center gap-4">
                 <div className="flex justify-center items-center rounded-full bg-[#E7EAF017] h-14 w-14">
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
             </div>
           </Card>
-          <Card className="bg-primary text-white p-4 cursor-pointer" onClick={() => router.push('/admin/clients')}>
+          <Card className="bg-secondary text-white p-4 cursor-pointer" onClick={() => router.push('/admin/clients')}>
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row justify-center items-center gap-4">
                 <div className="flex justify-center items-center rounded-full bg-[#E7EAF017] h-14 w-14">
