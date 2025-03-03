@@ -8,8 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
@@ -46,7 +44,7 @@ const ClientPage = () => {
             <FileInput />
             Export to Excel
           </Button>
-          <Button variant="secondary" onClick={() => { }}>
+          <Button variant="secondary" onClick={() => router.push('/admin/clients/new')}>
             <UserPlus />
             Add New Client
           </Button>
