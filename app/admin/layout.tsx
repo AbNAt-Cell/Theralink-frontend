@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { isAuthenticated, isAdmin } from '@/lib/auth';
 import AdminHeader from '@/components/AdminHeader';
 
@@ -23,7 +23,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      <main className="container mx-auto">
+      <main className="container max-w-[1350px] mx-auto p-6 space-y-6">
         {children}
       </main>
     </div>
