@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import type { User } from "@/types/user"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export const columns: ColumnDef<Partial<User>>[] = [
   {
@@ -57,6 +58,11 @@ export const columns: ColumnDef<Partial<User>>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => (
+      <Link href={`/admin/clients/${row.original.id}`} className="text-primary hover:underline">
+        {row.original.name}
+      </Link>
+    ),
   },
   {
     accessorKey: "dob",

@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { columns } from "./table-columns"
 import type { User } from '@/types/user';
-import TableFilters from '@/components/TableFilters';
+import TableFilters, { Filter } from '@/components/TableFilters';
 import { DataTable } from '@/components/ui/data-table';
 
 const ClientPage = () => {
@@ -58,6 +58,18 @@ const ClientPage = () => {
     }
 
   ]
+  const filters: Filter[] = [
+    { label: 'Select Date', value: 'date' },
+    { label: 'Payer', value: 'payer' },
+    { label: 'Site', value: 'site' },
+    { label: 'Gender', value: 'gender' },
+    { label: 'Flag', value: 'flag' },
+    { label: 'Status', value: 'status' },
+    { label: 'Staff Caseload', value: 'staff_caseload' },
+    { label: 'Search by Dx Code', value: 'dx_code' },
+    { label: 'Record #', value: 'record' },
+    { label: 'Status', value: 'status' },
+  ]
 
   const router = useRouter();
   return (
@@ -94,11 +106,8 @@ const ClientPage = () => {
           </Button>
         </div>
       </div>
-      <div>
-        <TableFilters />
-      </div>
-      <div>
-        <DataTable columns={columns} data={users} />
+      <div className='flex flex-col gap-4'>
+        <DataTable columns={columns} data={users} filters={filters} />
       </div>
     </div>
   )
