@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import TableFilters from '@/components/TableFilters';
 
 const ClientPage = () => {
   const [showInactiveStaff, setShowInactiveStaff] = React.useState(true);
   const router = useRouter();
   return (
-    <div className="">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Clients</h1>
         <div className="flex gap-4">
@@ -49,6 +50,9 @@ const ClientPage = () => {
             Add New Client
           </Button>
         </div>
+      </div>
+      <div>
+        <TableFilters />
       </div>
     </div>
   )
