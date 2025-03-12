@@ -1,4 +1,4 @@
-import { PlusCircle, Type, XIcon } from 'lucide-react'
+import { PlusCircle, XIcon } from 'lucide-react'
 import React from 'react'
 import { Input } from './ui/input'
 import { Table } from '@tanstack/react-table';

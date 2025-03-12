@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { access } from 'fs';
 
 const newClientFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),

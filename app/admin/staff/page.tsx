@@ -3,13 +3,7 @@
 import React from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import { Button } from '@/components/ui/button';
-import { ChevronDown, FileInput, UserPlus } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { FileInput, UserPlus } from 'lucide-react';
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { columns } from "./table-columns"
