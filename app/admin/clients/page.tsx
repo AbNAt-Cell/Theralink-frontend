@@ -22,7 +22,7 @@ const ClientPage = () => {
   const users: Partial<User>[] = [
     {
       id: "29981",
-      status: "Referral Pending",
+      status: "Inactive",
       balance: 0.00,
       name: "Mfoniso Ibokette",
       dob: "6/27/2018",
