@@ -14,10 +14,10 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { columns } from "./table-columns"
 import type { User } from '@/types/user';
-import TableFilters, { Filter } from '@/components/TableFilters';
+import type { Filter } from '@/components/TableFilters';
 import { DataTable } from '@/components/ui/data-table';
 
-const ClientPage = () => {
+const AdminClientsPage = () => {
   const [showInactiveStaff, setShowInactiveStaff] = React.useState(true);
   const users: Partial<User>[] = [
     {
@@ -113,4 +113,4 @@ const ClientPage = () => {
   )
 }
 
-export default ClientPage
+export default AdminClientsPage
