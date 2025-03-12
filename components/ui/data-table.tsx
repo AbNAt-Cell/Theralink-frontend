@@ -47,12 +47,12 @@ export function DataTable<TData, TValue>({
     <>
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-[#DDE1E6]">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead className="py-5 px-5 whitespace-nowrap font-bold text-black" key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
