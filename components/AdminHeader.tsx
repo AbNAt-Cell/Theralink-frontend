@@ -164,16 +164,16 @@ const AdminHeader = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className='w-52'>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className='cursor-pointer' asChild>
                   <Link className={`${isActiveFullPath('/admin/billing/new')}`} href="/admin/billing/new">New Billing</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className='cursor-pointer' asChild>
                   <Link className={`${isActiveFullPath("/admin/billing/submissions")}`} href="/admin/billing/submissions">Billing Submissions</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className='cursor-pointer' asChild>
                   <Link className={`${isActiveFullPath("/admin/billing/remittance")}`} href="/admin/billing/remittance">Billing Remittance</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className='cursor-pointer' asChild>
                   <Link className={`${isActiveFullPath("/admin/billing/profiles")}`} href="/admin/billing/profiles">Billing Profiles</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -189,7 +189,7 @@ const AdminHeader = () => {
                 <div className='flex flex-row p-5 gap-4'>
                   <div className='flex flex-col'>
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Clinic</p>
-                    <ul className='ml-2 space-y-1'>
+                    <ul className='ml-2 space-y-1 text-sm'>
                       <li>Authorizations</li>
                       <li>Client Compliance</li>
                       <li>Clinic Files</li>
@@ -206,13 +206,13 @@ const AdminHeader = () => {
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Audit</p>
-                    <ul className='ml-2 space-y-1'>
+                    <ul className='ml-2 space-y-1 text-sm'>
                       <li>Staff Audit</li>
                       <li>Client Audit</li>
                     </ul>
 
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg mt-5'>Misc.</p>
-                    <ul className='ml-2 space-y-1'>
+                    <ul className='ml-2 space-y-1 text-sm'>
                       <li>Task Manager</li>
                       <li>Admin. Board</li>
                       <li>Time Clock</li>
