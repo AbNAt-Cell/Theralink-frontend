@@ -40,6 +40,12 @@ const AdminHeader = () => {
 
   const isActivePath = (path: string) => {
     const currentPath = pathname?.split('/')[2];
+    console.log('pathL :', pathname)
+    return currentPath === path ? 'bg-primary text-white' : '';
+  }
+
+  const isActiveFullPath = (path: string) => {
+    const currentPath = pathname;
     return currentPath === path ? 'bg-primary text-white' : '';
   }
 
@@ -150,16 +156,75 @@ const AdminHeader = () => {
                 Documents
               </Button>
             </Link>
-            <Link href="/admin/billing">
-              <Button className={`${isActivePath('billing')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
-                Billing <ChevronDown />
-              </Button>
-            </Link>
-            <Link href="/admin/more">
-              <Button className={`${isActivePath('more')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
-                More <ChevronDown />
-              </Button>
-            </Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className={`${isActivePath('billing')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+                  Billing <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='w-52'>
+                <DropdownMenuItem asChild>
+                  <Link className={`${isActiveFullPath('/admin/billing/new')}`} href="/admin/billing/new">New Billing</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link className={`${isActiveFullPath("/admin/billing/submissions")}`} href="/admin/billing/submissions">Billing Submissions</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link className={`${isActiveFullPath("/admin/billing/remittance")}`} href="/admin/billing/remittance">Billing Remittance</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link className={`${isActiveFullPath("/admin/billing/profiles")}`} href="/admin/billing/profiles">Billing Profiles</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className={`${isActivePath('more')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+                  More <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='w-auto'>
+                <div className='flex flex-row p-5 gap-4'>
+                  <div className='flex flex-col'>
+                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Clinic</p>
+                    <ul className='ml-2 space-y-1'>
+                      <li>Authorizations</li>
+                      <li>Client Compliance</li>
+                      <li>Clinic Files</li>
+                      <li>Default Goals</li>
+                      <li>Document Templates</li>
+                      <li>Portal Parental Access (CP)</li>
+                      <li>Roles</li>
+                      <li>Services</li>
+                      <li>Settings</li>
+                      <li>Sites</li>
+                      <li>Staff Documents</li>
+                    </ul>
+
+                  </div>
+                  <div className='flex flex-col'>
+                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Audit</p>
+                    <ul className='ml-2 space-y-1'>
+                      <li>Staff Audit</li>
+                      <li>Client Audit</li>
+                    </ul>
+
+                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg mt-5'>Misc.</p>
+                    <ul className='ml-2 space-y-1'>
+                      <li>Task Manager</li>
+                      <li>Admin. Board</li>
+                      <li>Time Clock</li>
+                      <li>Knowledge Base</li>
+                    </ul>
+
+                  </div>
+
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
           </div>
         </div>
       </div>
