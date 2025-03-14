@@ -74,9 +74,9 @@ const AdminClientsPage = () => {
   const router = useRouter();
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Clients</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <div className="flex items-center space-x-2">
             <Switch id="show-inactive-staff" checked={showInactiveStaff} onCheckedChange={setShowInactiveStaff} />
             <Label htmlFor="show-inactive-staff">Show Inactive Staff</Label>

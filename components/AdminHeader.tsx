@@ -25,7 +25,7 @@ const LogoutMenuItem = () => {
   };
 
   return (
-    <DropdownMenuItem 
+    <DropdownMenuItem
       onClick={handleLogout}
       className="text-red-600 focus:text-red-600 cursor-pointer"
     >
@@ -118,8 +118,8 @@ const AdminHeader = () => {
         </div>
       </div>
       <div className='mx-auto max-w-[1350px]'>
-        <div className='flex items-center justify-between h-[50px] px-6 py-3'>
-          <div className="flex flex-row items-center space-x-4">
+        <div className='flex items-center justify-between px-6 py-3'>
+          <div className="flex flex-wrap flex-row items-center space-x-4 space-y-2">
             <Link href="/admin/dashboard">
               <Button className={`${isActivePath('dashboard')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Dashboard

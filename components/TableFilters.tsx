@@ -17,7 +17,7 @@ const TableFilters = <TData,>({ filters, table }: TableFiltersProps<TData>) => {
 
   return (
     <div className='flex flex-col gap-4 border-2 border-gray-200 p-5 rounded-md'>
-      <div className='flex justify-between items-center'>
+      <div className='flex justify-between items-center gap-4'>
         <Input
           type="text"
           className="border-2 border-dashed border-gray-400 rounded-full max-w-xs"
