@@ -1,6 +1,43 @@
 import React from 'react'
 
+import { columns } from "./table-columns"
+import type { BillingSubmission } from '@/types/billing';
+import type { Filter } from '@/components/TableFilters';
+import { DataTable } from '@/components/ui/data-table';
 const AdminBillingSubmissionsPage = () => {
+  const billingSubmissions: Partial<BillingSubmission>[] = [
+    {
+      id: "B123",
+      claims: 10,
+      lines: 20,
+      totalBilled: 5000,
+      subDate: "2023-10-01",
+      payer: "Insurance A",
+      site: "Site 1",
+      status: "Submitted",
+      res: "Pending",
+    },
+    {
+      id: "B124",
+      claims: 5,
+      lines: 10,
+      totalBilled: 2500,
+      subDate: "2023-10-02",
+      payer: "Insurance B",
+      site: "Site 2",
+      status: "Accepted",
+      res: "Approved",
+    }
+  ]
+  const filters: Filter[] = [
+    { label: 'Date (DOS)', value: 'dos' },
+    { label: 'Clients', value: 'client.name' },
+    { label: 'Batch ID', value: 'batchId' },
+    { label: 'Claims', value: 'claims' },
+    { label: 'Site', value: 'site' },
+    { label: 'Payer', value: 'payer' },
+    { label: 'Status', value: 'status' },
+  ]
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4">
@@ -41,7 +78,7 @@ const AdminBillingSubmissionsPage = () => {
         </div>
       </div>
       <div className='flex flex-col gap-4'>
-        {/* <DataTable columns={columns} data={billings} filters={filters} /> */}
+        <DataTable columns={columns} data={billingSubmissions} filters={filters} />
       </div>
     </div>
   )

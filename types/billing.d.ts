@@ -17,3 +17,15 @@ export type NewBilling = {
   toBill: boolean;
   status: string;
 }
+
+export type BillingSubmission = {
+  id: string;
+  claims: number;
+  lines: number;
+  totalBilled: number;
+  subDate: string;
+  payer: string;
+  site: string;
+  status: string;
+  res: string;
+}
