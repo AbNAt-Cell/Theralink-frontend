@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { BillingSubmission } from "@/types/billing"
-import Link from "next/link"
 
 export const columns: ColumnDef<Partial<BillingSubmission>>[] = [
   {
