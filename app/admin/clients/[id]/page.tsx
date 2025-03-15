@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
-async function AdminClientProfilePage({ params, }: { params: Promise<{ id: string }> }) {
+async function AdminClientProfilePage() {
   return (
     <>
       <div className="grid md:grid-cols-[400px,1fr] gap-6">
