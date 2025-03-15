@@ -45,3 +45,21 @@ export type BillingRemittance = {
   numberOfCodes: number;
   numberOfServiceLines: number;
 }
+
+export type BillingClaim = {
+  claimControlNumber: string;
+  controlNumber: string;
+  memberName: string;
+  paymentDate: string;
+  serviceDate: string;
+  payerControlNumber: string;
+  payerName: string;
+  policyNumber: string;
+  amountBilled: number;
+  amountPaid: number;
+  patientResponsibility: number;
+  diff: number;
+  numberOfServiceLines: number;
+  status: string;
+  worked: boolean;
+}
