@@ -29,3 +29,19 @@ export type BillingSubmission = {
   status: string;
   res: string;
 }
+
+export type BillingRemittance = {
+  controlNumber: string;
+  batchId: string;
+  payerName: string;
+  processDate: string;
+  paymentDate: string;
+  amountBilled: number;
+  diff: number;
+  percentReceived: number;
+  paymentMethod: string;
+  adjAmount: number;
+  adjCode: string;
+  numberOfCodes: number;
+  numberOfServiceLines: number;
+}
