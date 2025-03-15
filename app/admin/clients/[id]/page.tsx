@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 async function AdminClientProfilePage({ params, }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-
   return (
     <>
       <div className="grid md:grid-cols-[400px,1fr] gap-6">
