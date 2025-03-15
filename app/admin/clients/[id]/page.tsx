@@ -1,7 +1,8 @@
 import React from 'react'
-import { Camera, Edit, Video, Printer } from "lucide-react"
+import { Camera, Edit, Video, Plus, Printer } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import AdminUserProfileNavigation from '@/components/AdminUserProfileNavigation'
 
 async function AdminClientProfilePage({ params, }: { params: Promise<{ id: string }> }) {
@@ -149,6 +150,164 @@ async function AdminClientProfilePage({ params, }: { params: Promise<{ id: strin
               </div>
             </div>
           </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
+          <Accordion type="single" collapsible className="w-full" defaultValue="insurance">
+            <AccordionItem value="insurance">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Current Insurance</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-gray-600">Insurance</span>
+                    <span>68059 - SUPERIOR HEALTHPLAN</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-gray-600">Policy #</span>
+                    <span>727333179</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-gray-600">Start Date</span>
+                    <span>6/1/2024</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-gray-600">End Date</span>
+                    <span>6/1/2024</span>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="portal">
+            <AccordionItem value="portal">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Client Portal Access</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outlineSecondary" className="flex gap-2">
+                    <Plus className="h-4 w-4" />
+                    Reset Login Credentials
+                  </Button>
+                  <Button variant="outlineSecondary" className="flex gap-2">
+                    <Plus className="h-4 w-4" />
+                    Manage Parental Access
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="vitals">
+            <AccordionItem value="vitals">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Vitals</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-2">
+                  <div>Date Record</div>
+                  <div>Blood Pressure #</div>
+                  <div>Temperature</div>
+                  <div>Height</div>
+                  <div>Heart Rate</div>
+                  <div>End Date</div>
+                  <div>Pulse Rate</div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="relationship">
+            <AccordionItem value="relationship">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Relationship</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <Button variant="outlineSecondary" size="sm" className="flex gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Relationship
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="emergency">
+            <AccordionItem value="emergency">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Emergency Contact</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <Button variant="outlineSecondary" size="sm" className="flex gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="referral">
+            <AccordionItem value="referral">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Referral Source</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Referral Source</span>
+                    <Button variant="outlineSecondary" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div>Referral Date</div>
+                  <div>Reason for Referral</div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="referring">
+            <AccordionItem value="referring">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Referring Provider</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Referring Provider</span>
+                    <Button variant="outlineSecondary" size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div>Referral Date</div>
+                  <div>Reason for Referring</div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="primary">
+            <AccordionItem value="primary">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Primary Care Physician</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Primary Physician</span>
+                    <Button variant="outlineSecondary" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div>Address</div>
+                  <div>Phone</div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="pediatrician">
+            <AccordionItem value="pediatrician">
+              <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Pediatrician</AccordionTrigger>
+              <AccordionContent className="p-4 border rounded-b-md border-t-0">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Pediatrician</span>
+                    <Button variant="outlineSecondary" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div>Address</div>
+                  <div>Phone</div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
 
