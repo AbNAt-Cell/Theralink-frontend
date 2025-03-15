@@ -26,6 +26,7 @@ const AdminStaffPage = () => {
       phone: '123-456-7890',
       lastLogin: '2024-11-05',
       numberOfCases: 5,
+      lastDocument: 'document.pdf',
       credentials: 'QMHP-CS'
 
     },
@@ -40,6 +41,7 @@ const AdminStaffPage = () => {
       phone: '123-456-7890',
       lastLogin: '2024-11-05',
       numberOfCases: 15,
+      lastDocument: 'document.pdf',
       credentials: 'QMHP-CS'
 
     },
@@ -54,6 +56,7 @@ const AdminStaffPage = () => {
       phone: '123-456-7890',
       lastLogin: '2024-11-05',
       numberOfCases: 1,
+      lastDocument: 'document.pdf',
       credentials: 'QMHP-CS'
     }
   ]

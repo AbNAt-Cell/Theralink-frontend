@@ -40,7 +40,6 @@ const AdminHeader = () => {
 
   const isActivePath = (path: string) => {
     const currentPath = pathname?.split('/')[2];
-    console.log('pathL :', pathname)
     return currentPath === path ? 'bg-primary text-white' : '';
   }
 
