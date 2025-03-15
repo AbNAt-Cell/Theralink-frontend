@@ -3,7 +3,6 @@ import { Camera, Edit, Video, Plus, Printer } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import AdminUserProfileNavigation from '@/components/AdminUserProfileNavigation'
 
 async function AdminClientProfilePage({ params, }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -72,7 +71,7 @@ async function AdminClientProfilePage({ params, }: { params: Promise<{ id: strin
             </div>
           </div>
 
-          <div className="border rounded-lg p-6">
+          <div className="border rounded-lg p-6 bg-white">
             <div className="grid md:grid-cols-3 gap-6">
               {/* Row 1 */}
               <div>

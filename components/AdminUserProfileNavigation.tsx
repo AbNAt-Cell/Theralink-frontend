@@ -42,9 +42,9 @@ const AdminUserProfileNavigation = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className='border-2 rounded-lg p-4'>
-      <p className='font-bold text-lg'>Client</p>
-      <ul className='flex flex-row md:flex-col flex-wrap gap-1 mt-4'>
+    <div className='border-2 rounded-lg p-4 bg-white'>
+      <p className='font-bold text-lg border-b pb-3'>Client</p>
+      <ul className='flex flex-row md:flex-col flex-wrap gap-1 mt-2'>
         {links.map((link, index) => (
           <Link key={index} href={`/admin/clients/${id}${link.value}`}>
             <li className={`p-2 cursor-pointer rounded-md hover:bg-gray-200 ${isActiveFullPath(link.value)}`}>
