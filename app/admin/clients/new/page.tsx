@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 
 const newClientFormSchema = z.object({
-
+  prefix: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(1, "Last name is required"),
@@ -46,20 +46,10 @@ const newClientFormSchema = z.object({
   race: z.string().optional(),
   clientStartDate: z.string().min(1, "Client start date is required"),
   address: z.object({
-    line1: z.string().min(1, "Address line 1 is required"),
-    line2: z.string().optional(),
+    street: z.string().min(1, "Street is required"),
     city: z.string().min(1, "City is required"),
     state: z.string().min(2, "State is required"),
     zip: z.string().min(5, "ZIP code is required"),
-    mobile: z.string().optional(),
-    work: z.string().optional(),
-    physicalAddress: z.object({
-      line1: z.string().optional(),
-      line2: z.string().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      zip: z.string().optional()
-    }),
   }),
   comments: z.string().optional(),
   insurance: z.object({
@@ -80,6 +70,7 @@ const NewClientPage = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      prefix: "",
       firstName: "",
       middleName: "",
       lastName: "",
@@ -93,20 +84,10 @@ const NewClientPage = () => {
       email: "",
       phone: "",
       address: {
-        line1: "",
-        line2: "",
+        street: "",
         city: "",
         state: "",
         zip: "",
-        mobile: "",
-        work: "",
-        physicalAddress: {
-          line1: "",
-          line2: "",
-          city: "",
-          state: "",
-          zip: ""
-        },
       },
       comments: "",
       insurance: {
@@ -147,6 +128,19 @@ const NewClientPage = () => {
             <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
               <h2 className="text-xl font-semibold mb-4">Demographics</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="prefix"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-gray-800 font-semibold'>Prefix</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter Prefix" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -330,25 +324,12 @@ const NewClientPage = () => {
               <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
-                  name="address.line1"
+                  name="address.street"
                   render={({ field }) => (
                     <FormItem className="col-span-1">
-                      <FormLabel className='text-gray-800 font-semibold'>Address Line 1*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Street*</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter address line 1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address.line2"
-                  render={({ field }) => (
-                    <FormItem className="col-span-1">
-                      <FormLabel className='text-gray-800 font-semibold'>Address Line 2</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter address line 2" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -393,37 +374,11 @@ const NewClientPage = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="address.mobile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Mobile Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter mobile number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address.work"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Work Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter work number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
             </div>
 
             {/* Physical Address Section */}
-            <div className="col-span-3 bg-gray-50 p-4 rounded-lg">
+            {/* <div className="col-span-3 bg-gray-50 p-4 rounded-lg">
               <h2 className="text-xl font-semibold mb-4">Physical Address</h2>
               <div className="grid grid-cols-3 gap-4">
                 <FormField
@@ -492,7 +447,7 @@ const NewClientPage = () => {
                   )}
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Insurance Section */}
             <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
