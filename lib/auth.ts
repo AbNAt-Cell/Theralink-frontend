@@ -80,9 +80,3 @@ export const sendResetPassword = async (data: { password: string, token: string 
   });
   return response.data;
 };
-
-
-// export const createClient = async (data: any): Promise<{ message: string }> => {
-//   const response = await axiosInstance.post('/api/patients', data);
-//   return response.data;
-// };

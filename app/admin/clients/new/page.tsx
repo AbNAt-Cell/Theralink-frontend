@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Eraser, X } from 'lucide-react';
+import { ArrowRight, Eraser, Loader, X } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast"
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from 'next/link';
-// import { createClient } from '@/lib/auth';
+import { createClient } from '@/api/client';
 import {
   Select,
   SelectContent,
@@ -27,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cleanData } from '@/lib/utils';
 
 const newClientFormSchema = z.object({
   prefix: z.string().optional(),
@@ -35,7 +37,7 @@ const newClientFormSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   suffix: z.string().optional(),
   nickName: z.string().optional(),
-  gender: z.string().min(1, "Gender is required"),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   ssn: z.string()
     .min(9, "SSN must be 9 digits")
@@ -43,17 +45,17 @@ const newClientFormSchema = z.object({
     .optional(),
   email: z.string().email("Invalid email address").optional(),
   phone: z.string().optional(),
-  race: z.string().optional(),
-  clientStartDate: z.string().min(1, "Client start date is required"),
+  race: z.enum(["AFRICAN", "WHITE", "ASIAN", "HISPANIC", "OTHER"]).optional(),
+  startDate: z.string().min(1, "Client start date is required"),
   address: z.object({
     street: z.string().min(1, "Street is required"),
     city: z.string().min(1, "City is required"),
     state: z.string().min(2, "State is required"),
-    zip: z.string().min(5, "ZIP code is required"),
+    zipCode: z.string().min(5, "ZIP code is required"),
   }),
   comments: z.string().optional(),
   insurance: z.object({
-    type: z.string().min(1, "Insurance type is required"),
+    insuranceType: z.string().min(1, "Insurance type is required"),
     policyNumber: z.string().min(1, "Policy number is required"),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().optional()
@@ -65,7 +67,10 @@ const formSchema = newClientFormSchema;
 type FormValues = z.infer<typeof formSchema>;
 
 const NewClientPage = () => {
+  const [loading, setloading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast()
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -76,22 +81,22 @@ const NewClientPage = () => {
       lastName: "",
       suffix: "",
       nickName: "",
-      gender: "",
+      gender: undefined,
       dateOfBirth: "",
       ssn: "",
-      race: "",
-      clientStartDate: "",
+      race: undefined,
+      startDate: "",
       email: "",
       phone: "",
       address: {
         street: "",
         city: "",
         state: "",
-        zip: "",
+        zipCode: "",
       },
       comments: "",
       insurance: {
-        type: "",
+        insuranceType: "",
         policyNumber: "",
         startDate: "",
         endDate: ""
@@ -100,9 +105,26 @@ const NewClientPage = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log(data);
-    // Handle form submission
-    // await createClient(data);
+    setloading(true);
+    try {
+      let cleanedData = cleanData(data);
+      let response = await createClient(cleanedData);
+      toast({
+        title: "Success",
+        description: response.message,
+      })
+      router.push(`/admin/clients/${response.patient.id}`)
+    } catch (error: any) {
+      console.log('Error: ', error);
+      toast({
+        variant: "destructive",
+        title: "Error:",
+        description: error.response?.data?.error || 'Failed to create Client. Please try again.',
+      })
+    } finally {
+      setloading(false);
+    }
+
   };
 
   return (
@@ -248,6 +270,7 @@ const NewClientPage = () => {
                         <SelectContent>
                           <SelectItem value="MALE">Male</SelectItem>
                           <SelectItem value="FEMALE">Female</SelectItem>
+                          <SelectItem value="OTHER">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -296,6 +319,8 @@ const NewClientPage = () => {
                           <SelectItem value="AFRICAN">African</SelectItem>
                           <SelectItem value="WHITE">White</SelectItem>
                           <SelectItem value="ASIAN">Asian</SelectItem>
+                          <SelectItem value="HISPANIC">Hispanic</SelectItem>
+                          <SelectItem value="OTHER">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -304,7 +329,7 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="clientStartDate"
+                  name="startDate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>Client Start Date*</FormLabel>
@@ -363,7 +388,7 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="address.zip"
+                  name="address.zipCode"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>ZIP Code*</FormLabel>
@@ -455,7 +480,7 @@ const NewClientPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="insurance.type"
+                  name="insurance.insuranceType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>Insurance Type*</FormLabel>
@@ -525,9 +550,13 @@ const NewClientPage = () => {
               />
             </div>
             <div className="flex gap-5 col-span-3 bg-gray-50 p-4 rounded-lg">
-              <Button type="submit" className="col-span-1">
-                Create Client
-                <ArrowRight />
+              <Button disabled={loading} type="submit" className="col-span-1">
+                {loading ?
+                  <>Creating Client <Loader className='animate-spin' /> </>
+                  :
+                  <>Create Client <ArrowRight /></>
+                }
+
               </Button>
               <Link href="/admin/clients" className="col-span-1">
                 <Button variant="outlineDanger">
