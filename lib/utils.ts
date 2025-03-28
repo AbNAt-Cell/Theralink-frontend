@@ -10,6 +10,8 @@ export function cn(...inputs: ClassValue[]) {
  * @param value - The value to check for emptiness
  * @returns Boolean indicating if the value is empty
  */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isEmpty(value: any): boolean {
   return (
     value === null ||
@@ -52,6 +54,7 @@ export function cleanData<T>(data: T): T {
 
       // Only add non-empty values to the cleaned object
       if (!isEmpty(cleanedValue)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (cleaned as any)[key] = cleanedValue;
       }
     });

@@ -107,13 +107,15 @@ const NewClientPage = () => {
   const onSubmit = async (data: FormValues) => {
     setloading(true);
     try {
-      let cleanedData = cleanData(data);
-      let response = await createClient(cleanedData);
+      const cleanedData = cleanData(data);
+      const response = await createClient(cleanedData);
       toast({
         title: "Success",
         description: response.message,
       })
       router.push(`/admin/clients/${response.patient.id}`)
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log('Error: ', error);
       toast({
