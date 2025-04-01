@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'nextjs-toploader/app';
 import { Building2, ChevronRight, Users2, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 export default function ActionCards() {
   const router = useRouter();
