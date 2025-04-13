@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useSocket } from '@/lib/socket';
 import { useRouter } from 'nextjs-toploader/app';
-import { isAuthenticated, isAdmin } from '@/lib/auth';
 import AdminHeader from '@/components/AdminHeader';
+import { isAuthenticated, isAdmin, getStoredUser } from '@/lib/auth';
 
 export default function AdminLayout({
   children,
@@ -11,7 +12,6 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-
   useEffect(() => {
     if (!isAuthenticated()) {
       router.push('/admin/login');
@@ -19,6 +19,10 @@ export default function AdminLayout({
       router.push('/client/dashboard');
     }
   }, [router]);
+
+  const user = getStoredUser();
+  useSocket(user ? { userId: user.id } : { userId: null });
+
 
   return (
     <div className="min-h-screen bg-gray-50">
