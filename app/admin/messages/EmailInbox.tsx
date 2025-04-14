@@ -1,13 +1,13 @@
 'use client';
-
+import moment from 'moment'
 import Link from 'next/link';
 import { Search, Trash2 } from 'lucide-react';
 
 interface Email {
   id: number;
-  useId: string;
+  id: string;
   sender: string;
-  subject: string;
+  lastMessage: string;
   category?: string;
   time: string;
   isChecked: boolean;
@@ -97,7 +97,7 @@ export default function EmailInbox({
           <div className='divide-y'>
             {emails.map((email) => (
               <Link
-                href={`/admin/messages/${email.useId}`}
+                href={`/admin/messages/${email.id}`}
                 key={email.id}
                 className={`flex items-center px-4 py-3 hover:bg-gray-50 ${
                   email.isChecked ? 'bg-blue-50' : ''
@@ -143,10 +143,10 @@ export default function EmailInbox({
                       </span>
                     )}
                     <p className='ml-4 text-sm text-gray-700 truncate flex-1'>
-                      {email.subject}
+                      {email.lastMessage}
                     </p>
                     <p className='text-sm text-gray-500 whitespace-nowrap ml-4'>
-                      {email.time}
+                      {moment(email.time)?.format('MM DDD YYYY')}
                     </p>
                   </div>
                 </div>

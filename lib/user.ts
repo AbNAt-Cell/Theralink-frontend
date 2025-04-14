@@ -1,15 +1,17 @@
 import axioxInstance from './axios';
 import Cookies from 'js-cookie';
 
+  // adjusted the response outcome type
+
 interface Res {
   success: boolean;
   message: string;
   data: {
-    user: User[];
+    users: User[];
   };
 }
 
-interface User {
+export interface User {
   id: string;
   email: string;
   username: string;
@@ -23,5 +25,6 @@ export const userSearch = async ({ email }: { email: string }) => {
     },
   });
 
-  return response.data.user;
+  // adjusted the result outcome
+  return response.data.users;
 };

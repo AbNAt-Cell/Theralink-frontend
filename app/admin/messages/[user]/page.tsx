@@ -5,6 +5,7 @@ import { message } from "@/lib/messages";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Socket, io } from "socket.io-client";
 import { getStoredUser } from "@/lib/auth";
+import { useSocketContext } from "@/context/SocketContextProvider";
 
 interface Email {
   id: number;
@@ -19,7 +20,7 @@ interface Email {
 }
 
 export default function Page() {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socket = useSocketContext()
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,22 +30,23 @@ export default function Page() {
   let conversationId: string | null = null;
   conversationId = pathname.substring(pathname.lastIndexOf("/") + 1) || null;
 
-  useEffect(() => {
-    const socketInstance = io(
-      process.env.NEXT_PUBLIC_API_URL ||
-        "https://theralink-backend.onrender.com"
-    );
-    setSocket(socketInstance);
-    return () => {
-      socketInstance.disconnect();
-    };
-  }, []);
+  // No need for this since it has already been wrapped with the context provider
+  // useEffect(() => {
+  //   const socketInstance = io(
+  //     process.env.NEXT_PUBLIC_API_URL ||
+  //       "https://theralink-backend.onrender.com"
+  //   );
+  //   setSocket(socketInstance);
+  //   return () => {
+  //     socketInstance.disconnect();
+  //   };
+  // }, []);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await message(conversationId);
-        setEmails(response.conversations);
+        setEmails(response.Messages);
         console.log("Fetched messages:", response);
       } catch (error) {
         setError("Failed to fetch messages");
@@ -90,7 +92,7 @@ export default function Page() {
             <p>{error}</p>
           ) : (
             <div>
-              {emails.map((email) => (
+              {emails?.map((email) => (
                 <div
                   key={email.id}
                   className={`text-white border-b py-2 ${
@@ -99,7 +101,7 @@ export default function Page() {
                       : "bg-blue-500 flex justify-end"
                   }`}
                 >
-                  <p>{email.body}</p>
+                  <p>{email?.body}</p>
                 </div>
               ))}
             </div>

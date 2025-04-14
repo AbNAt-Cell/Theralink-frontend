@@ -1,29 +1,28 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react'
-import { useSocket } from '@/lib/socket'
-import { useRouter } from 'nextjs-toploader/app'
-import ClientHeader from '@/components/ClientHeader'
-import { isAuthenticated, getStoredUser } from '@/lib/auth'
+import React, { useEffect } from "react";
+import { useRouter } from "nextjs-toploader/app";
+import ClientHeader from "@/components/ClientHeader";
+import { isAuthenticated } from "@/lib/auth";
+import SocketContextProvider from "@/context/SocketContextProvider";
 
-const ClientLayout = ({children}: {children: React.ReactNode}) => {
+const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      router.push('/auth/client/login');
+      router.push("/auth/client/login");
     }
   }, [router]);
 
-  const user = getStoredUser();
-  useSocket(user ? { userId: user.id } : { userId: null });
-
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <ClientHeader />
-      {children}
-    </div>
-  )
-}
+    <SocketContextProvider>
+      <div className="min-h-screen bg-gray-50">
+        <ClientHeader />
+        {children}
+      </div>
+    </SocketContextProvider>
+  );
+};
 
-export default ClientLayout
+export default ClientLayout;
