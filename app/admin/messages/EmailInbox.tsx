@@ -1,11 +1,11 @@
 'use client';
-import moment from 'moment'
+import moment from 'moment';
 import Link from 'next/link';
 import { Search, Trash2 } from 'lucide-react';
 
 interface Email {
-  id: number;
   id: string;
+  useId: string;
   sender: string;
   lastMessage: string;
   category?: string;
@@ -23,7 +23,7 @@ export default function EmailInbox({
   loading: boolean;
   error: string | null;
 }) {
-  const toggleCheck = (id: number) => {
+  const toggleCheck = (id: string) => {
     // setEmails(
     //   emails.map((email) =>
     //     email.id === id ? { ...email, isChecked: !email.isChecked } : email
@@ -31,7 +31,7 @@ export default function EmailInbox({
     // );
   };
 
-  const toggleStar = (id: number) => {
+  const toggleStar = (id: string) => {
     // setEmails(
     //   emails.map((email) =>
     //     email.id === id ? { ...email, isStarred: !email.isStarred } : email

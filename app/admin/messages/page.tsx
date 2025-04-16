@@ -44,10 +44,10 @@ interface Conversation {
   participants: { userId: string }[];
 }
 interface Email {
-  id: number;
+  id: string;
   useId: string;
   sender: string;
-  subject: string;
+  lastMessage: string;
   category?: string;
   time: string;
   isChecked: boolean;
