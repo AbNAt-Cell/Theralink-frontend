@@ -24,19 +24,11 @@ export default function EmailInbox({
   error: string | null;
 }) {
   const toggleCheck = (id: string) => {
-    // setEmails(
-    //   emails.map((email) =>
-    //     email.id === id ? { ...email, isChecked: !email.isChecked } : email
-    //   )
-    // );
+    console.log('toggleCheck', id);
   };
 
   const toggleStar = (id: string) => {
-    // setEmails(
-    //   emails.map((email) =>
-    //     email.id === id ? { ...email, isStarred: !email.isStarred } : email
-    //   )
-    // );
+    console.log('toggleStar', id);
   };
 
   const getCategoryColor = (category: string) => {

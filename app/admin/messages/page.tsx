@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
-  SelectGroup,
+  // SelectGroup,
   SelectItem,
-  SelectLabel,
+  // SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -154,6 +154,7 @@ const AdminMessagingPage = () => {
     try {
       await createConversation(user.id);
     } catch (error) {
+      console.error("Error starting conversation:", error);
       setError("Failed to start conversation");
     }
   };
