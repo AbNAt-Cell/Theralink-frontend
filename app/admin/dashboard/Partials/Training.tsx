@@ -13,7 +13,7 @@ import {
 export default function Training() {
   return (
     <Card className='col-span-2'>
-      <CardHeader>
+      <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
         <CardTitle>Trainings (in next 90 days)</CardTitle>
       </CardHeader>
       <CardContent>
