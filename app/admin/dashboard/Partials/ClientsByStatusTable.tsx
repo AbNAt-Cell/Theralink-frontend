@@ -13,7 +13,7 @@ import {
 export default function ClientsByStatusTable() {
   return (
     <Card className='col-span-2'>
-      <CardHeader>
+      <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
         <CardTitle>Clients by Status</CardTitle>
       </CardHeader>
       <CardContent>

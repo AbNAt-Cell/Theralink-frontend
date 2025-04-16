@@ -12,8 +12,8 @@ import {
 
 export default function TodaysAppointments() {
   return (
-    <Card>
-      <CardHeader>
+    <Card className='col-span-2'>
+      <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
         <CardTitle>Today&apos;s Appointments</CardTitle>
       </CardHeader>
       <CardContent>

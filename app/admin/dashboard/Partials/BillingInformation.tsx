@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function BillingInformation() {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
         <CardTitle>Billing Information</CardTitle>
       </CardHeader>
       <CardContent>
