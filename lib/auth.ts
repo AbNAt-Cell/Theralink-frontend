@@ -1,10 +1,10 @@
-import axiosInstance from './axios';
 import { z } from 'zod';
 import Cookies from 'js-cookie';
+import axiosInstance from './axios';
 
 export const loginFormSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
@@ -35,13 +35,13 @@ export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
   Cookies.set('token', token, {
     secure: true,
     sameSite: 'strict',
-    expires: 7 // 7 days
+    expires: 7, // 7 days
   });
 
   Cookies.set('user', JSON.stringify(user), {
     secure: true,
     sameSite: 'strict',
-    expires: 7
+    expires: 7,
   });
 
   return response.data;
@@ -66,14 +66,19 @@ export const isAdmin = (): boolean => {
   return user?.role === 'ADMIN';
 };
 
-export const sendForgotPassword = async (data: { email: string }): Promise<{ message: string }> => {
+export const sendForgotPassword = async (data: {
+  email: string;
+}): Promise<{ message: string }> => {
   const response = await axiosInstance.post('/api/auth/forgot-password', {
     email: data.email,
   });
   return response.data;
 };
 
-export const sendResetPassword = async (data: { password: string, token: string }): Promise<{ message: string }> => {
+export const sendResetPassword = async (data: {
+  password: string;
+  token: string;
+}): Promise<{ message: string }> => {
   const response = await axiosInstance.post('/api/auth/reset-password', {
     password: data.password,
     token: data.token,

@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { message } from "@/lib/messages";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Socket, io } from "socket.io-client";
 import { getStoredUser } from "@/lib/auth";
 import { useSocketContext } from "@/context/SocketContextProvider";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface Email {
   id: number;

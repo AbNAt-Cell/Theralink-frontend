@@ -1,10 +1,14 @@
-import axiosInstance from "./axios";
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
+import axiosInstance from './axios';
 
 export const messages = async () => {
-  const response = await axiosInstance.get("/api/conversations", {
+  const token = Cookies.get('token');
+  if (!token) {
+    throw new Error('Token is required');
+  }
+  const response = await axiosInstance.get('/api/conversations', {
     headers: {
-      Authorization: `Bearer ${Cookies.get("token")}`,
+      Authorization: `Bearer ${token}`,
     },
   });
   return response.data;
@@ -12,11 +16,15 @@ export const messages = async () => {
 
 export const message = async (conversationId: string | null) => {
   if (!conversationId) {
-    throw new Error("Conversation ID is required");
+    throw new Error('Conversation ID is required');
+  }
+  const token = Cookies.get('token');
+  if (!token) {
+    throw new Error('Token is required');
   }
   const response = await axiosInstance.get(`/api/message/${conversationId}`, {
     headers: {
-      Authorization: `Bearer ${Cookies.get("token")}`,
+      Authorization: `Bearer ${token}`,
     },
   });
   return response.data;
