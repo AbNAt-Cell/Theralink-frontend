@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Eraser, Loader, X } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/Partials/use-toast"
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { login, loginFormSchema, } from '@/lib/auth';
+import { login, loginFormSchema, } from '@/hooks/auth';
 
 import { Button } from "@/components/ui/button";
 

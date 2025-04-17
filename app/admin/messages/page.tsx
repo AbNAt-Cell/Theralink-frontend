@@ -32,11 +32,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import EmailInbox from "./EmailInbox";
-import { User, userSearch } from "@/lib/user";
-import { messages } from "@/lib/messages";
+import { User, userSearch } from "@/hooks/user";
+import { messages } from "@/hooks/messages";
 import axiosInstance from "@/lib/axios";
 import { useSocketContext } from "@/context/SocketContextProvider";
-import { getStoredUser } from "@/lib/auth";
+import { getStoredUser } from "@/hooks/auth";
 // import { useSocketSendDm } from '@/lib/socket';
 interface Conversation {
   id: string;
@@ -187,13 +187,6 @@ const AdminMessagingPage = () => {
     };
   }, [socket]);
 
-  // console.log("conversationId:", conversationId)
-  // console.log("socket:", socket)
-  // console.log("selectedUser:", selectedUser)
-  // console.log("user:", user)
-  console.log("emails:", emails)
-  // emails
-  // user
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
       <Card className="border-0 shadow-none bg-transparent">

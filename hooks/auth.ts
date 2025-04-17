@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import Cookies from 'js-cookie';
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, 'Username is required'),
