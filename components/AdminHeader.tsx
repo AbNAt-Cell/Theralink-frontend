@@ -14,7 +14,7 @@ import {
 import { useRouter } from 'nextjs-toploader/app'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { getStoredUser, logout } from '@/lib/auth'
+import { getStoredUser, logout } from '@/hooks/auth'
 
 const LogoutMenuItem = () => {
   const router = useRouter();

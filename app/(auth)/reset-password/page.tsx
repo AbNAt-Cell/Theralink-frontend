@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
-import { sendResetPassword } from '@/lib/auth'
+import { sendResetPassword } from '@/hooks/auth'
 import { useRouter } from 'nextjs-toploader/app'
 
 

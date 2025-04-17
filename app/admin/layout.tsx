@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import AdminHeader from "@/components/AdminHeader";
-import { isAuthenticated, isAdmin } from "@/lib/auth";
+import { isAuthenticated, isAdmin } from "@/hooks/auth";
 import SocketContextProvider from "@/context/SocketContextProvider";
 
 export default function AdminLayout({

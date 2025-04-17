@@ -1,4 +1,4 @@
-import axioxInstance from './axios';
+import axioxInstance from '../lib/axios';
 import Cookies from 'js-cookie';
 
   // adjusted the response outcome type

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import ClientHeader from "@/components/ClientHeader";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/hooks/auth";
 import SocketContextProvider from "@/context/SocketContextProvider";
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {

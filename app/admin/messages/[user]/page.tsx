@@ -1,8 +1,8 @@
 "use client";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { message } from "@/lib/messages";
-import { getStoredUser } from "@/lib/auth";
+import { message } from "@/hooks/messages";
+import { getStoredUser } from "@/hooks/auth";
 import { useSocketContext } from "@/context/SocketContextProvider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 

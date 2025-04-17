@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import axiosInstance from './axios';
+import axiosInstance from '../lib/axios';
 
 export const messages = async () => {
   const token = Cookies.get('token');

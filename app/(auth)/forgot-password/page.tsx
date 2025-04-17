@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { sendForgotPassword } from '@/lib/auth';
+import { sendForgotPassword } from '@/hooks/auth';
 
 const forgotPassFormSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
