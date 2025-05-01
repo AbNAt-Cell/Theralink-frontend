@@ -6,10 +6,10 @@ import { Search, Trash2 } from 'lucide-react';
 interface Email {
   id: string;
   useId: string;
-  sender: string;
+  participants: any;
   lastMessage: string;
   category?: string;
-  time: string;
+  updatedAt: string;
   isChecked: boolean;
   isStarred: boolean;
 }
@@ -65,8 +65,16 @@ export default function EmailInbox({
       </div>
       {loading ? (
         <div className='flex items-center justify-center h-64'>
+          <span className='h-8 w-8 animate-spin border-x-2 rounded-full' />
+        </div>
+      ) : error ? (
+        <div className='flex items-center justify-center h-64 text-red-500'>
+          {error}
+        </div>
+      ) : emails.length === 0 ? (
+        <div className='flex items-center justify-center gap-2 h-64 text-gray-500'>
           <svg
-            className='animate-spin h-8 w-8 text-gray-400'
+            className='h-8 w-8 text-gray-400'
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 24 24'
           >
@@ -75,13 +83,6 @@ export default function EmailInbox({
               d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1.5 15h-3v-3h3v3zm0-4.5h-3V7h3v5.5z'
             />
           </svg>
-        </div>
-      ) : error ? (
-        <div className='flex items-center justify-center h-64 text-red-500'>
-          {error}
-        </div>
-      ) : emails.length === 0 ? (
-        <div className='flex items-center justify-center h-64 text-gray-500'>
           <p>No emails found</p>
         </div>
       ) : (
@@ -123,7 +124,8 @@ export default function EmailInbox({
                 <div className='flex-1 min-w-0'>
                   <div className='flex items-center'>
                     <p className='text-sm font-medium text-gray-900 truncate w-40'>
-                      {email.sender}
+                      {email.participants[0].user.firstName}{' '}
+                      {email.participants[0].user.firstName}
                     </p>
                     {email.category && (
                       <span
@@ -138,7 +140,7 @@ export default function EmailInbox({
                       {email.lastMessage}
                     </p>
                     <p className='text-sm text-gray-500 whitespace-nowrap ml-4'>
-                      {moment(email.time)?.format('MM DDD YYYY')}
+                      {moment(email.updatedAt)?.format('HH:MM, DD-MM-YYYY')}
                     </p>
                   </div>
                 </div>
