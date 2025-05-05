@@ -3,10 +3,19 @@ import moment from 'moment';
 import Link from 'next/link';
 import { Search, Trash2 } from 'lucide-react';
 
+interface Participant {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  role: boolean;
+}
 interface Email {
   id: string;
   useId: string;
-  participants: any;
+  participants: { user: Participant }[];
   lastMessage: string;
   category?: string;
   updatedAt: string;
