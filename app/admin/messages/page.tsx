@@ -43,10 +43,19 @@ interface Conversation {
   lastMessage: string;
   participants: { userId: string }[];
 }
+interface Participant {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  role: boolean;
+}
 interface Email {
   id: string;
   useId: string;
-  participants: any;
+  participants: { user: Participant }[];
   lastMessage: string;
   category?: string;
   updatedAt: string;
