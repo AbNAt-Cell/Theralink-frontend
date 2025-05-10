@@ -5,12 +5,12 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import StaffHeader from '@/components/StaffHeader';
+import AdminStaffProfile from '@/components/AdminStaffProfile';
 
 export default function SitesPage() {
   return (
     <div className='space-y-6'>
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className='space-y-4'>
         <h2 className='text-xl font-semibold'>Sites</h2>

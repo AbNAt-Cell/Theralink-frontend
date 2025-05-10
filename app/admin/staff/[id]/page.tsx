@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import StaffHeader from '@/components/StaffHeader';
+import AdminStaffProfile from '@/components/AdminStaffProfile';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import {
   Collapsible,
@@ -15,7 +15,7 @@ export default function StaffDashboard() {
   const [isBillingOpen, setIsBillingOpen] = useState(true);
   return (
     <div className='space-y-6'>
-      <StaffHeader />
+      <AdminStaffProfile />
 
       {/* Personal Information */}
       <div className='border rounded-md p-6 bg-white'>

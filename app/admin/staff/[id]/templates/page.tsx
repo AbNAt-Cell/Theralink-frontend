@@ -6,14 +6,14 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import StaffHeader from '@/components/StaffHeader';
+import AdminStaffProfile from '@/components/AdminStaffProfile';
 
 export default function TemplatesPage() {
   const templates = ['(TXGeneral) ANSA', '(TXGeneral) CANS Child 3-5'];
 
   return (
     <div className='space-y-6'>
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className='space-y-4'>
         <h2 className='text-xl font-semibold'>Templates</h2>

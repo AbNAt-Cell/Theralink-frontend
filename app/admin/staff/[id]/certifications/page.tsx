@@ -1,10 +1,10 @@
-import StaffHeader from "@/components/StaffHeader"
+import AdminStaffProfile from "@/components/AdminStaffProfile"
 import { Button } from "@/components/ui/button"
 
 export default function CertificationsPage() {
   return (
     <div className="space-y-6">
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
