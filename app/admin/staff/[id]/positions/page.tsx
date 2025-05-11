@@ -1,5 +1,5 @@
 
-import StaffHeader from "@/components/StaffHeader"
+import AdminStaffProfile from "@/components/AdminStaffProfile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Calendar } from "lucide-react"
@@ -7,7 +7,7 @@ import { Calendar } from "lucide-react"
 export default function PositionsPage() {
   return (
     <div className="space-y-6">
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Add New Position</h2>

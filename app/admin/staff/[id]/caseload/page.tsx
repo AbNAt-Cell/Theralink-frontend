@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import StaffHeader from '@/components/StaffHeader';
+import AdminStaffProfile from '@/components/AdminStaffProfile';
 
 export default function CaseloadPage() {
   const clients = Array(8).fill(
@@ -8,7 +8,7 @@ export default function CaseloadPage() {
 
   return (
     <div className='space-y-6'>
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className='space-y-4'>
         <h2 className='text-xl font-semibold'>Caseload</h2>

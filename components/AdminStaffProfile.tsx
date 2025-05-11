@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { PenSquare } from "lucide-react"
 
-export default function StaffHeader() {
+export default function AdminStaffProfile() {
   return (
     <div className="border rounded-md p-4 bg-white flex flex-col md:flex-row gap-4 items-start md:items-center">
       <div className="flex-shrink-0">

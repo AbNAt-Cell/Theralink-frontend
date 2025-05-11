@@ -1,10 +1,10 @@
-import StaffHeader from '@/components/StaffHeader';
+import AdminStaffProfile from '@/components/AdminStaffProfile';
 import Image from 'next/image';
 
 export default function SignaturePage() {
   return (
     <div className='space-y-6'>
-      <StaffHeader />
+      <AdminStaffProfile />
 
       <div className='border rounded-md p-4 bg-white'>
         <h2 className='text-xl font-semibold mb-4'>Signature</h2>

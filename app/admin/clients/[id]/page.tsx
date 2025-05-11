@@ -1,309 +1,457 @@
-import React from 'react'
-import { Camera, Edit, Video, Plus, Printer } from "lucide-react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+'use client';
 
-async function AdminClientProfilePage() {
+import { useState } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import AdminClientProfile from '@/components/AdminClientProfile';
+
+export default function ClientDashboard() {
+  const [isCurrentInsuranceOpen, setIsCurrentInsuranceOpen] = useState(true);
+  const [isClientPortalOpen, setIsClientPortalOpen] = useState(true);
+  const [isVitalsOpen, setIsVitalsOpen] = useState(true);
+  const [isRelationshipOpen, setIsRelationshipOpen] = useState(true);
+  const [isEmergencyContactOpen, setIsEmergencyContactOpen] = useState(true);
+  const [isReferralSourceOpen, setIsReferralSourceOpen] = useState(true);
+  const [isReferringProviderOpen, setIsReferringProviderOpen] = useState(true);
+  const [isPrimaryCareOpen, setIsPrimaryCareOpen] = useState(true);
+  const [isPediatricianOpen, setIsPediatricianOpen] = useState(true);
+
+  const demographicsData = {
+    status: '',
+    username: 'jaleighbolton',
+    gender: 'Female',
+    dateOfBirth: '6/27/2018 (6 years, 4 months)',
+    startDate: '8/9/2024',
+    recordId: '',
+    race: 'Black or African American',
+    ethnicity: 'NH',
+    hairColor: 'Black',
+    eyeColor: 'Black',
+    commonRace: 'Black or African American',
+    site: 'Auspicious Community Services',
+    ssn: 'NI',
+    physicalAddress: '1211 S Main St Apt 122, Dickinson, TX 77539',
+  };
+
+  const insuranceData = {
+    name: '68519 - SUPERIOR HEALTHPLAN',
+    policyNumber: '727333176',
+    startDate: '8/1/2024',
+    endDate: '8/1/2024',
+  };
+
   return (
-    <>
-      <div className="grid md:grid-cols-[400px,1fr] gap-6">
-        {/* Left Column - Profile Card */}
-        <div className="bg-gray-100 rounded-lg p-6">
-          <div className="flex flex-col items-center text-center">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-red-600 relative overflow-hidden">
-                <Image
-                  src="/placeholder.svg?height=128&width=128"
-                  alt="Profile picture"
-                  width={128}
-                  height={128}
-                  className="object-cover"
-                />
-              </div>
-              <Button size="icon" variant="secondary" className="absolute bottom-0 right-0 rounded-full">
-                <Camera className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <h2 className="mt-4 text-xl font-semibold">Jaleigh B Bolton</h2>
-            <address className="mt-2 not-italic text-muted-foreground">
-              3413 E Main St Apt 417
-              <br />
-              Nacogdoches, TX 75961
-            </address>
-            <p className="mt-2">
-              <span className="text-muted-foreground">Balance:</span> $0.00
-            </p>
-            <p className="mt-1">(936) 201-2168</p>
-            <p className="text-sm text-muted-foreground">J.caraway290@gmail.com</p>
-
-            <div className="flex gap-2 mt-4">
-              <Button variant="outline" size="sm">
-                <span className="mr-1">+</span> Add Flags
-              </Button>
-              <Button variant="outline" size="sm">
-                <Edit className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+    <div className='space-y-6'>
+      <AdminClientProfile />
+      {/* Demographics */}
+      <div className='border rounded-md p-6 bg-white'>
+        <div className='flex justify-between items-center mb-4'>
+          <h2 className='text-lg font-semibold'>Demographics</h2>
+          <Button
+            variant='outline'
+            className='bg-green-600 text-white hover:bg-green-700'
+          >
+            Manage
+          </Button>
         </div>
 
-        {/* Right Column - Demographics */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-lg font-semibold">Demographics</h1>
-            <div className="flex gap-2">
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Video className="mr-2 h-4 w-4" />
-                Telehealth
-              </Button>
-              <Button variant="outlineSecondary">
-                <Printer className="mr-2 h-4 w-4" />
-                Print
-              </Button>
-              <Button variant="outlineSecondary">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-              </Button>
-            </div>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-y-6'>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Status</h3>
+            <p>{demographicsData.status || '—'}</p>
           </div>
-
-          <div className="border rounded-lg p-6 bg-white">
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Row 1 */}
-              <div>
-                <label className="text-sm text-muted-foreground">Status</label>
-                <p className="mt-1">Active</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Username</label>
-                <p className="mt-1">jaleighbolton</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Gender</label>
-                <p className="mt-1">Female</p>
-              </div>
-
-              {/* Row 2 */}
-              <div>
-                <label className="text-sm text-muted-foreground">Date of Birth</label>
-                <p className="mt-1">6/27/2018 (6 years, 4 months)</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Start Date</label>
-                <p className="mt-1">8/8/2024</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Record#</label>
-                <p className="mt-1">-</p>
-              </div>
-
-              {/* Row 3 */}
-              <div>
-                <label className="text-sm text-muted-foreground">Race</label>
-                <p className="mt-1">Black or African American</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Ethnicity</label>
-                <p className="mt-1">Nii</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Smoker</label>
-                <p className="mt-1">Nii</p>
-              </div>
-
-              {/* Row 4 */}
-              <div>
-                <label className="text-sm text-muted-foreground">Hair Color</label>
-                <p className="mt-1">Black</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Eye Color</label>
-                <p className="mt-1">Black</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">SSN</label>
-                <p className="mt-1">Nii</p>
-              </div>
-
-              {/* Row 5 */}
-              <div>
-                <label className="text-sm text-muted-foreground">Comm. Pref</label>
-                <p className="mt-1">Black or African American</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Sites</label>
-                <p className="mt-1">Auspicious Community Service</p>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground">Physical Address</label>
-                <p className="mt-1">Nii</p>
-              </div>
-            </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Username</h3>
+            <p>{demographicsData.username}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Gender</h3>
+            <p>{demographicsData.gender}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Date of Birth</h3>
+            <p>{demographicsData.dateOfBirth}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Start Date</h3>
+            <p>{demographicsData.startDate}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Record#</h3>
+            <p>{demographicsData.recordId || '—'}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Race</h3>
+            <p>{demographicsData.race}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Ethnicity</h3>
+            <p>{demographicsData.ethnicity}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Gender</h3>
+            <p>{demographicsData.gender}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Hair Color</h3>
+            <p>{demographicsData.hairColor}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Eye Color</h3>
+            <p>{demographicsData.eyeColor}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>SSN</h3>
+            <p>{demographicsData.ssn}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Comm. Race</h3>
+            <p>{demographicsData.commonRace}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>Site</h3>
+            <p>{demographicsData.site}</p>
+          </div>
+          <div>
+            <h3 className='text-sm font-medium text-gray-500'>
+              Physical Address
+            </h3>
+            <p>{demographicsData.physicalAddress}</p>
           </div>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
-        <Accordion type="single" collapsible className="w-full" defaultValue="insurance">
-          <AccordionItem value="insurance">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Current Insurance</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-gray-600">Insurance</span>
-                  <span>68059 - SUPERIOR HEALTHPLAN</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-gray-600">Policy #</span>
-                  <span>727333179</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-gray-600">Start Date</span>
-                  <span>6/1/2024</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-gray-600">End Date</span>
-                  <span>6/1/2024</span>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
 
-        <Accordion type="single" collapsible className="w-full" defaultValue="portal">
-          <AccordionItem value="portal">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Client Portal Access</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outlineSecondary" className="flex gap-2">
-                  <Plus className="h-4 w-4" />
-                  Reset Login Credentials
-                </Button>
-                <Button variant="outlineSecondary" className="flex gap-2">
-                  <Plus className="h-4 w-4" />
-                  Manage Parental Access
-                </Button>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      {/* Collapsible Sections - First Row */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {/* Current Insurance */}
+        <Collapsible
+          open={isCurrentInsuranceOpen}
+          onOpenChange={setIsCurrentInsuranceOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Current Insurance
+            {isCurrentInsuranceOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Insurance:</span>{' '}
+                {insuranceData.name}
+              </p>
+              <p>
+                <span className='font-medium'>Policy #:</span>{' '}
+                {insuranceData.policyNumber}
+              </p>
+              <p>
+                <span className='font-medium'>Start Date:</span>{' '}
+                {insuranceData.startDate}
+              </p>
+              <p>
+                <span className='font-medium'>End Date:</span>{' '}
+                {insuranceData.endDate}
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Accordion type="single" collapsible className="w-full" defaultValue="vitals">
-          <AccordionItem value="vitals">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Vitals</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-2">
-                <div>Date Record</div>
-                <div>Blood Pressure #</div>
-                <div>Temperature</div>
-                <div>Height</div>
-                <div>Heart Rate</div>
-                <div>End Date</div>
-                <div>Pulse Rate</div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {/* Client Portal Access */}
+        <Collapsible
+          open={isClientPortalOpen}
+          onOpenChange={setIsClientPortalOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Client Portal Access
+            {isClientPortalOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2 flex flex-col items-center'>
+              <Button
+                variant='outline'
+                className='w-full border-blue-500 text-blue-500'
+              >
+                Send Login Credentials
+              </Button>
+              <Button
+                variant='outline'
+                className='w-full border-blue-500 text-blue-500'
+              >
+                Manage Portal Access
+              </Button>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Accordion type="single" collapsible className="w-full" defaultValue="relationship">
-          <AccordionItem value="relationship">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Relationship</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <Button variant="outlineSecondary" size="sm" className="flex gap-2">
-                <Plus className="h-4 w-4" />
+        {/* Vitals */}
+        <Collapsible
+          open={isVitalsOpen}
+          onOpenChange={setIsVitalsOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Vitals
+            {isVitalsOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Date Added:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Blood Pressure #:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Temperature:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Height:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Pulse Rate:</span>
+              </p>
+              <p>
+                <span className='font-medium'>BMI:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Pulse Ox:</span>
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      {/* Collapsible Sections - Second Row */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {/* Relationship */}
+        <Collapsible
+          open={isRelationshipOpen}
+          onOpenChange={setIsRelationshipOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Relationship
+            {isRelationshipOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='flex justify-end'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='text-blue-500 border-blue-500'
+              >
                 Add Relationship
               </Button>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Accordion type="single" collapsible className="w-full" defaultValue="emergency">
-          <AccordionItem value="emergency">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Emergency Contact</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <Button variant="outlineSecondary" size="sm" className="flex gap-2">
-                <Plus className="h-4 w-4" />
+        {/* Emergency Contact */}
+        <Collapsible
+          open={isEmergencyContactOpen}
+          onOpenChange={setIsEmergencyContactOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Emergency Contact
+            {isEmergencyContactOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='flex justify-end'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='text-blue-500 border-blue-500'
+              >
                 Add
               </Button>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Accordion type="single" collapsible className="w-full" defaultValue="referral">
-          <AccordionItem value="referral">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Referral Source</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span>Referral Source</span>
-                  <Button variant="outlineSecondary" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div>Referral Date</div>
-                <div>Reason for Referral</div>
+        {/* Referral Source */}
+        <Collapsible
+          open={isReferralSourceOpen}
+          onOpenChange={setIsReferralSourceOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Referral Source
+            {isReferralSourceOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Referral Source:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Referral Date:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Reason for Referral:</span>
+              </p>
+              <div className='flex justify-end'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='text-blue-500 border-blue-500'
+                >
+                  Edit
+                </Button>
               </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        <Accordion type="single" collapsible className="w-full" defaultValue="referring">
-          <AccordionItem value="referring">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Referring Provider</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span>Referring Provider</span>
-                  <Button variant="outlineSecondary" size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div>Referral Date</div>
-                <div>Reason for Referring</div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        <Accordion type="single" collapsible className="w-full" defaultValue="primary">
-          <AccordionItem value="primary">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Primary Care Physician</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span>Primary Physician</span>
-                  <Button variant="outlineSecondary" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div>Address</div>
-                <div>Phone</div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        <Accordion type="single" collapsible className="w-full" defaultValue="pediatrician">
-          <AccordionItem value="pediatrician">
-            <AccordionTrigger className="bg-gray-200 px-4 rounded-t-md">Pediatrician</AccordionTrigger>
-            <AccordionContent className="p-4 border rounded-b-md border-t-0">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span>Pediatrician</span>
-                  <Button variant="outlineSecondary" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div>Address</div>
-                <div>Phone</div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
-    </>
-  )
-}
 
-export default AdminClientProfilePage
+      {/* Collapsible Sections - Third Row */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {/* Referring Provider */}
+        <Collapsible
+          open={isReferringProviderOpen}
+          onOpenChange={setIsReferringProviderOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Referring Provider
+            {isReferringProviderOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Referring Provider:</span>
+              </p>
+              <p>
+                <span className='font-medium'>NPI:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Referral Date:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Reason for Referral:</span>
+              </p>
+              <div className='flex justify-end'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='text-blue-500 border-blue-500'
+                >
+                  Edit
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Primary Care Physician */}
+        <Collapsible
+          open={isPrimaryCareOpen}
+          onOpenChange={setIsPrimaryCareOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Primary Care Physician
+            {isPrimaryCareOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Primary Physician:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Address:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Phone:</span>
+              </p>
+              <div className='flex justify-end'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='text-blue-500 border-blue-500'
+                >
+                  Edit
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Pediatrician */}
+        <Collapsible
+          open={isPediatricianOpen}
+          onOpenChange={setIsPediatricianOpen}
+          className='border rounded-md bg-gray-100'
+        >
+          <CollapsibleTrigger className='flex items-center justify-between w-full p-4 text-left font-medium'>
+            Pediatrician
+            {isPediatricianOpen ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className='p-4 bg-white border-t'>
+            <div className='space-y-2'>
+              <p>
+                <span className='font-medium'>Pediatrician:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Address:</span>
+              </p>
+              <p>
+                <span className='font-medium'>Phone:</span>
+              </p>
+              <div className='flex justify-end'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='text-blue-500 border-blue-500'
+                >
+                  Edit
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    </div>
+  );
+}
