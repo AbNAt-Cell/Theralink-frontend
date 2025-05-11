@@ -8,7 +8,7 @@ export default function ElectronicPrescriptionPage() {
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
         <p className='text-gray-500'>
-          You don't have eRx subscription, please contact the administration.
+          You dont have eRx subscription, please contact the administration.
         </p>
       </div>
     </div>
