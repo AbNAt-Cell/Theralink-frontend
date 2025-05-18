@@ -12,6 +12,8 @@ export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type User = {
   id: string;
   email: string;
+  firstName: string;
+  lastName: string;
   username: string;
   role: string;
   createdAt: string;
