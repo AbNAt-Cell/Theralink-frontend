@@ -1,127 +1,264 @@
-"use client";
-import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { message } from "@/hooks/messages";
-import { getStoredUser } from "@/hooks/auth";
-import { useSocketContext } from "@/context/SocketContextProvider";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+"use client"
 
-interface Email {
-  id: number;
-  userId: string;
-  sender: string;
-  subject: string;
-  body: string;
-  category?: string;
-  time: string;
-  isChecked: boolean;
-  isStarred: boolean;
+import {usePathname, useRouter} from "next/navigation"
+import type React from "react"
+import {useEffect, useState, useRef} from "react"
+import {message} from "@/hooks/messages"
+import {getStoredUser} from "@/hooks/auth"
+import {useSocketContext} from "@/context/SocketContextProvider"
+import {ChevronLeft, Printer, Trash2, Paperclip, ImageIcon, Send, Mic} from 'lucide-react'
+import {Button} from "@/components/ui/button"
+import {Badge} from "@/components/ui/badge"
+
+interface Message {
+    id: number
+    userId: string
+    sender: string
+    body: string
+    time: string
 }
 
-export default function Page() {
-  const socket = useSocketContext()
-  const [emails, setEmails] = useState<Email[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [Message, setMessage] = useState<string>();
-  const pathname = usePathname();
+export default function ChatPage() {
+    const socket = useSocketContext()
+    const router = useRouter()
+    const [messages, setMessages] = useState<Message[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [newMessage, setNewMessage] = useState<string>("")
+    const pathname = usePathname()
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const [recipient, setRecipient] = useState<{ name: string; role: string } | null>(null)
+    const currentUser = getStoredUser()
 
-  let conversationId: string | null = null;
-  conversationId = pathname.substring(pathname.lastIndexOf("/") + 1) || null;
+    // Extract conversation ID from URL
+    const conversationId = pathname.substring(pathname.lastIndexOf("/") + 1) || null
 
-  // No need for this since it has already been wrapped with the context provider
-  // useEffect(() => {
-  //   const socketInstance = io(
-  //     process.env.NEXT_PUBLIC_API_URL ||
-  //       "https://theralink-backend.onrender.com"
-  //   );
-  //   setSocket(socketInstance);
-  //   return () => {
-  //     socketInstance.disconnect();
-  //   };
-  // }, []);
+    // Fetch messages when component mounts or conversation changes
+    useEffect(() => {
+        const fetchMessages = async () => {
+            setLoading(true)
+            try {
+                const response = await message(conversationId)
+                setMessages(response.Messages || [])
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await message(conversationId);
-        setEmails(response.Messages);
-        console.log("Fetched messages:", response);
-      } catch (error) {
-        setError("Failed to fetch messages");
-        console.error("Error fetching messages:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMessages();
-  }, [conversationId]);
+                // Set recipient info if available in the response
+                if (response.participant) {
+                    setRecipient({
+                        name: response.participant.firstName + " " + response.participant.lastName,
+                        role: response.participant.role ? "Staff" : "Client",
+                    })
+                } else {
+                    setRecipient({name: "Mfoniso Iboikette", role: "Staff"})
+                }
 
-  const sendMessage = async() => {
-    const user = getStoredUser();
-    if (!user || !user.id) {
-      setError("User not found");
-      return;
-    } else if (!socket) {
-      setError("Socket not initialized");
-      return;
+                console.log("Fetched messages:", response)
+            } catch (error) {
+                setError("Failed to fetch messages")
+                console.error("Error fetching messages:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        if (conversationId) {
+            fetchMessages()
+        }
+    }, [conversationId])
+
+    // Scroll to bottom when messages change
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({behavior: "smooth"})
+    }, [messages])
+
+    // Listen for new messages from socket
+    useEffect(() => {
+        if (socket) {
+            socket.off("receive_dm") // Clear previous listener
+            socket.on("receive_dm", (newMsg) => {
+                console.log("Received message:", newMsg)
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    {
+                        id: Date.now(),
+                        userId: newMsg.userId,
+                        sender: newMsg.sender || "Unknown",
+                        body: newMsg.message || newMsg.body,
+                        time: new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}),
+                    },
+                ])
+            })
+        }
+
+        return () => {
+            socket?.off("receive_dm")
+        }
+    }, [socket])
+
+    const sendMessage = async () => {
+        if (!newMessage.trim()) return
+
+        if (!currentUser || !currentUser.id) {
+            setError("User not found")
+            return
+        } else if (!socket) {
+            setError("Socket not initialized")
+            return
+        }
+
+        try {
+            // Add message to UI immediately for better UX
+            const tempMessage = {
+                id: Date.now(),
+                userId: currentUser.id,
+                sender: currentUser.firstName + " " + currentUser.lastName,
+                body: newMessage,
+                time: new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}),
+            }
+            setMessages((prev) => [...prev, tempMessage])
+
+            // Send via socket
+            socket.emit("send_dm", {
+                userId: currentUser.id,
+                toUserId: conversationId,
+                message: newMessage,
+            })
+
+            // Clear input
+            setNewMessage("")
+        } catch (error) {
+            setError("Failed to send message")
+            console.error("Error sending message:", error)
+        }
     }
-    try {
-      socket?.emit("send_dm", {
-        userId: user.id,
-        toUserId: conversationId,
-        message: message,
-      });
-    }catch (error) {
-      setError("Failed to send message");
-      console.error("Error sending message:", error);
-    }
-  }
 
-  return (
-    <div>
-      <Card className="border-0 shadow-none bg-transparent">
-        <CardHeader className="pb-8 px-3">
-          <h1 className="text-2xl font-bold">Messages</h1>
-        </CardHeader>
-        <CardContent className="flex gap-4">
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div>
-              {emails?.map((email) => (
-                <div
-                  key={email.id}
-                  className={`text-white border-b py-2 ${
-                    email.userId === conversationId
-                      ? "bg-gray-500 flex justify-start"
-                      : "bg-blue-500 flex justify-end"
-                  }`}
-                >
-                  <p>{email?.body}</p>
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            sendMessage()
+        }
+    }
+
+    const formatTime = (timeString: string) => {
+        // If it's already in the right format, return as is
+        if (timeString.includes(":") && (timeString.includes("AM") || timeString.includes("PM"))) {
+            return timeString
+        }
+
+        // Otherwise try to format it
+        try {
+            const date = new Date(timeString)
+            return date.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})
+        } catch (e) {
+            console.log(e);
+            return timeString
+        }
+    }
+
+    return (
+        <div className='container bg-white max-w-[1350px] mx-auto p-6 space-y-6'>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => router.back()} className="p-1 rounded-full hover:bg-gray-100">
+                        <ChevronLeft className="h-5 w-5"/>
+                    </button>
+                    <h2 className="text-lg font-medium">{recipient?.name || "Loading..."}</h2>
+                    <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 border-none">
+                        {recipient?.role || "User"}
+                    </Badge>
                 </div>
-              ))}
+                <div className="flex gap-2">
+                    <button className="p-2 text-gray-500 hover:text-gray-700">
+                        <Printer className="h-5 w-5"/>
+                    </button>
+                    <button className="p-2 text-gray-500 hover:text-gray-700">
+                        <Trash2 className="h-5 w-5"/>
+                    </button>
+                </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
-      <div className="flex items-center gap-2 mt-4">
-        <input
-          type="text"
-          value={Message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message..."
-          className="flex-1 px-4 py-2 border rounded-md"
-        />
-        <button
-          onClick={sendMessage}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md"
-        >
-          Send
-        </button>
-      </div>
-    </div>
-  );
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {loading ? (
+                    <div className="flex justify-center items-center h-full">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-red-500 p-4">{error}</div>
+                ) : messages.length === 0 ? (
+                    <div className="text-center text-gray-500 p-4">No messages yet. Start the conversation!</div>
+                ) : (
+                    messages.map((msg) => {
+                        const isCurrentUser = msg.userId === currentUser?.id
+
+                        return (
+                            <div key={msg.id} className={`flex ${isCurrentUser ? "justify-end" : ""}`}>
+                                {!isCurrentUser && (
+                                    <div className="mr-3">
+                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden">
+                                            <img src="/placeholder.svg?height=40&width=40" alt="Avatar"
+                                                 className="w-full h-full object-cover"/>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className={`max-w-[70%] ${isCurrentUser ? "order-1" : "order-2"}`}>
+                                    <div
+                                        className={`p-4 rounded-lg ${
+                                            isCurrentUser
+                                                ? "bg-blue-600 text-white rounded-br-none"
+                                                : "bg-gray-100 text-gray-800 rounded-tl-none"
+                                        }`}
+                                    >
+                                        <p className="text-sm">{msg.body}</p>
+                                    </div>
+                                    <div className={`mt-1 text-xs text-gray-500 ${isCurrentUser ? "text-right" : ""}`}>
+                                        {formatTime(msg.time)}
+                                    </div>
+                                </div>
+                                {isCurrentUser && (
+                                    <div className="ml-3 order-2">
+                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden">
+                                            <img src="/placeholder.svg?height=40&width=40" alt="Avatar"
+                                                 className="w-full h-full object-cover"/>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })
+                )}
+                <div ref={messagesEndRef}/>
+            </div>
+
+            {/* Message Input */}
+            <div className="border-t p-3 flex items-center gap-2">
+                <button className="p-2 text-gray-500 hover:text-gray-700">
+                    <Mic className="h-5 w-5"/>
+                </button>
+                <input
+                    type="text"
+                    placeholder="Write message"
+                    className="flex-1 border-0 focus:ring-0 focus:outline-none text-sm"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                />
+                <div className="flex gap-2">
+                    <button className="p-2 text-gray-500 hover:text-gray-700">
+                        <Paperclip className="h-5 w-5"/>
+                    </button>
+                    <button className="p-2 text-gray-500 hover:text-gray-700">
+                        <ImageIcon className="h-5 w-5"/>
+                    </button>
+                    <Button
+                        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white"
+                        onClick={sendMessage}
+                        disabled={!newMessage.trim()}
+                    >
+                        Send <Send className="h-4 w-4 ml-1"/>
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
 }
