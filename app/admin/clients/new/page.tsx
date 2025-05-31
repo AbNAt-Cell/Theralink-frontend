@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useState } from 'react'
-import { useRouter } from 'nextjs-toploader/app'
+import React, { useState } from 'react';
+import { useRouter } from 'nextjs-toploader/app';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Eraser, Loader, X } from 'lucide-react';
-import { useToast } from "@/hooks/Partials/use-toast"
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-
+import { useToast } from '@/hooks/Partials/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import {
   Form,
   FormControl,
@@ -17,48 +15,49 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { createClient } from '@/api/client';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { cleanData } from '@/lib/utils';
+import { createClient } from '@/hooks/admin/client';
 
 const newClientFormSchema = z.object({
   prefix: z.string().optional(),
-  firstName: z.string().min(1, "First name is required"),
+  firstName: z.string().min(1, 'First name is required'),
   middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
+  lastName: z.string().min(1, 'Last name is required'),
   suffix: z.string().optional(),
   nickName: z.string().optional(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  ssn: z.string()
-    .min(9, "SSN must be 9 digits")
-    .max(9, "SSN must be 9 digits")
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  ssn: z
+    .string()
+    .min(9, 'SSN must be 9 digits')
+    .max(9, 'SSN must be 9 digits')
     .optional(),
-  email: z.string().email("Invalid email address").optional(),
+  email: z.string().email('Invalid email address').optional(),
   phone: z.string().optional(),
-  race: z.enum(["AFRICAN", "WHITE", "ASIAN", "HISPANIC", "OTHER"]).optional(),
-  startDate: z.string().min(1, "Client start date is required"),
+  race: z.enum(['AFRICAN', 'WHITE', 'ASIAN', 'HISPANIC', 'OTHER']).optional(),
+  startDate: z.string().min(1, 'Client start date is required'),
   address: z.object({
-    street: z.string().min(1, "Street is required"),
-    city: z.string().min(1, "City is required"),
-    state: z.string().min(2, "State is required"),
-    zipCode: z.string().min(5, "ZIP code is required"),
+    street: z.string().min(1, 'Street is required'),
+    city: z.string().min(1, 'City is required'),
+    state: z.string().min(2, 'State is required'),
+    zipCode: z.string().min(5, 'ZIP code is required'),
   }),
   comments: z.string().optional(),
   insurance: z.object({
-    insuranceType: z.string().min(1, "Insurance type is required"),
-    policyNumber: z.string().min(1, "Policy number is required"),
-    startDate: z.string().min(1, "Start date is required"),
-    endDate: z.string().optional()
+    insuranceType: z.string().min(1, 'Insurance type is required'),
+    policyNumber: z.string().min(1, 'Policy number is required'),
+    startDate: z.string().min(1, 'Start date is required'),
+    endDate: z.string().optional(),
   }),
 });
 
@@ -69,38 +68,37 @@ type FormValues = z.infer<typeof formSchema>;
 const NewClientPage = () => {
   const [loading, setloading] = useState(false);
   const router = useRouter();
-  const { toast } = useToast()
-
+  const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prefix: "",
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      suffix: "",
-      nickName: "",
+      prefix: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      suffix: '',
+      nickName: '',
       gender: undefined,
-      dateOfBirth: "",
-      ssn: "",
+      dateOfBirth: '',
+      ssn: '',
       race: undefined,
-      startDate: "",
-      email: "",
-      phone: "",
+      startDate: '',
+      email: '',
+      phone: '',
       address: {
-        street: "",
-        city: "",
-        state: "",
-        zipCode: "",
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
       },
-      comments: "",
+      comments: '',
       insurance: {
-        insuranceType: "",
-        policyNumber: "",
-        startDate: "",
-        endDate: ""
-      }
+        insuranceType: '',
+        policyNumber: '',
+        startDate: '',
+        endDate: '',
+      },
     },
   });
 
@@ -110,56 +108,66 @@ const NewClientPage = () => {
       const cleanedData = cleanData(data);
       const response = await createClient(cleanedData);
       toast({
-        title: "Success",
+        title: 'Success',
         description: response.message,
-      })
-      router.push(`/admin/clients/${response.patient.id}`)
+      });
+      router.push(`/admin/clients/${response.patient.id}`);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log('Error: ', error);
       toast({
-        variant: "destructive",
-        title: "Error:",
-        description: error.response?.data?.error || 'Failed to create Client. Please try again.',
-      })
+        variant: 'destructive',
+        title: 'Error:',
+        description:
+          error.response?.data?.error ||
+          'Failed to create Client. Please try again.',
+      });
     } finally {
       setloading(false);
     }
-
   };
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">New Client</h1>
-        <div className="flex gap-4">
-          <Button variant="outlineSecondary" onClick={() => form.reset()}>
+    <div className=''>
+      <div className='flex items-center justify-between'>
+        <h1 className='text-2xl font-bold'>New Client</h1>
+        <div className='flex gap-4'>
+          <Button variant='outlineSecondary' onClick={() => form.reset()}>
             <Eraser />
             Reset Form
           </Button>
-          <Button variant="outlineDanger" onClick={() => { router.push('/admin/clients') }}>
+          <Button
+            variant='outlineDanger'
+            onClick={() => {
+              router.push('/admin/clients');
+            }}
+          >
             <X />
             Cancel
           </Button>
-
         </div>
       </div>
       <div className='mt-4 '>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 grid grid-cols-2 gap-4 mt-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='space-y-6 grid grid-cols-2 gap-4 mt-4'
+          >
             {/* Demographics Section */}
-            <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Demographics</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className='col-span-2 bg-gray-50 p-4 rounded-lg'>
+              <h2 className='text-xl font-semibold mb-4'>Demographics</h2>
+              <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
                 <FormField
                   control={form.control}
-                  name="prefix"
+                  name='prefix'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Prefix</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Prefix
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter Prefix" {...field} />
+                        <Input placeholder='Enter Prefix' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -168,12 +176,14 @@ const NewClientPage = () => {
 
                 <FormField
                   control={form.control}
-                  name="firstName"
+                  name='firstName'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>First Name*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        First Name*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter first name" {...field} />
+                        <Input placeholder='Enter first name' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -181,12 +191,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="middleName"
+                  name='middleName'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Middle Name</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Middle Name
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter middle name" {...field} />
+                        <Input placeholder='Enter middle name' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -194,12 +206,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="lastName"
+                  name='lastName'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Last Name*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Last Name*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter last name" {...field} />
+                        <Input placeholder='Enter last name' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -207,12 +221,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="suffix"
+                  name='suffix'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Suffix</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Suffix
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter suffix" {...field} />
+                        <Input placeholder='Enter suffix' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,12 +236,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="nickName"
+                  name='nickName'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Nickname</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Nickname
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter nickname" {...field} />
+                        <Input placeholder='Enter nickname' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -233,12 +251,18 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="email"
+                  name='email'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Email</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Email
+                      </FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Enter email address" {...field} />
+                        <Input
+                          type='email'
+                          placeholder='Enter email address'
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -246,12 +270,18 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="phone"
+                  name='phone'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Phone Number</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Phone Number
+                      </FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="Enter Phone Number" {...field} />
+                        <Input
+                          type='text'
+                          placeholder='Enter Phone Number'
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,20 +289,25 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="gender"
+                  name='gender'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Gender*</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Gender*
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
+                            <SelectValue placeholder='Select gender' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="MALE">Male</SelectItem>
-                          <SelectItem value="FEMALE">Female</SelectItem>
-                          <SelectItem value="OTHER">Other</SelectItem>
+                          <SelectItem value='MALE'>Male</SelectItem>
+                          <SelectItem value='FEMALE'>Female</SelectItem>
+                          <SelectItem value='OTHER'>Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -281,12 +316,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="dateOfBirth"
+                  name='dateOfBirth'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Date of Birth*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Date of Birth*
+                      </FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type='date' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -294,12 +331,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="ssn"
+                  name='ssn'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>SSN</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        SSN
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter SSN" {...field} />
+                        <Input placeholder='Enter SSN' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -307,22 +346,27 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="race"
+                  name='race'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Race</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Race
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select race" />
+                            <SelectValue placeholder='Select race' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="AFRICAN">African</SelectItem>
-                          <SelectItem value="WHITE">White</SelectItem>
-                          <SelectItem value="ASIAN">Asian</SelectItem>
-                          <SelectItem value="HISPANIC">Hispanic</SelectItem>
-                          <SelectItem value="OTHER">Other</SelectItem>
+                          <SelectItem value='AFRICAN'>African</SelectItem>
+                          <SelectItem value='WHITE'>White</SelectItem>
+                          <SelectItem value='ASIAN'>Asian</SelectItem>
+                          <SelectItem value='HISPANIC'>Hispanic</SelectItem>
+                          <SelectItem value='OTHER'>Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -331,12 +375,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="startDate"
+                  name='startDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Client Start Date*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Client Start Date*
+                      </FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type='date' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -346,17 +392,19 @@ const NewClientPage = () => {
             </div>
 
             {/* Address Section */}
-            <div className="col-span-3 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Address</h2>
-              <div className="grid grid-cols-3 gap-4">
+            <div className='col-span-3 bg-gray-50 p-4 rounded-lg'>
+              <h2 className='text-xl font-semibold mb-4'>Address</h2>
+              <div className='grid grid-cols-3 gap-4'>
                 <FormField
                   control={form.control}
-                  name="address.street"
+                  name='address.street'
                   render={({ field }) => (
-                    <FormItem className="col-span-1">
-                      <FormLabel className='text-gray-800 font-semibold'>Street*</FormLabel>
+                    <FormItem className='col-span-1'>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Street*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter address line 1" {...field} />
+                        <Input placeholder='Enter address line 1' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -364,12 +412,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="address.city"
+                  name='address.city'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>City*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        City*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter city" {...field} />
+                        <Input placeholder='Enter city' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -377,12 +427,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="address.state"
+                  name='address.state'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>State*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        State*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter state" {...field} />
+                        <Input placeholder='Enter state' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -390,12 +442,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="address.zipCode"
+                  name='address.zipCode'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>ZIP Code*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        ZIP Code*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter ZIP code" {...field} />
+                        <Input placeholder='Enter ZIP code' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -477,17 +531,21 @@ const NewClientPage = () => {
             </div> */}
 
             {/* Insurance Section */}
-            <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Insurance Information</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <div className='col-span-2 bg-gray-50 p-4 rounded-lg'>
+              <h2 className='text-xl font-semibold mb-4'>
+                Insurance Information
+              </h2>
+              <div className='grid grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
-                  name="insurance.insuranceType"
+                  name='insurance.insuranceType'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Insurance Type*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Insurance Type*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter insurance type" {...field} />
+                        <Input placeholder='Enter insurance type' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -495,12 +553,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="insurance.policyNumber"
+                  name='insurance.policyNumber'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Policy Number*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Policy Number*
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter policy number" {...field} />
+                        <Input placeholder='Enter policy number' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -508,12 +568,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="insurance.startDate"
+                  name='insurance.startDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Start Date*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        Start Date*
+                      </FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type='date' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -521,12 +583,14 @@ const NewClientPage = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="insurance.endDate"
+                  name='insurance.endDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>End Date</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>
+                        End Date
+                      </FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type='date' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -536,44 +600,50 @@ const NewClientPage = () => {
             </div>
 
             {/* Comments Section */}
-            <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Additional Comments</h2>
+            <div className='col-span-2 bg-gray-50 p-4 rounded-lg'>
+              <h2 className='text-xl font-semibold mb-4'>
+                Additional Comments
+              </h2>
               <FormField
                 control={form.control}
-                name="comments"
+                name='comments'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Enter any additional comments" {...field} />
+                      <Input
+                        placeholder='Enter any additional comments'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <div className="flex gap-5 col-span-3 bg-gray-50 p-4 rounded-lg">
-              <Button disabled={loading} type="submit" className="col-span-1">
-                {loading ?
-                  <>Creating Client <Loader className='animate-spin' /> </>
-                  :
-                  <>Create Client <ArrowRight /></>
-                }
-
+            <div className='flex gap-5 col-span-3 bg-gray-50 p-4 rounded-lg'>
+              <Button disabled={loading} type='submit' className='col-span-1'>
+                {loading ? (
+                  <>
+                    Creating Client <Loader className='animate-spin' />{' '}
+                  </>
+                ) : (
+                  <>
+                    Create Client <ArrowRight />
+                  </>
+                )}
               </Button>
-              <Link href="/admin/clients" className="col-span-1">
-                <Button variant="outlineDanger">
+              <Link href='/admin/clients' className='col-span-1'>
+                <Button variant='outlineDanger'>
                   <X />
                   Cancel
                 </Button>
               </Link>
-
             </div>
-
           </form>
         </Form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NewClientPage
+export default NewClientPage;

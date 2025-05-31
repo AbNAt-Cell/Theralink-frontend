@@ -32,12 +32,10 @@ export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
   });
 
   const { user, token } = response.data;
-
-  // Set cookies with secure options
   Cookies.set('token', token, {
     secure: true,
     sameSite: 'strict',
-    expires: 7, // 7 days
+    expires: 7,
   });
 
   Cookies.set('user', JSON.stringify(user), {
