@@ -2,7 +2,8 @@ export type User = {
   id: string;
   status: string;
   balance: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   dob: string
   assignedStaff: string[];
   gender: "M" | "F" | "Other";
@@ -15,4 +16,6 @@ export type User = {
     status: string;
     date: string;
   };
+  createdAt: string;
+  updatedAt: string;
 }

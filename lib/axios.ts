@@ -10,10 +10,6 @@ axiosInstance.interceptors.request.use(
     const token = Cookies.get('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      Cookies.remove('token');
-      Cookies.remove('user');
-      window.location.href = '/login';
     }
     return config;
   },
@@ -28,7 +24,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       Cookies.remove('token');
       Cookies.remove('user');
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }
