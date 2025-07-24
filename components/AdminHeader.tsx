@@ -16,6 +16,32 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { getStoredUser, logout } from '@/hooks/auth'
 
+  const links = [
+    { name: 'Authorizations', href: '/admin/more/authorization' },
+    { name: 'Client Compliance', href: '/admin/more/compliance' },
+    { name: 'Clinic Files', href: '/admin/more/clinic-files' },
+    { name: 'Default Goals', href: '/admin/more/goals' },
+    { name: 'Document Templates', href: '/admin/more/templates' },
+    { name: 'Portal Parental Access (CP)', href: '/admin/more/parental-access' },
+    { name: 'Roles', href: '/admin/more/roles' },
+    { name: 'Services', href: '/admin/more/services' },
+    { name: 'Settings', href: '/admin/more/settings' },
+    { name: 'Sites', href: '/admin/more/sites' },
+    { name: 'Staff Documents', href: '/admin/more/staff-document' },
+  ];
+
+  const linksAudit = [
+    { name: 'Staff Audit', href: '/admin/more/staff-audit' },
+    { name: 'Client Audit', href: '/admin/more/client-audit' },
+  ];
+
+  const linksMisc = [
+    { name: 'Task Manager', href: '/admin/more/tasks' },
+    { name: 'Admin. Board', href: '/admin/more/admin-board' },
+    { name: 'Time Clock', href: '/admin/more/time-clock' },
+    { name: 'Knowledge Base', href: '/admin/more/knowledge-base' },
+  ];
+
 const LogoutMenuItem = () => {
   const router = useRouter();
 
@@ -188,8 +214,8 @@ const AdminHeader = () => {
                 <div className='flex flex-row p-5 gap-4'>
                   <div className='flex flex-col'>
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Clinic</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
-                      <li>Authorizations</li>
+                    {/* <ul className='ml-2 space-y-1 text-sm'>
+                      <Link href="/admin/more/authorization/" className="text-blue-600 hover:underline">Authorizations</Link>
                       <li>Client Compliance</li>
                       <li>Clinic Files</li>
                       <li>Default Goals</li>
@@ -200,22 +226,61 @@ const AdminHeader = () => {
                       <li>Settings</li>
                       <li>Sites</li>
                       <li>Staff Documents</li>
+                    </ul> */}
+
+                    <ul className="ml-2 space-y-1 text-sm">
+                      {links.map((link) => (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            className={`${pathname === link.href ? 'text-blue-600' : 'text-black'} hover:font-semibold`}
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
 
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Audit</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
+                    {/* <ul className='ml-2 space-y-1 text-sm'>
                       <li>Staff Audit</li>
                       <li>Client Audit</li>
+                    </ul> */}
+
+                    <ul className="ml-2 space-y-1 text-sm">
+                      {linksAudit.map((link) => (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            className={`${pathname === link.href ? 'text-blue-600' : 'text-black'} hover:font-semibold`}
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
 
                     <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg mt-5'>Misc.</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
+                    {/* <ul className='ml-2 space-y-1 text-sm'>
                       <li>Task Manager</li>
                       <li>Admin. Board</li>
                       <li>Time Clock</li>
                       <li>Knowledge Base</li>
+                    </ul> */}
+
+                    <ul className="ml-2 space-y-1 text-sm">
+                      {linksMisc.map((link) => (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            className={`${pathname === link.href ? 'text-blue-600' : 'text-black'} hover:font-semibold`}
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
 
                   </div>
