@@ -1,37 +1,19 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-react'
-import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
-import ChangePinForm from "@/components/forms/ChangePinForm"
+import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from "lucide-react";
+import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm";
+import ChangePinForm from "@/components/forms/ChangePinForm";
 
-import { useState } from "react"
-import Image from "next/image"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { getClientSignature } from "@/utils/apiClient";
 
 export default function ClientDashboard() {
   const [openClientSignature, setOpenClientSignature] = useState(false);
@@ -41,13 +23,28 @@ export default function ClientDashboard() {
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
 
+  const clientId = 123;
+
+  useEffect(() => {
+    const fetchSignature = async () => {
+      try {
+        const data = await getClientSignature(clientId);
+        setClientSignature(data.signatureUrl); // Adjust based on actual API response shape
+      } catch (error) {
+        console.error("Failed to fetch client signature:", error);
+      }
+    };
+
+    fetchSignature();
+  }, [clientId]);
+
   const handleClientPinChange = (oldPin: string, newPin: string) => {
-    console.log('Changing client PIN:', { oldPin, newPin });
+    console.log("Changing client PIN:", { oldPin, newPin });
     // Add API call to change PIN here
   };
 
   const handleParentPinChange = (oldPin: string, newPin: string) => {
-    console.log('Changing parent PIN:', { oldPin, newPin });
+    console.log("Changing parent PIN:", { oldPin, newPin });
     // Add API call to change PIN here
   };
 
@@ -57,21 +54,13 @@ export default function ClientDashboard() {
         {/* Client Information Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-medium">
-              Client Information
-            </CardTitle>
+            <CardTitle className="text-lg font-medium">Client Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold text-secondary">
-                Auspicious Community Service, LLC
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                305 FM 517 Road E.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Dickinson, TX 77539-1628
-              </p>
+              <h3 className="font-semibold text-secondary">Auspicious Community Service, LLC</h3>
+              <p className="text-sm text-muted-foreground">305 FM 517 Road E.</p>
+              <p className="text-sm text-muted-foreground">Dickinson, TX 77539-1628</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -90,9 +79,7 @@ export default function ClientDashboard() {
                   <Cigarette className="w-7 h-7 text-cyan-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Smoking Status:
-                  </p>
+                  <p className="text-sm text-muted-foreground">Smoking Status:</p>
                   <p className="font-medium">N/A</p>
                 </div>
               </div>
@@ -133,21 +120,13 @@ export default function ClientDashboard() {
         {/* Clinic Information Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-medium">
-              Clinic Information
-            </CardTitle>
+            <CardTitle className="text-lg font-medium">Clinic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold text-secondary">
-                Auspicious Community Service, LLC
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                305 FM 517 Road E.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Dickinson, TX 77539-1628
-              </p>
+              <h3 className="font-semibold text-secondary">Auspicious Community Service, LLC</h3>
+              <p className="text-sm text-muted-foreground">305 FM 517 Road E.</p>
+              <p className="text-sm text-muted-foreground">Dickinson, TX 77539-1628</p>
               <div className="flex items-center gap-2 border rounded-lg p-2 mt-2 text-emerald-600">
                 <Phone className="w-4 h-4" />
                 <span>(832) 774-7144</span>
@@ -157,13 +136,7 @@ export default function ClientDashboard() {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <p className="font-medium">Client Signature</p>
-                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
-                  {clientSignature ? (
-                    <Image src={clientSignature} alt="Client Signature" height={100} width={100} className="h-full w-auto" />
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No client signature available</p>
-                  )}
-                </div>
+                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">{clientSignature ? <Image src={clientSignature} alt="Client Signature" height={100} width={100} className="h-full w-auto" /> : <p className="text-muted-foreground text-sm">No client signature available</p>}</div>
                 <Dialog open={openClientSignature} onOpenChange={setOpenClientSignature}>
                   <DialogTrigger asChild>
                     <Button variant="secondary" className="w-full">
@@ -177,11 +150,7 @@ export default function ClientDashboard() {
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setOpenClientPin(true)}
-                >
+                <Button variant="outline" className="w-full" onClick={() => setOpenClientPin(true)}>
                   Change PIN?
                 </Button>
                 <Dialog open={openClientPin} onOpenChange={setOpenClientPin}>
@@ -196,13 +165,7 @@ export default function ClientDashboard() {
 
               <div className="space-y-4">
                 <p className="font-medium">Parent Signature</p>
-                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">
-                  {parentSignature ? (
-                    <Image src={parentSignature} alt="Parent Signature" height={100} width={100} className="h-full w-auto" />
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No parent signature available</p>
-                  )}
-                </div>
+                <div className="flex items-center justify-center border rounded-lg p-4 h-24 bg-gray-50">{parentSignature ? <Image src={parentSignature} alt="Parent Signature" height={100} width={100} className="h-full w-auto" /> : <p className="text-muted-foreground text-sm">No parent signature available</p>}</div>
                 <Dialog open={openParentSignature} onOpenChange={setOpenParentSignature}>
                   <DialogTrigger asChild>
                     <Button variant="secondary" className="w-full">
@@ -218,11 +181,7 @@ export default function ClientDashboard() {
                 </Dialog>
                 {parentSignature && (
                   <>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setOpenParentPin(true)}
-                    >
+                    <Button variant="outline" className="w-full" onClick={() => setOpenParentPin(true)}>
                       Change PIN?
                     </Button>
                     <Dialog open={openParentPin} onOpenChange={setOpenParentPin}>
@@ -252,9 +211,7 @@ export default function ClientDashboard() {
             <TabsContent value="pending" className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 border rounded-lg p-2">
-                  <span className="text-sm text-muted-foreground">
-                    Rows per page
-                  </span>
+                  <span className="text-sm text-muted-foreground">Rows per page</span>
                   <Select defaultValue="10">
                     <SelectTrigger className="w-16">
                       <SelectValue />
@@ -289,9 +246,7 @@ export default function ClientDashboard() {
                 </TableBody>
               </Table>
             </TabsContent>
-            <TabsContent value="completed">
-              {/* Similar table structure for completed documents */}
-            </TabsContent>
+            <TabsContent value="completed">{/* Similar table structure for completed documents */}</TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -299,16 +254,12 @@ export default function ClientDashboard() {
       {/* Upcoming Appointments Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-medium">
-            Upcoming Appointments
-          </CardTitle>
+          <CardTitle className="text-lg font-medium">Upcoming Appointments</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            No Upcoming Appointments in your calendar.
-          </p>
+          <p className="text-muted-foreground">No Upcoming Appointments in your calendar.</p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

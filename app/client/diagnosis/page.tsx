@@ -1,18 +1,12 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { DatePickerWithRange } from '@/components/DatePickerWithRange'
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { DatePickerWithRange } from "@/components/DatePickerWithRange";
+import { getDiagnosis } from "@/utils/apiClient";
 
 interface Diagnosis {
   id: string;
@@ -24,42 +18,34 @@ interface Diagnosis {
 }
 
 export default function ClientDiagnosis() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [startDate, setStartDate] = useState('');
+  const [startDate, setStartDate] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [endDate, setEndDate] = useState('');
+  const [endDate, setEndDate] = useState("");
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
+  const [error, setError] = useState<String | null>("");
+  const [loading, setLoading] = useState(true);
 
-  const diagnoses: Diagnosis[] = [
-    {
-      id: 'D001',
-      date: '2024-01-15',
-      diagnosis: 'Major Depressive Disorder',
-      provider: 'Dr. John Smith',
-      dxCode: 'D001',
-    },
-    {
-      id: 'D002',
-      date: '2023-12-01',
-      diagnosis: 'Generalized Anxiety Disorder',
-      provider: 'Dr. Sarah Johnson',
-      dxCode: 'D002',
-    },
-    {
-      id: 'D003',
-      date: '2023-10-15',
-      diagnosis: 'Insomnia',
-      provider: 'Dr. John Smith',
-      dxCode: 'D003',
-    },
-  ];
+  useEffect(() => {
+    const fetchDiagnoses = async () => {
+      try {
+        const data = await getDiagnosis("patient123"); // Replace with real ID
+        setDiagnoses(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Failed to fetch diagnoses");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredDiagnoses = diagnoses.filter(diagnosis => {
-    const matchesSearch = diagnosis.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      diagnosis.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      diagnosis.dxCode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDateRange = (!startDate || diagnosis.date >= startDate) &&
-      (!endDate || diagnosis.date <= endDate);
+    fetchDiagnoses();
+  }, []);
+
+  const filteredDiagnoses = diagnoses.filter((diagnosis: any) => {
+    const matchesSearch = diagnosis.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) || diagnosis.provider.toLowerCase().includes(searchTerm.toLowerCase()) || diagnosis.dxCode.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDateRange = (!startDate || diagnosis.date >= startDate) && (!endDate || diagnosis.date <= endDate);
     return matchesSearch && matchesDateRange;
   });
 
@@ -74,12 +60,7 @@ export default function ClientDiagnosis() {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search diagnoses..."
-                  className="pl-8 w-[300px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <Input placeholder="Search diagnoses..." className="pl-8 w-[300px]" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
               <DatePickerWithRange />
             </div>
@@ -101,7 +82,15 @@ export default function ClientDiagnosis() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDiagnoses.length === 0 ? (
+                {loading ? (
+                  <TableCell colSpan={5} className="text-sm text-muted-foreground text-center py-6 w-100">
+                    Loading...
+                  </TableCell>
+                ) : error ? (
+                  <TableCell colSpan={5} className="text-sm text-red-600 text-center py-6 w-100">
+                    {error}
+                  </TableCell>
+                ) : !loading && !error && filteredDiagnoses.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-6">
                       No diagnoses found
@@ -114,9 +103,7 @@ export default function ClientDiagnosis() {
                       <TableCell>{diagnosis.diagnosis}</TableCell>
                       <TableCell>{diagnosis.provider}</TableCell>
                       <TableCell>
-                        <span className="text-xs font-medium">
-                          {diagnosis.dxCode}
-                        </span>
+                        <span className="text-xs font-medium">{diagnosis.dxCode}</span>
                       </TableCell>
                     </TableRow>
                   ))
@@ -127,5 +114,5 @@ export default function ClientDiagnosis() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
