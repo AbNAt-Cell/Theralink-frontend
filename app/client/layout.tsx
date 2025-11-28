@@ -5,6 +5,8 @@ import { useRouter } from "nextjs-toploader/app";
 import ClientHeader from "@/components/ClientHeader";
 import { isAuthenticated, getStoredUser, User } from "@/hooks/auth";
 import SocketContextProvider from "@/context/SocketContextProvider";
+import { SnackbarProvider } from "notistack";
+import { PeerProvider } from "@/context/CallProvider";
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -23,10 +25,14 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SocketContextProvider>
-      <div className="min-h-screen bg-gray-50">
-        <ClientHeader user={user} />
-        {children}
-      </div>
+      <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "top", horizontal: "right" }} autoHideDuration={4000}>
+        <PeerProvider loggedInUser={user}>
+          <div className="min-h-screen bg-gray-50">
+            <ClientHeader user={user} />
+            {children}
+          </div>
+        </PeerProvider>
+      </SnackbarProvider>
     </SocketContextProvider>
   );
 };
