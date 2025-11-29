@@ -1,4 +1,5 @@
 import axioxInstance from '../lib/axios';
+import api from "@/utils/api";
 import Cookies from 'js-cookie';
 
   // adjusted the response outcome type
@@ -19,7 +20,7 @@ export interface User {
 }
 
 export const userSearch = async ({ email }: { email: string }) => {
-  const response: Res = await axioxInstance.get(`/api/users?email=${email}`, {
+  const response: Res = await api.get(`/api/users?email=${email}`, {
     headers: {
       Authorization: `Bearer ${Cookies.get('token')}`,
     },

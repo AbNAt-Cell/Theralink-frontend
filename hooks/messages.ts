@@ -1,12 +1,13 @@
 import Cookies from "js-cookie";
 import axiosInstance from "../lib/axios";
+import api from "@/utils/api";
 
 export const messages = async () => {
   const token = Cookies.get("token");
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get("/api/conversations", {
+  const response = await api.get("/api/conversations", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -22,7 +23,7 @@ export const message = async (conversationId: string | null) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get(`/api/message/${conversationId}`, {
+  const response = await api.get(`/api/message/${conversationId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -35,7 +36,7 @@ export const messageContacts = async () => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get("/api/auth/messaging", {
+  const response = await api.get("/api/auth/messaging", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -48,7 +49,7 @@ export const activeMessages = async () => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get("/api/conversations", {
+  const response = await api.get("/api/conversations", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -65,7 +66,7 @@ export const contactMessage = async (recipientId: any) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.post(
+  const response = await api.post(
     `/api/conversations`,
     { recipientId },
     {
@@ -82,7 +83,7 @@ export const storePeerId = async (peerId: any) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.post(
+  const response = await api.post(
     `/api/call/peer`,
     { peerId },
     {
@@ -102,7 +103,7 @@ export const fetchPeerId = async (recipientId: any) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get(`/api/call/peer/${recipientId}`);
+  const response = await api.get(`/api/call/peer/${recipientId}`);
   return response.data;
 };
 
@@ -114,7 +115,7 @@ export const contactMessageHistory = async (conversationId: any) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get(`/api/messages/${conversationId}`);
+  const response = await api.get(`/api/messages/${conversationId}`);
   return response.data;
 };
 
@@ -123,7 +124,7 @@ export const usersList = async () => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get("/api/users", {
+  const response = await api.get("/api/users", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -137,7 +138,7 @@ export const sendMessage = async (conversationId: string, text: string, type: st
     throw new Error("Token is required");
   }
 
-  const response = await axiosInstance.post(
+  const response = await api.post(
     "/api/messages",
     {
       conversationId,
@@ -161,7 +162,7 @@ export const deleteMessage = async (id: any) => {
     throw new Error("Token is required");
   }
 
-  const response = await axiosInstance.delete(`/api/messages/${id}`, {
+  const response = await api.delete(`/api/messages/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -176,7 +177,7 @@ export const deleteConvo = async (id: any) => {
     throw new Error("Token is required");
   }
 
-  const response = await axiosInstance.delete(`/api/conversations/${id}`, {
+  const response = await api.delete(`/api/conversations/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

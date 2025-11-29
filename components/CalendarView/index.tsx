@@ -28,6 +28,7 @@ const CalendarView = ({ events, error, loading }: CalendarProps) => {
         }}
         events={events}
         eventContent={renderEventContent}
+        viewClassNames={"w-full"}
       />
     </div>
   );

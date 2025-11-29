@@ -6,7 +6,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { login, loginFormSchema } from "@/hooks/auth";
+import { login, loginFormSchema, logout } from "@/hooks/auth";
 
 import { Button } from "@/components/ui/button";
 
@@ -40,21 +40,23 @@ export default function ClientLogin() {
 
   const onSubmit = async (data: FormValues) => {
     setError("");
-    router.push("/client/dashboard");
 
-    // try {
-    //   const { user } = await login(data);
-
-    //   if (user.role === "ADMIN") {
-    //     router.push("/admin/dashboard");
-    //   } else {
-    //     router.push("/client/dashboard");
-    //   }
-    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // } catch (err: any) {
-    //   console.log(err);
-    //   setError(err.response?.data?.error || "Failed to login. Please try again.");
-    // }
+    try {
+      console.log("attempting login");
+      const { user } = await login(data);
+      if (user.role === "CLIENT" || user.role === "client" || user.role === "Client") {
+        console.log("routing to client page");
+        router.push("/client/dashboard");
+      } else {
+        setError("Invalid client Credentials");
+        console.log("logging out");
+        logout();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.log(err);
+      setError(err.response?.data?.error || "Failed to login. Please try again.");
+    }
   };
 
   return (

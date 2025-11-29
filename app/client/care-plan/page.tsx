@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Cookies from "js-cookie";
 
 const ClientCarePlan = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,11 +16,27 @@ const ClientCarePlan = () => {
   const [carePlanData, setCarePlanData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
 
   useEffect(() => {
+    if (!loggedInUser) {
+      const user = Cookies.get("user");
+      if (user) {
+        try {
+          const parsedUser = JSON.parse(user);
+          setLoggedInUser(parsedUser);
+        } catch (err) {
+          console.error("Failed to parse user cookie", err);
+        }
+      }
+    }
+  }, [loggedInUser]);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
     const fetchCarePlan = async () => {
       try {
-        const data = await getTreatmentPlan("patient123"); // Replace with real patient ID
+        const data = await getTreatmentPlan(loggedInUser?.id); // Replace with real patient ID
         // If API returns a single object, wrap in array for display
         setCarePlanData(Array.isArray(data) ? data : [data]);
       } catch (err: any) {
@@ -31,10 +48,10 @@ const ClientCarePlan = () => {
     };
 
     fetchCarePlan();
-  }, []);
+  }, [loggedInUser]);
 
   const filteredCarePlanData = useMemo(() => {
-    return carePlanData.filter((plan) => (showCompleted || plan.status === "Active") && Object.values(plan).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
+    return carePlanData.filter((plan) => (showCompleted || plan.status === "Active") && Object.values(plan).some((value) => value?.toString().toLowerCase().includes(searchTerm.toLowerCase())));
   }, [carePlanData, searchTerm, showCompleted]);
 
   return (

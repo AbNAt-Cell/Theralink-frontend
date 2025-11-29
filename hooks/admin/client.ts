@@ -1,10 +1,11 @@
-import Cookies from 'js-cookie';
-import axiosInstance from '../../lib/axios';
+import Cookies from "js-cookie";
+import api from "@/utils/api";
+import axiosInstance from "../../lib/axios";
 
 export const getClients = async () => {
-  const token = Cookies.get('token');
-//   const response = await axiosInstance.get('/api/patients');
-  const response = await axiosInstance.get('/api/users?role=CLIENT', {
+  const token = Cookies.get("token");
+  //   const response = await api.get('/api/patients');
+  const response = await api.get("/api/users?role=CLIENT", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -13,8 +14,8 @@ export const getClients = async () => {
 };
 
 export const createClient = async (data: any) => {
-  const token = Cookies.get('token');
-  const response = await axiosInstance.post('api/patients', {
+  const token = Cookies.get("token");
+  const response = await api.post("api/patients", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

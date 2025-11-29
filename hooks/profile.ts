@@ -1,12 +1,13 @@
 import Cookies from "js-cookie";
 import axiosInstance from "../lib/axios";
+import api from "@/utils/api";
 
 export const getProfile = async () => {
   const token = Cookies.get("token");
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get("/api/auth/me", {
+  const response = await api.get("/api/auth/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -20,7 +21,7 @@ export async function updateProfile(data: any) {
     throw new Error("Token is required");
   }
 
-  const res = await axiosInstance.put("/api/auth/profile", data, {
+  const res = await api.put("/api/auth/profile", data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -30,7 +31,7 @@ export async function updateProfile(data: any) {
 }
 
 export async function updatePassword(data: any) {
-  const res = await axiosInstance.post("/api/auth/changePassword", data);
+  const res = await api.post("/api/auth/changePassword", data);
   return res.data;
 }
 
@@ -39,7 +40,7 @@ export const getProfileById = async (id: any) => {
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await axiosInstance.get(`/api/auth/${id}`, {
+  const response = await api.get(`/api/auth/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

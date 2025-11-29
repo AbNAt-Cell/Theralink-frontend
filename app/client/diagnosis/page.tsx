@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { DatePickerWithRange } from "@/components/DatePickerWithRange";
 import { getDiagnosis } from "@/utils/apiClient";
+import Cookies from "js-cookie";
 
 interface Diagnosis {
   id: string;
@@ -23,15 +24,33 @@ export default function ClientDiagnosis() {
   const [startDate, setStartDate] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [endDate, setEndDate] = useState("");
-  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
+  const [diagnoses, setDiagnoses] = useState<any[]>([]);
   const [error, setError] = useState<String | null>("");
   const [loading, setLoading] = useState(true);
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
 
   useEffect(() => {
+    if (!loggedInUser) {
+      const user = Cookies.get("user");
+      if (user) {
+        try {
+          const parsedUser = JSON.parse(user);
+          setLoggedInUser(parsedUser);
+        } catch (err) {
+          console.error("Failed to parse user cookie", err);
+        }
+      }
+    }
+  }, [loggedInUser]);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+
+    console.log(loggedInUser);
     const fetchDiagnoses = async () => {
       try {
-        const data = await getDiagnosis("patient123"); // Replace with real ID
-        setDiagnoses(data);
+        const data = await getDiagnosis(loggedInUser?.id); // Replace with real ID
+        setDiagnoses(Array.isArray(data) ? data : [data]);
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Failed to fetch diagnoses");
@@ -41,7 +60,7 @@ export default function ClientDiagnosis() {
     };
 
     fetchDiagnoses();
-  }, []);
+  }, [loggedInUser]);
 
   const filteredDiagnoses = diagnoses.filter((diagnosis: any) => {
     const matchesSearch = diagnosis.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) || diagnosis.provider.toLowerCase().includes(searchTerm.toLowerCase()) || diagnosis.dxCode.toLowerCase().includes(searchTerm.toLowerCase());
