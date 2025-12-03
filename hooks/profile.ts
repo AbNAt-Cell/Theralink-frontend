@@ -35,12 +35,12 @@ export async function updatePassword(data: any) {
   return res.data;
 }
 
-export const getProfileById = async (id: any) => {
+export const getUserById = async (id: any) => {
   const token = Cookies.get("token");
   if (!token) {
     throw new Error("Token is required");
   }
-  const response = await api.get(`/api/auth/${id}`, {
+  const response = await api.get(`/api/users/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

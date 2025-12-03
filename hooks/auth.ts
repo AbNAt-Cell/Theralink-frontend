@@ -48,9 +48,22 @@ export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
   return response.data;
 };
 
-export const logout = () => {
-  Cookies.remove("token");
-  Cookies.remove("user");
+export const logout = async (token: string) => {
+  try {
+    const response = await api.post("/api/auth/logout", { token });
+
+    // Only remove cookies if logout was successful
+    Cookies.remove("token");
+    Cookies.remove("user");
+
+    return response.data;
+  } catch (error: any) {
+    // Return the error message from the response, if any
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Logout failed" };
+  }
 };
 
 export const getStoredUser = (): User | null => {

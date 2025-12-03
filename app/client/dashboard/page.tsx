@@ -14,6 +14,8 @@ import ChangePinForm from "@/components/forms/ChangePinForm";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getClientSignature } from "@/utils/apiClient";
+import Cookies from "js-cookie";
+import { getProfile } from "@/hooks/profile";
 
 export default function ClientDashboard() {
   const [openClientSignature, setOpenClientSignature] = useState(false);
@@ -22,21 +24,42 @@ export default function ClientDashboard() {
   const [openParentPin, setOpenParentPin] = useState(false);
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
-
-  const clientId = 123;
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSignature = async () => {
+    if (!loggedInUser) {
+      const user = Cookies.get("user");
+      if (user) {
+        try {
+          const parsedUser = JSON.parse(user);
+          setLoggedInUser(parsedUser);
+        } catch (err) {
+          console.error("Failed to parse user cookie", err);
+        }
+      }
+    }
+  }, [loggedInUser]);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+    const fetchUser = async () => {
       try {
-        const data = await getClientSignature(clientId);
-        setClientSignature(data.signatureUrl); // Adjust based on actual API response shape
-      } catch (error) {
-        console.error("Failed to fetch client signature:", error);
+        const data = await getProfile(); // Replace this
+        // Map your data if necessary to match <Event> type
+        setProfile(Array.isArray(data) ? data : [data]);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Failed to load appointments");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchSignature();
-  }, [clientId]);
+    fetchUser();
+  }, [loggedInUser]);
 
   const handleClientPinChange = (oldPin: string, newPin: string) => {
     console.log("Changing client PIN:", { oldPin, newPin });
@@ -64,7 +87,7 @@ export default function ClientDashboard() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2 border rounded-lg p-2">
+              <div className="lg:flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-emerald-100 rounded-lg">
                   <Calendar className="w-7 h-7 text-emerald-600" />
                 </div>
@@ -74,7 +97,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border rounded-lg p-2">
+              <div className="lg:flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <Cigarette className="w-7 h-7 text-cyan-600" />
                 </div>
@@ -84,7 +107,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border rounded-lg p-2">
+              <div className="lg:flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <Dna className="w-7 h-7 text-orange-600" />
                 </div>
@@ -94,7 +117,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border rounded-lg p-2">
+              <div className="lg:flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-violet-100 rounded-lg">
                   <LoaderCircle className="w-7 h-7 text-violet-600" />
                 </div>
@@ -104,7 +127,7 @@ export default function ClientDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 border rounded-lg p-2">
+              <div className="lg:flex items-center gap-2 border rounded-lg p-2">
                 <div className="p-2 bg-pink-100 rounded-lg">
                   <Globe className="w-7 h-7 text-pink-600" />
                 </div>
@@ -202,14 +225,14 @@ export default function ClientDashboard() {
 
       {/* Documents Section */}
       <Card>
-        <CardContent className="pt-6">
-          <Tabs defaultValue="pending">
+        <CardContent className="pt-6 w-full overflow-auto">
+          <Tabs defaultValue="pending" className="">
             <TabsList>
               <TabsTrigger value="pending">Pending Documents</TabsTrigger>
               <TabsTrigger value="completed">Completed Documents</TabsTrigger>
             </TabsList>
-            <TabsContent value="pending" className="space-y-4">
-              <div className="flex items-center justify-between">
+            <TabsContent value="pending" className="space-y-4 w-full">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2 border rounded-lg p-2">
                   <span className="text-sm text-muted-foreground">Rows per page</span>
                   <Select defaultValue="10">
@@ -231,10 +254,10 @@ export default function ClientDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Doc ID</TableHead>
-                    <TableHead>Service Date</TableHead>
-                    <TableHead>Document Name</TableHead>
-                    <TableHead>Action</TableHead>
+                    <TableHead className="text-nowrap">Doc ID</TableHead>
+                    <TableHead className="text-nowrap">Service Date</TableHead>
+                    <TableHead className="text-nowrap">Document Name</TableHead>
+                    <TableHead className="text-nowrap">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

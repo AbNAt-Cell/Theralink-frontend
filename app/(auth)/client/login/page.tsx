@@ -43,19 +43,19 @@ export default function ClientLogin() {
 
     try {
       console.log("attempting login");
-      const { user } = await login(data);
+      const { user, token } = await login(data);
       if (user.role === "CLIENT" || user.role === "client" || user.role === "Client") {
         console.log("routing to client page");
         router.push("/client/dashboard");
       } else {
         setError("Invalid client Credentials");
         console.log("logging out");
-        logout();
+        logout(token);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log(err);
-      setError(err.response?.data?.error || "Failed to login. Please try again.");
+      setError(err.response?.message || err.response?.data?.error || "Failed to login. Please try again.");
     }
   };
 
