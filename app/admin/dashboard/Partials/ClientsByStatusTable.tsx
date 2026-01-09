@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -9,8 +9,12 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { Loader2 } from 'lucide-react';
 
 export default function ClientsByStatusTable() {
+  const { clientsByStatus, loading } = useDashboardData();
+
   return (
     <Card className='col-span-2'>
       <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
@@ -18,36 +22,51 @@ export default function ClientsByStatusTable() {
       </CardHeader>
       <CardContent>
         <ScrollArea className='h-[200px]'>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Staff</TableHead>
-                <TableHead>Appointment</TableHead>
-                <TableHead>Appt Type</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(2)].map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell className='font-medium'>
-                    {`Mr-${Math.floor(Math.random() * 1000)}`}
-                  </TableCell>
-                  <TableCell>
-                    {`Mr-${Math.floor(Math.random() * 1000)}`}
-                  </TableCell>
-                  <TableCell>
-                    {['9:00AM', '11:30AM'][Math.floor(Math.random() * 2)]}
-                  </TableCell>
-                  <TableCell className='text-right'>
-                    {['Family', 'Personal'][Math.floor(Math.random() * 2)]}
-                  </TableCell>
+          {loading ? (
+            <div className="flex justify-center items-center h-[120px]">
+              <Loader2 className="animate-spin text-gray-400" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Assigned Staff</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {clientsByStatus.length > 0 ? (
+                  clientsByStatus.map((client: any, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell className='font-medium'>
+                        {client.last_name /* Simplified display */}
+                      </TableCell>
+                      <TableCell>
+                        Assigned Staff
+                      </TableCell>
+                      <TableCell>
+                        {client.role}
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        <span className="text-primary hover:underline cursor-pointer">View</span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                      No client data available.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>
   );
 }
+

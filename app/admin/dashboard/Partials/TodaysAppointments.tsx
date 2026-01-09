@@ -9,8 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { Loader2 } from 'lucide-react';
 
 export default function TodaysAppointments() {
+  const { appointments, loading } = useDashboardData();
+
+  if (loading) {
+    return (
+      <Card className='col-span-2'>
+        <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
+          <CardTitle>Today&apos;s Appointments</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center items-center h-[200px]">
+          <Loader2 className="animate-spin text-gray-400" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className='col-span-2'>
       <CardHeader className='bg-slate-900 text-white py-3 mb-3 rounded-t-md'>
@@ -29,22 +46,30 @@ export default function TodaysAppointments() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {[...Array(2)].map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell className='font-medium'>
-                      {`Mr-${Math.floor(Math.random() * 1000)}`}
-                    </TableCell>
-                    <TableCell>
-                      {`Mr-${Math.floor(Math.random() * 1000)}`}
-                    </TableCell>
-                    <TableCell>
-                      {['9:00AM', '11:30AM'][Math.floor(Math.random() * 2)]}
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      {['Family', 'Personal'][Math.floor(Math.random() * 2)]}
+                {appointments.length > 0 ? (
+                  appointments.map((appt: any) => (
+                    <TableRow key={appt.id}>
+                      <TableCell className='font-medium'>
+                        {`${appt.client?.first_name} ${appt.client?.last_name}`}
+                      </TableCell>
+                      <TableCell>
+                        {`${appt.staff?.first_name} ${appt.staff?.last_name}`}
+                      </TableCell>
+                      <TableCell>
+                        {appt.appointment_time}
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        {appt.appointment_type}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                      No appointments scheduled for today.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -53,3 +78,4 @@ export default function TodaysAppointments() {
     </Card>
   );
 }
+
