@@ -9,7 +9,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData, DashboardClient } from '@/hooks/useDashboardData';
 import { Loader2 } from 'lucide-react';
 
 export default function ClientsByStatusTable() {
@@ -38,7 +38,7 @@ export default function ClientsByStatusTable() {
               </TableHeader>
               <TableBody>
                 {clientsByStatus.length > 0 ? (
-                  clientsByStatus.map((client: any, index: number) => (
+                  clientsByStatus.map((client: DashboardClient, index: number) => (
                     <TableRow key={index}>
                       <TableCell className='font-medium'>
                         {client.last_name /* Simplified display */}

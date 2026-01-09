@@ -1,4 +1,4 @@
-import { getStoredUser } from "@/hooks/auth";
+import { useUser } from "./UserContext";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -15,7 +15,7 @@ export default function SocketContextProvider({
   children: React.ReactNode;
 }) {
   const [socket, setSocket] = useState<SocketContextType>(null);
-  const user = getStoredUser();
+  const { user } = useUser();
   useEffect(() => {
     const socketInstance = io(
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"

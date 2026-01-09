@@ -3,17 +3,18 @@
 import React, { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import ClientHeader from "@/components/ClientHeader";
-import { isAuthenticated } from "@/hooks/auth";
+import { useUser } from "@/context/UserContext";
 import SocketContextProvider from "@/context/SocketContextProvider";
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push("/auth/client/login");
+    if (!loading && !user) {
+      router.push("/client/login");
     }
-  }, [router]);
+  }, [user, loading, router]);
 
   return (
     <SocketContextProvider>

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
 import AdminClientProfile from '@/components/AdminClientProfile';
+import Image from 'next/image';
 
 export default function DocumentsPage() {
   return (
@@ -41,11 +42,14 @@ export default function DocumentsPage() {
       </div>
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[300px]'>
-        <img
-          src='/placeholder.svg?height=200&width=200&text=No+Documents'
-          alt='No documents'
-          className='w-48 h-48 mb-4'
-        />
+        <div className='relative w-48 h-48 mb-4'>
+          <Image
+            src='/placeholder.svg?height=200&width=200&text=No+Documents'
+            alt='No documents'
+            fill
+            className='object-contain'
+          />
+        </div>
         <p className='text-gray-500'>No Documents Available</p>
       </div>
     </div>

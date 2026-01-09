@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData, DashboardStaff } from '@/hooks/useDashboardData';
 import { Loader2, User } from 'lucide-react';
 
 export default function LoggedInStaff() {
@@ -21,7 +21,7 @@ export default function LoggedInStaff() {
           ) : (
             <div className="space-y-3">
               {loggedInStaff.length > 0 ? (
-                loggedInStaff.map((staff: any) => (
+                loggedInStaff.map((staff: DashboardStaff) => (
                   <div key={staff.id} className="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-md transition-colors">
                     <div className="bg-slate-100 p-1.5 rounded-full">
                       <User className="h-4 w-4 text-slate-600" />

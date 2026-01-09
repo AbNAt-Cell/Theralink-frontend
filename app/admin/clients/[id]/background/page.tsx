@@ -1,5 +1,6 @@
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function BackgroundPage() {
   return (
@@ -15,11 +16,14 @@ export default function BackgroundPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Education'
-            alt='No education'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Education'
+              alt='No education'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Education Available</p>
         </div>
       </div>
@@ -34,11 +38,14 @@ export default function BackgroundPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Employment'
-            alt='No employment'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Employment'
+              alt='No employment'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Employment Available</p>
         </div>
       </div>
@@ -53,11 +60,14 @@ export default function BackgroundPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Medical+Issues'
-            alt='No medical issues'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Medical+Issues'
+              alt='No medical issues'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Medical Issues Available</p>
         </div>
       </div>
@@ -72,11 +82,14 @@ export default function BackgroundPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Family+History'
-            alt='No family medical history'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Family+History'
+              alt='No family medical history'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Family Medical History Available</p>
         </div>
       </div>
@@ -96,11 +109,14 @@ export default function BackgroundPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Social+Determinants'
-            alt='No social determinants'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Social+Determinants'
+              alt='No social determinants'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Social Determinants Available</p>
         </div>
       </div>

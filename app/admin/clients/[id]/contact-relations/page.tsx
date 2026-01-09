@@ -1,5 +1,6 @@
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function ContactRelationsPage() {
   return (
@@ -15,11 +16,14 @@ export default function ContactRelationsPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Guardian'
-            alt='No parent/guardian'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Guardian'
+              alt='No parent/guardian'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Parent/Guardian Available</p>
         </div>
       </div>
@@ -34,11 +38,14 @@ export default function ContactRelationsPage() {
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <img
-            src='/placeholder.svg?height=150&width=150&text=No+Contact'
-            alt='No collateral contact'
-            className='w-36 h-36 mb-4'
-          />
+          <div className='relative w-36 h-36 mb-4'>
+            <Image
+              src='/placeholder.svg?height=150&width=150&text=No+Contact'
+              alt='No collateral contact'
+              fill
+              className='object-contain'
+            />
+          </div>
           <p className='text-gray-500'>No Collateral Contact Available</p>
         </div>
       </div>

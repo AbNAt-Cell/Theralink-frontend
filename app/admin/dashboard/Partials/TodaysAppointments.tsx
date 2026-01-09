@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData, DashboardAppointment } from '@/hooks/useDashboardData';
 import { Loader2 } from 'lucide-react';
 
 export default function TodaysAppointments() {
@@ -47,7 +47,7 @@ export default function TodaysAppointments() {
               </TableHeader>
               <TableBody>
                 {appointments.length > 0 ? (
-                  appointments.map((appt: any) => (
+                  appointments.map((appt: DashboardAppointment) => (
                     <TableRow key={appt.id}>
                       <TableCell className='font-medium'>
                         {`${appt.client?.first_name} ${appt.client?.last_name}`}

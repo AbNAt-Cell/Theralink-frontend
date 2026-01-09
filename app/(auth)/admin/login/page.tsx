@@ -52,9 +52,9 @@ export default function AdminLogin() {
         setError('Access denied. Admin or Staff privileges required.');
         await logout();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Failed to login. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to login. Please try again.');
     }
   };
 

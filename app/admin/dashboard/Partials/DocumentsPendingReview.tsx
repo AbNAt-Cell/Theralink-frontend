@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData, DashboardDocument } from '@/hooks/useDashboardData';
 import { Loader2 } from 'lucide-react';
 
 export default function DocumentsPendingReview() {
@@ -38,7 +38,7 @@ export default function DocumentsPendingReview() {
               </TableHeader>
               <TableBody>
                 {pendingDocuments.length > 0 ? (
-                  pendingDocuments.map((doc: any) => (
+                  pendingDocuments.map((doc: DashboardDocument) => (
                     <TableRow key={doc.id}>
                       <TableCell className='font-medium'>
                         {`${doc.client?.first_name} ${doc.client?.last_name}`}

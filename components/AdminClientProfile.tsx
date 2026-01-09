@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function AdminClientProfile() {
   const clientData = {
     name: 'Jaleigh Bolton',
@@ -11,11 +13,12 @@ export default function AdminClientProfile() {
   return (
     <div className='border-b p-4 bg-white flex flex-col md:flex-row gap-4 items-start md:items-center'>
       <div className='flex-shrink-0'>
-        <div className='w-20 h-20 rounded-full bg-red-600 flex items-center justify-center overflow-hidden'>
-          <img
+        <div className='w-20 h-20 rounded-full bg-red-600 flex items-center justify-center overflow-hidden relative'>
+          <Image
             src='/placeholder.svg?height=80&width=80'
             alt='Profile'
-            className='w-full h-full object-cover'
+            fill
+            className='object-cover'
           />
         </div>
       </div>

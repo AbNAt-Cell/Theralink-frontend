@@ -8,6 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import Image from 'next/image';
 
 export default function StaffDashboard() {
   const [isExpiredOpen, setIsExpiredOpen] = useState(true);
@@ -109,11 +110,12 @@ export default function StaffDashboard() {
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className='p-4 bg-white border-t'>
-            <div className='flex items-center justify-center p-4'>
-              <img
+            <div className='flex items-center justify-center p-4 relative h-20 w-full'>
+              <Image
                 src='/placeholder.svg?height=80&width=150&text=Signature'
                 alt='Signature'
-                className='max-w-full'
+                fill
+                className='object-contain'
               />
             </div>
           </CollapsibleContent>

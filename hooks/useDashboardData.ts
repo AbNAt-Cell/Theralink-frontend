@@ -4,15 +4,50 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
 
+export interface DashboardAppointment {
+    id: string;
+    appointment_time: string;
+    appointment_type: string;
+    client: { first_name: string; last_name: string };
+    staff: { first_name: string; last_name: string };
+}
+
+export interface DashboardStaff {
+    id: string;
+    first_name: string;
+    last_name: string;
+    role: string;
+}
+
+export interface DashboardClient {
+    role: string;
+    last_name: string;
+}
+
+export interface DashboardDocument {
+    id: string;
+    date_of_service: string;
+    type: string;
+    client: { first_name: string; last_name: string };
+    staff: { first_name: string; last_name: string };
+}
+
+export interface BillingInfo {
+    total_amount_collected: number;
+    submissions_count: number;
+    claims_count: number;
+    documents_billed_count: number;
+}
+
 export function useDashboardData() {
     const { user } = useUser();
     const supabase = createClient();
     const [data, setData] = useState({
-        appointments: [] as any[],
-        loggedInStaff: [] as any[],
-        billingInfo: null as any,
-        clientsByStatus: [] as any[],
-        pendingDocuments: [] as any[],
+        appointments: [] as DashboardAppointment[],
+        loggedInStaff: [] as DashboardStaff[],
+        billingInfo: null as BillingInfo | null,
+        clientsByStatus: [] as DashboardClient[],
+        pendingDocuments: [] as DashboardDocument[],
         loading: true,
         error: null as any,
     });

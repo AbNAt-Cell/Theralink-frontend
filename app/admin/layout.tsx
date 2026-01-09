@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import AdminHeader from "@/components/AdminHeader";
-import { isAuthenticated, isAdmin } from "@/hooks/auth";
+import { useUser } from "@/context/UserContext";
 import SocketContextProvider from "@/context/SocketContextProvider";
 
 export default function AdminLayout({
@@ -11,14 +11,18 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { user, loading } = useUser();
   const router = useRouter();
+
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push("/admin/login");
-    } else if (!isAdmin()) {
-      router.push("/client/dashboard");
+    if (!loading) {
+      if (!user) {
+        router.push("/admin/login");
+      } else if (user.role === 'CLIENT') {
+        router.push("/client/dashboard");
+      }
     }
-  }, [router]);
+  }, [user, loading, router]);
 
   // const user = getStoredUser();
   // useSocket(user ? { userId: user.id } : { userId: null });

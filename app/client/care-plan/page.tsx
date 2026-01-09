@@ -12,7 +12,7 @@ const ClientCarePlan = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [showCompleted, setShowCompleted] = useState(false)
 
-  const carePlanData = [
+  const carePlanData = useMemo(() => [
     {
       id: 'CP001',
       client: 'John Doe',
@@ -35,13 +35,13 @@ const ClientCarePlan = () => {
       appointment: 'Bi-weekly check-ins',
       status: 'Completed'
     }
-  ]
+  ], [])
 
   const filteredCarePlanData = useMemo(() => {
-    return carePlanData.filter(plan => 
+    return carePlanData.filter(plan =>
       (showCompleted || plan.status === 'Active') &&
-      Object.values(plan).some(value => 
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      Object.values(plan).some(value =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
   }, [carePlanData, searchTerm, showCompleted])
@@ -56,8 +56,8 @@ const ClientCarePlan = () => {
           <div className='flex flex-col md:flex-row justify-between gap-4 mb-4'>
             <div className='flex flex-col md:flex-row gap-4'>
               <div className="flex items-center space-x-2">
-                <Switch 
-                  id="show-completed" 
+                <Switch
+                  id="show-completed"
                   checked={showCompleted}
                   onCheckedChange={setShowCompleted}
                 />
@@ -65,8 +65,8 @@ const ClientCarePlan = () => {
               </div>
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                <Input 
-                  className='mt-0 pl-10 w-full' 
+                <Input
+                  className='mt-0 pl-10 w-full'
                   placeholder="Find medications, appointments, or goals"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}

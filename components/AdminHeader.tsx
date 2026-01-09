@@ -14,7 +14,8 @@ import {
 import { useRouter } from 'nextjs-toploader/app'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { getStoredUser, logout } from '@/hooks/auth'
+import { logout } from '@/hooks/auth'
+import { useUser } from '@/context/UserContext'
 
 const LogoutMenuItem = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ const LogoutMenuItem = () => {
 };
 
 const AdminHeader = () => {
+  const { user } = useUser();
   const pathname = usePathname();
 
   const isActivePath = (path: string) => {
@@ -103,15 +105,15 @@ const AdminHeader = () => {
                   <div className="px-2 py-1.5 text-sm">
                     <div className="font-medium flex items-center">
                       <User className="mr-2 h-4 w-4" />
-                      {getStoredUser()?.username}
+                      {user?.firstName} {user?.lastName}
                     </div>
                     <div className="text-muted-foreground flex items-center">
                       <AtSign className="mr-2 h-4 w-4" />
-                      {getStoredUser()?.email}
+                      {user?.email}
                     </div>
                     <div className="text-xs mt-1 text-muted-foreground flex items-center">
                       <UserCog className="mr-2 h-4 w-4" />
-                      Role: {getStoredUser()?.role}
+                      Role: {user?.role}
                     </div>
                   </div>
                   <DropdownMenuSeparator />

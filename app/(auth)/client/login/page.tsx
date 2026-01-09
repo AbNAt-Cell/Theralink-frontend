@@ -56,9 +56,9 @@ export default function ClientLogin() {
       } else {
         router.push('/admin/dashboard');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Failed to login. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to login. Please try again.');
     }
   };
 

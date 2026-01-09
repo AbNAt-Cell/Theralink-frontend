@@ -6,6 +6,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import AdminClientProfile from '@/components/AdminClientProfile';
+import Image from 'next/image';
 
 export default function MedicationManagementPage() {
   return (
@@ -19,11 +20,14 @@ export default function MedicationManagementPage() {
       </div>
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-        <img
-          src='/placeholder.svg?height=150&width=150&text=No+Medications'
-          alt='No medications'
-          className='w-36 h-36 mb-4'
-        />
+        <div className='relative w-36 h-36 mb-4'>
+          <Image
+            src='/placeholder.svg?height=150&width=150&text=No+Medications'
+            alt='No medications'
+            fill
+            className='object-contain'
+          />
+        </div>
         <p className='text-gray-500'>No Medication Administrations</p>
       </div>
 
@@ -53,22 +57,28 @@ export default function MedicationManagementPage() {
       </div>
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-        <img
-          src='/placeholder.svg?height=150&width=150&text=No+Medications'
-          alt='No medications'
-          className='w-36 h-36 mb-4'
-        />
+        <div className='relative w-36 h-36 mb-4'>
+          <Image
+            src='/placeholder.svg?height=150&width=150&text=No+Medications'
+            alt='No medications'
+            fill
+            className='object-contain'
+          />
+        </div>
         <p className='text-gray-500'>No Current Medications</p>
       </div>
 
       <h2 className='text-xl font-semibold'>Medication Administrations</h2>
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-        <img
-          src='/placeholder.svg?height=150&width=150&text=No+Medications'
-          alt='No medications'
-          className='w-36 h-36 mb-4'
-        />
+        <div className='relative w-36 h-36 mb-4'>
+          <Image
+            src='/placeholder.svg?height=150&width=150&text=No+Medications'
+            alt='No medications'
+            fill
+            className='object-contain'
+          />
+        </div>
         <p className='text-gray-500'>No Other/Historic Medications</p>
       </div>
     </div>

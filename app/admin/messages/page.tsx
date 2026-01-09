@@ -21,9 +21,9 @@ import {
   Paperclip,
   Plus,
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Textarea} from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -36,7 +36,7 @@ import { User, userSearch } from '@/hooks/user';
 import { messages } from '@/hooks/messages';
 import axiosInstance from '@/lib/axios';
 import { useSocketContext } from '@/context/SocketContextProvider';
-import { getStoredUser } from '@/hooks/auth';
+import { useUser } from '@/context/UserContext';
 // import { useSocketSendDm } from '@/lib/socket';
 interface Conversation {
   id: string;
@@ -64,7 +64,7 @@ interface Email {
 }
 
 const AdminMessagingPage = () => {
-  const user = getStoredUser();
+  const { user } = useUser();
   const socket = useSocketContext();
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,6 @@
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function ContactNotesPage() {
   return (
@@ -13,11 +14,14 @@ export default function ContactNotesPage() {
       </div>
 
       <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[300px]'>
-        <img
-          src='/placeholder.svg?height=200&width=200&text=No+Notes'
-          alt='No contact notes'
-          className='w-48 h-48 mb-4'
-        />
+        <div className='relative w-48 h-48 mb-4'>
+          <Image
+            src='/placeholder.svg?height=200&width=200&text=No+Notes'
+            alt='No contact notes'
+            fill
+            className='object-contain'
+          />
+        </div>
         <p className='text-gray-500'>No Contact Notes Available</p>
       </div>
     </div>

@@ -1,14 +1,15 @@
 "use client"
 
 import type React from "react"
-import {useEffect, useState, useRef} from "react"
-import {usePathname, useRouter} from "next/navigation"
-import {useSocketContext} from "@/context/SocketContextProvider"
-import {getStoredUser} from "@/hooks/auth"
-import {message} from "@/hooks/messages"
-import {ChevronLeft, Printer, Trash2, Paperclip, ImageIcon, Send, Mic} from 'lucide-react'
-import {Button} from "@/components/ui/button"
-import {Badge} from "@/components/ui/badge"
+import { useEffect, useState, useRef } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useSocketContext } from "@/context/SocketContextProvider"
+import { useUser } from "@/context/UserContext"
+import Image from "next/image"
+import { message } from "@/hooks/messages"
+import { ChevronLeft, Printer, Trash2, Paperclip, ImageIcon, Send, Mic } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 interface Message {
     id: number
@@ -28,7 +29,7 @@ export default function ChatPage() {
     const pathname = usePathname()
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const [recipient, setRecipient] = useState<{ name: string; role: string } | null>(null)
-    const currentUser = getStoredUser()
+    const { user: currentUser } = useUser()
 
     // Extract conversation ID from URL
     const conversationId = pathname.substring(pathname.lastIndexOf("/") + 1) || null
@@ -48,7 +49,7 @@ export default function ChatPage() {
                         role: response.participant.role ? "Staff" : "Client",
                     })
                 } else {
-                    setRecipient({name: "Mfoniso Iboikette", role: "Staff"})
+                    setRecipient({ name: "Mfoniso Iboikette", role: "Staff" })
                 }
 
                 console.log("Fetched messages:", response)
@@ -67,7 +68,7 @@ export default function ChatPage() {
 
     // Scroll to bottom when messages change
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({behavior: "smooth"})
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
 
     // Listen for new messages from socket
@@ -83,7 +84,7 @@ export default function ChatPage() {
                         userId: newMsg.userId,
                         sender: newMsg.sender || "Unknown",
                         body: newMsg.message || newMsg.body,
-                        time: new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}),
+                        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                     },
                 ])
             })
@@ -112,7 +113,7 @@ export default function ChatPage() {
                 userId: currentUser.id,
                 sender: currentUser.firstName + " " + currentUser.lastName,
                 body: newMessage,
-                time: new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}),
+                time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             }
             setMessages((prev) => [...prev, tempMessage])
 
@@ -147,7 +148,7 @@ export default function ChatPage() {
         // Otherwise try to format it
         try {
             const date = new Date(timeString)
-            return date.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         } catch (e) {
             console.log(e);
             return timeString
@@ -160,7 +161,7 @@ export default function ChatPage() {
             <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
                     <button onClick={() => router.back()} className="p-1 rounded-full hover:bg-gray-100">
-                        <ChevronLeft className="h-5 w-5"/>
+                        <ChevronLeft className="h-5 w-5" />
                     </button>
                     <h2 className="text-lg font-medium">{recipient?.name || "Loading..."}</h2>
                     <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 border-none">
@@ -169,10 +170,10 @@ export default function ChatPage() {
                 </div>
                 <div className="flex gap-2">
                     <button className="p-2 text-gray-500 hover:text-gray-700">
-                        <Printer className="h-5 w-5"/>
+                        <Printer className="h-5 w-5" />
                     </button>
                     <button className="p-2 text-gray-500 hover:text-gray-700">
-                        <Trash2 className="h-5 w-5"/>
+                        <Trash2 className="h-5 w-5" />
                     </button>
                 </div>
             </div>
@@ -195,19 +196,18 @@ export default function ChatPage() {
                             <div key={msg.id} className={`flex ${isCurrentUser ? "justify-end" : ""}`}>
                                 {!isCurrentUser && (
                                     <div className="mr-3">
-                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden">
-                                            <img src="/placeholder.svg?height=40&width=40" alt="Avatar"
-                                                 className="w-full h-full object-cover"/>
+                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden relative">
+                                            <Image src="/placeholder.svg?height=40&width=40" alt="Avatar"
+                                                fill className="object-cover" />
                                         </div>
                                     </div>
                                 )}
                                 <div className={`max-w-[70%] ${isCurrentUser ? "order-1" : "order-2"}`}>
                                     <div
-                                        className={`p-4 rounded-lg ${
-                                            isCurrentUser
-                                                ? "bg-blue-600 text-white rounded-br-none"
-                                                : "bg-gray-100 text-gray-800 rounded-tl-none"
-                                        }`}
+                                        className={`p-4 rounded-lg ${isCurrentUser
+                                            ? "bg-blue-600 text-white rounded-br-none"
+                                            : "bg-gray-100 text-gray-800 rounded-tl-none"
+                                            }`}
                                     >
                                         <p className="text-sm">{msg.body}</p>
                                     </div>
@@ -217,9 +217,9 @@ export default function ChatPage() {
                                 </div>
                                 {isCurrentUser && (
                                     <div className="ml-3 order-2">
-                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden">
-                                            <img src="/placeholder.svg?height=40&width=40" alt="Avatar"
-                                                 className="w-full h-full object-cover"/>
+                                        <div className="w-10 h-10 rounded-full bg-red-600 overflow-hidden relative">
+                                            <Image src="/placeholder.svg?height=40&width=40" alt="Avatar"
+                                                fill className="object-cover" />
                                         </div>
                                     </div>
                                 )}
@@ -227,13 +227,13 @@ export default function ChatPage() {
                         )
                     })
                 )}
-                <div ref={messagesEndRef}/>
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Message Input */}
             <div className="border-t p-3 flex items-center gap-2">
                 <button className="p-2 text-gray-500 hover:text-gray-700">
-                    <Mic className="h-5 w-5"/>
+                    <Mic className="h-5 w-5" />
                 </button>
                 <input
                     type="text"
@@ -245,17 +245,17 @@ export default function ChatPage() {
                 />
                 <div className="flex gap-2">
                     <button className="p-2 text-gray-500 hover:text-gray-700">
-                        <Paperclip className="h-5 w-5"/>
+                        <Paperclip className="h-5 w-5" />
                     </button>
                     <button className="p-2 text-gray-500 hover:text-gray-700">
-                        <ImageIcon className="h-5 w-5"/>
+                        <ImageIcon className="h-5 w-5" />
                     </button>
                     <Button
                         className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white"
                         onClick={sendMessage}
                         disabled={!newMessage.trim()}
                     >
-                        Send <Send className="h-4 w-4 ml-1"/>
+                        Send <Send className="h-4 w-4 ml-1" />
                     </Button>
                 </div>
             </div>

@@ -23,6 +23,13 @@ import { createStaff } from '@/hooks/admin/staff';
 import { useUser } from '@/context/UserContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const newClientFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -75,9 +82,9 @@ const NewStaffPage = () => {
       await createStaff(data, user.clinicId);
       toast.success("Staff member added successfully!");
       router.push('/admin/staff');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || "Failed to add staff member.");
+      toast.error(err instanceof Error ? err.message : "Failed to add staff member.");
     } finally {
       setIsSubmitting(false);
     }
