@@ -17,10 +17,13 @@ export async function middleware(request: NextRequest) {
 
   // If logged in and trying to access auth path
   if (user && isAuthPath) {
-    const redirectPath = (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'STAFF')
-      ? '/admin/dashboard'
-      : '/client/dashboard'
-    return NextResponse.redirect(new URL(redirectPath, request.url))
+    if (role === 'CLIENT') {
+      return NextResponse.redirect(new URL('/client/dashboard', request.url))
+    } else if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'STAFF') {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+    // If role is still null or unexpected, don't redirect yet to avoid misdirection
+    // The client-side will handle further routing once UserContext loads
   }
 
   // Admin section RBAC

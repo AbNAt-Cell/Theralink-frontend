@@ -32,12 +32,16 @@ export async function updateSession(request: NextRequest) {
 
     let role = null
     if (user) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single()
-        role = profile?.role
+
+        if (error) {
+            console.error('Middleware: Error fetching user role:', error.message)
+        }
+        role = profile?.role || null
     }
 
     return { supabaseResponse, user, role }
