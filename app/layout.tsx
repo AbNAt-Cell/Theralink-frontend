@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Toaster } from "@/components/ui/toaster"
 import { Raleway } from 'next/font/google'
 import NextTopLoader from 'nextjs-toploader';
+import { UserProvider } from '@/context/UserContext'
 
 
 const raleway = Raleway({
@@ -24,9 +25,12 @@ export default function RootLayout({
     <html lang="en">
       <NextTopLoader color="#0448E7" />
       <body className={raleway.className}>
-        {children}
+        <UserProvider>
+          {children}
+        </UserProvider>
       </body>
       <Toaster />
     </html>
   )
 }
+

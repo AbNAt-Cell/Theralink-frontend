@@ -35,7 +35,7 @@ export default function AdminLogin() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -46,16 +46,15 @@ export default function AdminLogin() {
     try {
       const { user } = await login(data);
 
-      if (user.role === 'ADMIN') {
+      if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'STAFF') {
         router.push('/admin/dashboard');
       } else {
-        setError('Access denied. Admin privileges required.');
-        logout();
+        setError('Access denied. Admin or Staff privileges required.');
+        await logout();
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.log(err);
-      setError(err.response?.data?.error || 'Failed to login. Please try again.');
+      console.error(err);
+      setError(err.message || 'Failed to login. Please try again.');
     }
   };
 
@@ -85,14 +84,14 @@ export default function AdminLogin() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="username"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='text-gray-800 font-semibold'>Username</FormLabel>
+                    <FormLabel className='text-gray-800 font-semibold'>Email address</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <User className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                        <Input className='mt-0 pl-10' placeholder="Enter your username" {...field} />
+                        <Input className='mt-0 pl-10' placeholder="Enter your email" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -106,7 +105,7 @@ export default function AdminLogin() {
                   <FormItem>
                     <FormLabel className='text-gray-800 flex justify-between'>
                       <span className='font-semibold'>Password</span>
-                      <Link href="/forgot-password" className="text-xs text-primary underline">
+                      <Link href="/forgot-password" title="Forgot password?" className="text-xs text-primary underline">
                         Forgot password?
                       </Link>
                     </FormLabel>
@@ -153,3 +152,4 @@ export default function AdminLogin() {
     </div>
   );
 }
+

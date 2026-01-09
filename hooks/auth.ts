@@ -1,87 +1,91 @@
 import { z } from 'zod';
-import Cookies from 'js-cookie';
-import axiosInstance from '../lib/axios';
+import { createClient } from '@/utils/supabase/client';
 
 export const loginFormSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
+
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'STAFF' | 'CLIENT';
 
 export type User = {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  username: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
+  role: UserRole;
+  clinicId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-export type LoginResponse = {
-  user: User;
-  token: string;
-};
+const supabase = createClient();
 
-export const login = async (data: LoginFormValues): Promise<LoginResponse> => {
-  const response = await axiosInstance.post('/api/auth/login', {
-    username: data.username,
-    password: data.password,
-  });
-
-  const { user, token } = response.data;
-  Cookies.set('token', token, {
-    secure: true,
-    sameSite: 'strict',
-    expires: 7,
-  });
-
-  Cookies.set('user', JSON.stringify(user), {
-    secure: true,
-    sameSite: 'strict',
-    expires: 7,
-  });
-
-  return response.data;
-};
-
-export const logout = () => {
-  Cookies.remove('token');
-  Cookies.remove('user');
-};
-
-export const getStoredUser = (): User | null => {
-  const userStr = Cookies.get('user');
-  return userStr ? JSON.parse(userStr) : null;
-};
-
-export const isAuthenticated = (): boolean => {
-  return !!Cookies.get('token');
-};
-
-export const isAdmin = (): boolean => {
-  const user = getStoredUser();
-  return user?.role === 'ADMIN';
-};
-
-export const sendForgotPassword = async (data: {
-  email: string;
-}): Promise<{ message: string }> => {
-  const response = await axiosInstance.post('/api/auth/forgot-password', {
+export const login = async (data: LoginFormValues) => {
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: data.email,
+    password: data.password,
   });
-  return response.data;
+
+  if (authError) throw authError;
+
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', authData.user.id)
+    .single();
+
+  if (profileError) throw profileError;
+
+  const user: User = {
+    id: authData.user.id,
+    email: authData.user.email!,
+    firstName: profileData.first_name,
+    lastName: profileData.last_name,
+    role: profileData.role,
+    clinicId: profileData.clinic_id,
+  };
+
+  return { user, session: authData.session };
 };
 
-export const sendResetPassword = async (data: {
-  password: string;
-  token: string;
-}): Promise<{ message: string }> => {
-  const response = await axiosInstance.post('/api/auth/reset-password', {
-    password: data.password,
-    token: data.token,
-  });
-  return response.data;
+export const logout = async () => {
+  await supabase.auth.signOut();
 };
+
+export const getStoredUser = async (): Promise<User | null> => {
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) return null;
+
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', authUser.id)
+    .single();
+
+  if (!profileData) return null;
+
+  return {
+    id: authUser.id,
+    email: authUser.email!,
+    firstName: profileData.first_name,
+    lastName: profileData.last_name,
+    role: profileData.role,
+    clinicId: profileData.clinic_id,
+  };
+};
+
+export const sendForgotPassword = async (email: string) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+  if (error) throw error;
+};
+
+export const sendResetPassword = async (password: string) => {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+};
+
