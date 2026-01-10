@@ -1,16 +1,34 @@
+"use client";
 
-import AdminStaffProfile from "@/components/AdminStaffProfile"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import AdminStaffProfile from "@/components/AdminStaffProfile";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { useStaffData } from "@/hooks/useStaffData";
+import { Loader2 } from "lucide-react";
 
 export default function FilesPage() {
+  const { staff, loading } = useStaffData();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <span className="ml-3 text-lg font-medium text-gray-500">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!staff) {
+    return <div>Staff member not found.</div>;
+  }
+
   return (
     <div className="space-y-6">
       <AdminStaffProfile
-        name="Staff Member"
-        email="staff@example.com"
-        phone="N/A"
-        site="Main Site"
+        name={`${staff.firstName} ${staff.lastName}`}
+        email={staff.email}
+        phone={staff.phone}
+        site={staff.site}
       />
 
       <div className="space-y-4">

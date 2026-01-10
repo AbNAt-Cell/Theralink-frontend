@@ -175,7 +175,7 @@ export default function CallOverlay() {
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
-        if (callState === "ended") {
+        if (callState === "ended" || callState === "unavailable" || callState === "disconnected") {
             timeout = setTimeout(() => {
                 setCallState("idle");
             }, 3000);
