@@ -1,3 +1,5 @@
+"use client";
+
 import AdminStaffProfile from "@/components/AdminStaffProfile";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
