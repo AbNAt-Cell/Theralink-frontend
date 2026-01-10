@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Eraser, X } from 'lucide-react';
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import * as z from "zod";
 
 import {
@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from 'next/link';
 import { createStaff } from '@/hooks/admin/staff';
 import { useUser } from '@/context/UserContext';
 import { toast } from 'sonner';
@@ -90,7 +89,7 @@ const NewStaffPage = () => {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<FormValues>) => {
     console.log("Form Errors:", errors);
     toast.error("Please fill in all required fields correctly.");
   };
