@@ -4,7 +4,12 @@ import Image from 'next/image';
 export default function SignaturePage() {
   return (
     <div className='space-y-6'>
-      <AdminStaffProfile />
+      <AdminStaffProfile
+        name="Staff Member"
+        email="staff@example.com"
+        phone="N/A"
+        site="Main Site"
+      />
 
       <div className='border rounded-md p-4 bg-white'>
         <h2 className='text-xl font-semibold mb-4'>Signature</h2>

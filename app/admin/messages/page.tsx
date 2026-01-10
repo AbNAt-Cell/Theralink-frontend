@@ -1,377 +1,365 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  // SelectGroup,
-  SelectItem,
-  // SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  Inbox,
-  SendHorizontal,
-  Paperclip,
-  Plus,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import EmailInbox from './EmailInbox';
-import { User, userSearch } from '@/hooks/user';
-import { messages } from '@/hooks/messages';
-import axiosInstance from '@/lib/axios';
-import { useSocketContext } from '@/context/SocketContextProvider';
-import { useUser } from '@/context/UserContext';
-// import { useSocketSendDm } from '@/lib/socket';
-interface Conversation {
-  id: string;
-  lastMessage: string;
-  participants: { userId: string }[];
-}
-interface Participant {
-  id: string;
-  firstName: string;
-  lastName: string;
+import { activeMessages, contactMessage, contactMessageHistory, fetchPeerId, messageContacts, sendMessage } from "@/hooks/messages";
+import React, { useState, useRef, useEffect } from "react";
+import { Search, Phone, Video, Smile, Paperclip, Send, MessageSquareDot, Plus, ArrowLeft, SquarePen } from "lucide-react";
+import ContactModal from "@/components/ContactModal";
+import { format } from "date-fns";
+import { useSocketContext } from "@/context/SocketContextProvider";
+import { usePeerContext } from "@/context/CallProvider";
+
+interface Contact {
   email: string;
-  phone: string;
-  avatar: string;
-  role: boolean;
+  firstname: string;
+  lastname: string;
+  id?: number;
+  name?: string;
+  role?: string;
+  _id?: string;
+  lastMessage?: string;
+  timestamp?: string;
+  unread?: number;
+  avatar?: string;
+  isOnline?: boolean;
+  isGroup?: boolean;
+  status: string;
 }
-interface Email {
+
+interface Message {
   id: string;
-  useId: string;
-  participants: { user: Participant }[];
-  lastMessage: string;
-  category?: string;
-  updatedAt: string;
-  isChecked: boolean;
-  isStarred: boolean;
+  _id?: string;
+  sender: { _id: string; firstname?: string; lastname?: string };
+  type?: string;
+  url?: string;
+  text?: string;
+  timestamp?: string;
 }
 
-const AdminMessagingPage = () => {
-  const { user } = useUser();
-  const socket = useSocketContext();
-  const [emails, setEmails] = useState<Email[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
+interface Participant {
+  _id?: string;
+  firstname?: string;
+  lastname?: string;
+  avatar?: string;
+  isOnline?: boolean;
+}
 
-  // messaging and coversation states
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [body, setBody] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+interface Conversation {
+  _id: string;
+  id?: string;
+  last_message?: string;
+  lastMessage?: string;
+  updated_at?: string;
+  updatedAt?: string;
+  unread?: number;
+  participants: Participant[];
+}
+
+interface TransformedContact extends Participant {
+  conversationId: string;
+  lastMessage?: string;
+  timestamp: string;
+  unread: number;
+}
+
+export default function ChatDashboard() {
+  const [conversations, setConversations] = useState<Conversation[] | null>(null);
+  const [allContacts, setAllContacts] = useState<Contact[]>([]);
+  const [messageInput, setMessageInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [chatSearchQuery] = useState("");
+  const [showChatSearch, setShowChatSearch] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { selectedContact, setSelectedContact, sending, setSending, loggedInUser, messages, setMessages, conversationId, setConversationId, recipientPeerId, setRecipientPeerId, startAudioCall, startVideoCall } = usePeerContext();
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      setLoading(true);
-      try {
-        const response = await messages();
-        setEmails(response.conversations);
-        console.log('Fetched messages:', response);
-      } catch (error) {
-        setError('Failed to fetch messages');
-        console.error('Error fetching messages:', error);
-      } finally {
-        setLoading(false);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setShowSidebar(true);
       }
     };
-    fetchMessages();
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  function sendMessage() {
-    return (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const files = formData.getAll('files');
-      const socketData = {
-        conversationId: conversationId,
-        body,
-        toUserId: selectedUser?.id,
-        userId: user?.id,
-        image: files,
-      };
-      // console.log("socketData:", socketData)
-      socket?.emit('send_dm', socketData);
-    };
-  }
-
   useEffect(() => {
-    const search = async () => {
-      if (searchQuery.trim() === '') {
-        setSearchResults([]);
-        return;
-      }
+    const fetchConversations = async () => {
       try {
-        const users = await userSearch({ email: searchQuery });
-        setSearchResults(users);
-      } catch (error) {
-        console.error('Error searching users:', error);
+        const response = await activeMessages();
+        setConversations(response);
+      } catch (error: unknown) {
+        console.error(error);
       }
     };
-    // adding debouncing when a user is searching
-    const timeout = setTimeout(search, 300);
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+    fetchConversations();
+    const interval = setInterval(fetchConversations, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const createConversation = async (patientId: string) => {
+  useEffect(() => {
+    if (!conversationId) return;
+    const fetchUpdatedConversation = async () => {
+      try {
+        const messageHistory = await contactMessageHistory(conversationId);
+        setMessages(messageHistory);
+        const getPeerIdResponse = await fetchPeerId(selectedContact?._id || "");
+        setRecipientPeerId(getPeerIdResponse?.peerId || null);
+      } catch (error: unknown) {
+        console.error(error);
+      }
+    };
+    fetchUpdatedConversation();
+    const interval = setInterval(fetchUpdatedConversation, 5000);
+    return () => clearInterval(interval);
+  }, [conversationId, selectedContact?._id, setMessages, setRecipientPeerId]);
+
+  const handleSelectContact = async (contact: Contact) => {
+    setSelectedContact(contact);
+
     try {
-      const response = await axiosInstance.post(
-        `/api/conversations/${patientId}`,
-        { lastMessage: 'New conversation' },
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get('token')}`,
-          },
-        }
-      );
-      const conversation: Conversation = response.data.conversation;
-      setConversationId(conversation.id);
-      return conversation;
+      const response = await contactMessage(contact?._id || "");
+      setConversationId(response?._id);
+      const messageHistory = await contactMessageHistory(response?._id);
+      setMessages(messageHistory);
+      const getPeerIdResponse = await fetchPeerId(contact?._id || "");
+      setRecipientPeerId(getPeerIdResponse?.peerId || null);
     } catch (error) {
-      console.error('Error creating conversation:', error);
-      throw new Error('Failed to create conversation');
+      console.log(error);
     }
   };
 
-  const handleSelectUser = async (user: User) => {
-    setSelectedUser(user);
-    setSearchQuery(user.email);
-    setSearchResults([]);
+  const socket = useSocketContext();
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("connect", () => {
+      if (loggedInUser?.id) {
+        socket.emit("join", loggedInUser?.id);
+      }
+    });
+
+    socket.on("user:online", ({ userId }: { userId: string }) => {
+      setConversations((prev: Conversation[] | null) =>
+        prev?.map((conv: Conversation) => ({
+          ...conv,
+          participants: conv.participants?.map((p: Participant) => (String(p._id) === String(userId) ? { ...p, isOnline: true } : p)),
+        })) || null
+      );
+    });
+
+    socket.on("user:offline", ({ userId }: { userId: string }) => {
+      setConversations((prev: Conversation[] | null) =>
+        prev?.map((conv: Conversation) => ({
+          ...conv,
+          participants: conv.participants?.map((p: Participant) => (String(p._id) === String(userId) ? { ...p, isOnline: false } : p)),
+        })) || null
+      );
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("user:online");
+      socket.off("user:offline");
+    };
+  }, [loggedInUser, socket]);
+
+  const transformedContacts: TransformedContact[] = conversations?.map((contact: Conversation) => {
+    const otherParticipant = contact?.participants?.find((p: Participant) => p._id !== loggedInUser?.id);
+    return {
+      conversationId: contact?._id,
+      lastMessage: contact?.last_message || contact?.lastMessage,
+      timestamp: contact?.updated_at || contact?.updatedAt || new Date().toISOString(),
+      unread: contact?.unread || 0,
+      ...otherParticipant,
+    };
+  }) || [];
+
+  const filteredContacts = transformedContacts?.filter((contact: TransformedContact) =>
+    contact?.firstname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contact?.lastname?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredMessages = messages?.filter((message: Message) =>
+    chatSearchQuery === "" || (message?.text && message.text.toLowerCase().includes(chatSearchQuery.toLowerCase()))
+  );
+
+  const handleSend = async () => {
+    if (!selectedContact || !conversationId) return;
+    const text = messageInput.trim();
+    if (!text || sending) return;
+
+    setSending(true);
     try {
-      await createConversation(user.id);
-    } catch (error) {
-      console.error('Error starting conversation:', error);
-      setError('Failed to start conversation');
+      await sendMessage(conversationId, text, "text", "");
+      setMessageInput("");
+      const history = await contactMessageHistory(conversationId);
+      setMessages(history);
+    } catch (error: unknown) {
+      console.log(error);
     }
+    setSending(false);
   };
 
   useEffect(() => {
-    if (socket) {
-      socket?.off('receive_dm'); // Clear previous listener
-      socket?.on('receive_dm', (message) => {
-        // setChat((prev) => ({
-        //   ...prev,
-        //   messages: [
-        //     ...prev?.messages,
-        //     {
-        //       text: message.text,
-        //       receiverid: message?.receiverid,
-        //       sender: {
-        //         name: message?.sender?.name,
-        //         username: message?.sender?.username,
-        //         image: message?.sender?.image,
-        //         id: message?.sender?.id,
-        //       },
-        //     },
-        //   ],
-        // }));
-        console.log(message);
-      });
-    }
-    return () => {
-      socket?.off('receive_dm');
+    const getUsersList = async () => {
+      try {
+        const response = await messageContacts();
+        setAllContacts(response);
+      } catch (error) {
+        console.log("error getting users", error);
+      }
     };
-  }, [socket]);
+    getUsersList();
+  }, [isModalOpen]);
 
   return (
-    <div className='container max-w-[1350px] mx-auto p-6 space-y-6'>
-      <Card className='border-0 shadow-none bg-transparent'>
-        <CardContent className='flex gap-4'>
-          <div className='w-80'>
-            <Card className='w-full max-w-5xl p-0'>
-              <CardHeader className='pb-8 px-3'>
-                <Dialog
-                  open={isNewMessageOpen}
-                  onOpenChange={setIsNewMessageOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button size='lg' className='w-full gap-2'>
-                      <Plus className='mr-2 h-4 w-4' />
-                      Compose
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className='sm:max-w-[625px]'>
-                    <DialogHeader>
-                      <DialogTitle>New Message</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={sendMessage()}>
-                      <div className='grid gap-4 py-4'>
-                        <div className='grid grid-cols-4 items-center gap-4 relative'>
-                          <label htmlFor='to' className='text-right'>
-                            To
-                          </label>
-                          <Input
-                            id='to'
-                            className='col-span-3'
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder='Enter email'
-                          />
-                          {/* Dropdown for search results */}
-                          {searchResults.length > 0 && (
-                            <div className='col-span-3 absolute top-full left-0 mt-1 w-full bg-white border rounded-md shadow-lg z-10 max-h-60 overflow-y-auto'>
-                              {searchResults.map((user) => (
-                                <div
-                                  key={user.id}
-                                  className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
-                                  onClick={() => handleSelectUser(user)}
-                                >
-                                  {user.email}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <div className='grid grid-cols-4 items-center gap-4'>
-                          <label htmlFor='body' className='text-right'>
-                            Body
-                          </label>
-                          <Textarea
-                            id='body'
-                            value={body}
-                            name='body'
-                            onChange={(e) => setBody(e.target.value)}
-                            className='col-span-3'
-                            rows={5}
-                          />
-                        </div>
-                        <div className='grid grid-cols-4 items-center gap-4'>
-                          <label htmlFor='files' className='text-right'>
-                            Attachments
-                          </label>
-                          <div className='col-span-3 flex items-center gap-2'>
-                            <Input
-                              id='files'
-                              type='file'
-                              multiple
-                              className='hidden'
-                            />
-                            <Button
-                              variant='outline'
-                              onClick={() =>
-                                document.getElementById('files')?.click()
-                              }
-                            >
-                              <Paperclip className='mr-2 h-4 w-4' />
-                              Select Files
-                            </Button>
-                            <span className='text-sm text-muted-foreground'>
-                              No files selected
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className='flex justify-end gap-2'>
-                        <Button
-                          variant='outline'
-                          onClick={() => setIsNewMessageOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button variant='secondary'>Save Draft</Button>
-                        <Button onClick={() => sendMessage()}>Send</Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent className='px-3'>
-                <div className='flex flex-col gap-3'>
-                  <p className='font-bold'>Staff</p>
-                  <div className='flex flex-col gap-1'>
-                    <button className='w-full flex flex-row justify-between gap-2 px-4 py-2 text-sm font-medium rounded-md bg-[#E7EEFF] text-[#1C5AEB]'>
-                      <div className='flex items-center gap-2'>
-                        <Inbox className='h-4 w-4' />
-                        Inbox
-                      </div>
-                      <p className='text-xs font-semibold'>500</p>
-                    </button>
-                    <button className='w-full flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:bg-slate-100 text-slate-700'>
-                      <SendHorizontal className='h-4 w-4' />
-                      Sent
-                    </button>
-                    <button className='w-full flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:bg-slate-100 text-red-600'>
-                      <Trash2 className='h-4 w-4' />
-                      Trash
-                    </button>
+    <div className="flex h-screen bg-white overflow-hidden">
+      <div className={`${isMobile ? (showSidebar ? "w-full" : "w-0 overflow-hidden") : "w-full md:w-1/3 lg:w-1/3"} bg-white border-r border-gray-200 flex flex-col transition-all duration-300`}>
+        <div className="p-4 bg-gray-100 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+            <button onClick={() => setIsModalOpen(true)} className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-full transition">
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          <ContactModal
+            open={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            contacts={allContacts}
+            onSelectContact={(contact: Contact) => {
+              handleSelectContact(contact);
+              if (isMobile) setShowSidebar(false);
+              setIsModalOpen(false);
+            }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between w-full space-x-3 p-4 border-b border-gray-200">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input type="text" placeholder="Search or start new chat" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-secondary" />
+          </div>
+          <button className="p-2" onClick={() => setIsModalOpen(true)}>
+            <SquarePen className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {filteredContacts?.map((contact: TransformedContact) => (
+            <div
+              key={contact?._id}
+              onClick={() => {
+                const contactData: Contact = {
+                  firstname: contact.firstname || "",
+                  lastname: contact.lastname || "",
+                  email: "",
+                  status: "",
+                  _id: contact._id,
+                  avatar: contact.avatar,
+                  isOnline: contact.isOnline
+                };
+                handleSelectContact(contactData);
+                if (isMobile) setShowSidebar(false);
+              }}
+              className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${selectedContact?._id === contact?._id ? "bg-gray-100" : ""}`}>
+              <div className="flex items-center space-x-3 relative">
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={contact?.avatar || "/images/Blank_Profile.jpg"} alt={contact?.firstname} className="w-12 h-12 rounded-full object-cover bg-gray-200" />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${contact?.isOnline ? "bg-green-500" : "bg-gray-400"}`}></div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">
+                      {contact?.firstname} {contact?.lastname}
+                    </h3>
+                    <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                      {contact.timestamp && format(new Date(contact.timestamp), "eee p")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-sm text-gray-500 truncate">{contact?.lastMessage}</p>
+                    {(contact?.unread ?? 0) > 0 && <span className="ml-2 bg-secondary text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">{contact.unread}</span>}
                   </div>
                 </div>
-                <div className='flex flex-col gap-3'>
-                  <p className='font-bold'>Client</p>
-                  <div className='flex flex-col gap-1'>
-                    <button className='w-full flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:bg-slate-100 text-slate-900'>
-                      <Inbox className='h-4 w-4' />
-                      Inbox
-                    </button>
-                    <button className='w-full flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:bg-slate-100 text-slate-700'>
-                      <SendHorizontal className='h-4 w-4' />
-                      Sent
-                    </button>
-                    <button className='w-full flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:bg-slate-100 text-red-600'>
-                      <Trash2 className='h-4 w-4' />
-                      Trash
-                    </button>
-                  </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedContact ? (
+        <div className={`${isMobile ? (showSidebar ? "w-0 overflow-hidden" : "w-full") : "flex-1"} flex flex-col bg-gray-50 transition-all duration-300`}>
+          <div className="bg-gray-100 border-b border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {isMobile && <button onClick={() => setShowSidebar(true)} className="p-2 md:hidden"><ArrowLeft className="w-5 h-5" /></button>}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={selectedContact?.avatar || "/images/Blank_Profile.jpg"} alt={selectedContact?.firstname} className="w-10 h-10 rounded-full object-cover bg-gray-200" />
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">{selectedContact?.firstname} {selectedContact?.lastname}</h3>
+                  <p className="text-sm text-gray-500">{selectedContact?.isOnline ? "Online" : "Away"}</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button onClick={() => recipientPeerId && startAudioCall(recipientPeerId)} className="p-2 hover:bg-gray-200 rounded-full cursor-pointer"><Phone className="w-5 h-5" /></button>
+                <button onClick={() => recipientPeerId && startVideoCall(recipientPeerId)} className="p-2 hover:bg-gray-200 rounded-full cursor-pointer"><Video className="w-5 h-5" /></button>
+                <button onClick={() => setShowChatSearch(!showChatSearch)} className="p-2 hover:bg-gray-200 rounded-full cursor-pointer"><Search className="w-5 h-5" /></button>
+              </div>
+            </div>
           </div>
 
-          <div className='flex-1'>
-            <div className='rounded-md border'>
-              <EmailInbox emails={emails} error={error} loading={loading} />
-            </div>
-            <div className='mt-4 flex items-center justify-between px-2'>
-              <div className='flex items-center gap-2'>
-                <span className='text-sm text-muted-foreground'>
-                  Rows per page
-                </span>
-                <Select defaultValue='10'>
-                  <SelectTrigger className='w-16'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='5'>5</SelectItem>
-                    <SelectItem value='10'>10</SelectItem>
-                    <SelectItem value='20'>20</SelectItem>
-                    <SelectItem value='50'>50</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className='flex items-center gap-4'>
-                <span className='text-sm text-muted-foreground'>1-1 of 1</span>
-                <div className='flex gap-1'>
-                  <Button variant='ghost' size='icon' disabled>
-                    <ChevronLeft className='h-4 w-4' />
-                  </Button>
-                  <Button variant='ghost' size='icon' disabled>
-                    <ChevronRight className='h-4 w-4' />
-                  </Button>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {filteredMessages?.map((message: Message) => (
+              <div key={message?.id} className={`flex ${message?.sender?._id === loggedInUser?.id ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message?.sender?._id === loggedInUser?.id ? "bg-secondary text-white" : "bg-white text-gray-900 shadow-sm"}`}>
+                  {message?.type === "image" && message?.url ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={message?.url} alt="Shared image" className="w-full h-48 object-cover rounded mb-2" />
+                      {message?.text && <p className="text-sm mt-2">{message?.text}</p>}
+                    </>
+                  ) : (
+                    <p className="text-sm">{message?.text}</p>
+                  )}
+                  <p className="text-[10px] opacity-70 mt-1">{message.timestamp && format(new Date(message.timestamp), "p")}</p>
                 </div>
               </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="bg-gray-100 border-t border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <button className="p-2 hover:bg-gray-200 rounded-full"><Smile className="w-5 h-5" /></button>
+              <button className="p-2 hover:bg-gray-200 rounded-full"><Paperclip className="w-5 h-5" /></button>
+              <input
+                type="text"
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Type a message..."
+                className="flex-1 px-4 py-2 bg-white rounded-lg border focus:outline-none focus:ring-2 focus:ring-secondary"
+              />
+              <button onClick={handleSend} className="p-2 bg-secondary text-white rounded-full hover:bg-secondary/90"><Send className="w-5 h-5" /></button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <div className="hidden md:flex flex-1 items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <MessageSquareDot className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">Select a conversation</h3>
+            <p className="text-gray-500">Pick a contact to start chatting</p>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default AdminMessagingPage;
+}

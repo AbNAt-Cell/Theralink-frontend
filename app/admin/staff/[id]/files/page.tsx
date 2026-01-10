@@ -6,7 +6,12 @@ import Image from "next/image"
 export default function FilesPage() {
   return (
     <div className="space-y-6">
-      <AdminStaffProfile />
+      <AdminStaffProfile
+        name="Staff Member"
+        email="staff@example.com"
+        phone="N/A"
+        site="Main Site"
+      />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">

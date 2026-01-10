@@ -7,7 +7,12 @@ import { Calendar } from "lucide-react"
 export default function PositionsPage() {
   return (
     <div className="space-y-6">
-      <AdminStaffProfile />
+      <AdminStaffProfile
+        name="Staff Member"
+        email="staff@example.com"
+        phone="N/A"
+        site="Main Site"
+      />
 
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Add New Position</h2>

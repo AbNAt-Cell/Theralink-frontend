@@ -5,6 +5,8 @@ import { useRouter } from "nextjs-toploader/app";
 import AdminHeader from "@/components/AdminHeader";
 import { useUser } from "@/context/UserContext";
 import SocketContextProvider from "@/context/SocketContextProvider";
+import { PeerProvider } from "@/context/CallProvider";
+import { SnackbarProvider } from "notistack";
 
 export default function AdminLayout({
   children,
@@ -18,23 +20,22 @@ export default function AdminLayout({
     if (!loading) {
       if (!user) {
         router.push("/admin/login");
-      } else if (user.role === 'CLIENT') {
+      } else if (user.role === "CLIENT") {
         router.push("/client/dashboard");
       }
     }
   }, [user, loading, router]);
 
-  // const user = getStoredUser();
-  // useSocket(user ? { userId: user.id } : { userId: null });
-
   return (
     <SocketContextProvider>
-      <div className="min-h-screen bg-gray-50">
-        <AdminHeader />
-        <main className="container max-w-[1350px] mx-auto p-6 space-y-6">
-          {children}
-        </main>
-      </div>
+      <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "top", horizontal: "right" }} autoHideDuration={4000}>
+        <PeerProvider loggedInUser={user}>
+          <div className="min-h-screen bg-gray-50">
+            <AdminHeader />
+            <main className="container max-w-[1350px] mx-auto p-6 space-y-6">{children}</main>
+          </div>
+        </PeerProvider>
+      </SnackbarProvider>
     </SocketContextProvider>
   );
 }

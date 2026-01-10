@@ -41,54 +41,46 @@ const AdminHeader = () => {
   const pathname = usePathname();
 
   const isActivePath = (path: string) => {
-    const currentPath = pathname?.split('/')[2];
-    return currentPath === path ? 'bg-primary text-white' : '';
-  }
+    const currentPath = pathname?.split("/")[2];
+    return currentPath === path ? "bg-primary text-white" : "";
+  };
 
   const isActiveFullPath = (path: string) => {
     const currentPath = pathname;
-    return currentPath === path ? 'bg-primary text-white' : '';
-  }
+    return currentPath === path ? "bg-primary text-white" : "";
+  };
 
   return (
     <header className="bg-white border-b">
-      <div className='border-b'>
-        <div className='mx-auto max-w-[1350px]'>
+      <div className="border-b">
+        <div className="mx-auto max-w-[1350px]">
           <div className="flex items-center justify-between h-[80px] px-6 py-3">
             <div className="flex items-center space-x-4">
-              <Image
-                src="/images/logo.png"
-                alt="Next.js logo"
-                width={150}
-                height={32}
-                priority
-              />
+              <Image src="/images/logo.png" alt="Next.js logo" width={150} height={32} priority />
             </div>
             <div className="flex items-center gap-2">
               <div className="relative mr-10 hidden md:block">
                 <Search className="h-4 w-4 absolute left-3 top-2.5 text-gray-500" />
-                <Input className='mt-0 pl-10' placeholder="Find Clients..." />
+                <Input className="mt-0 pl-10" placeholder="Find Clients..." />
               </div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className='text-primary hover:text-primary' asChild variant="ghost" size="icon">
+                  <Button className="text-primary hover:text-primary" asChild variant="ghost" size="icon">
                     <Bell className="h-6 w-6 cursor-pointer" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className='w-52'>
+                <DropdownMenuContent className="w-52">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    No new notifications
-                  </DropdownMenuItem>
+                  <DropdownMenuItem>No new notifications</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button className='text-primary hover:text-primary' asChild variant="ghost" size="icon">
+              <Button className="text-primary hover:text-primary" asChild variant="ghost" size="icon">
                 <AlarmClock className="h-6 w-6 cursor-pointer" />
               </Button>
               <Button asChild variant="ghost" size="icon">
-                <PlusCircle fill='#021F55' color='white' className="h-6 w-6 cursor-pointer" />
+                <PlusCircle fill="#021F55" color="white" className="h-6 w-6 cursor-pointer" />
               </Button>
               <Button asChild variant="ghost" size="icon">
                 <Mail className="h-6 w-6 cursor-pointer" />
@@ -124,113 +116,119 @@ const AdminHeader = () => {
           </div>
         </div>
       </div>
-      <div className='mx-auto max-w-[1350px]'>
-        <div className='flex items-center justify-between px-6 py-3'>
+      <div className="mx-auto max-w-[1350px]">
+        <div className="flex items-center justify-between px-6 py-3">
           <div className="flex flex-wrap flex-row items-center gap-4">
             <Link href="/admin/dashboard">
-              <Button className={`${isActivePath('dashboard')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("dashboard")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Dashboard
               </Button>
             </Link>
             <Link href="/admin/staff">
-              <Button className={`${isActivePath('staff')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("staff")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Staff
               </Button>
             </Link>
             <Link href="/admin/clients">
-              <Button className={`${isActivePath('clients')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("clients")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Clients
               </Button>
             </Link>
             <Link href="/admin/messages">
-              <Button className={`${isActivePath('messages')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("messages")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Messages
               </Button>
             </Link>
             <Link href="/admin/calendar">
-              <Button className={`${isActivePath('calendar')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("calendar")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Calendar
               </Button>
             </Link>
             <Link href="/admin/documents">
-              <Button className={`${isActivePath('documents')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+              <Button className={`${isActivePath("documents")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                 Documents
               </Button>
             </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className={`${isActivePath('billing')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+                <Button className={`${isActivePath("billing")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                   Billing <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className='w-52'>
-                <DropdownMenuItem className='cursor-pointer' asChild>
-                  <Link className={`${isActiveFullPath('/admin/billing/new')}`} href="/admin/billing/new">New Billing</Link>
+              <DropdownMenuContent className="w-52">
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link className={`${isActiveFullPath("/admin/billing/submissions")}`} href="/admin/billing/submissions">
+                    My Invoices
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className='cursor-pointer' asChild>
-                  <Link className={`${isActiveFullPath("/admin/billing/submissions")}`} href="/admin/billing/submissions">Billing Submissions</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className='cursor-pointer' asChild>
-                  <Link className={`${isActiveFullPath("/admin/billing/remittance")}`} href="/admin/billing/remittance">Billing Remittance</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className='cursor-pointer' asChild>
-                  <Link className={`${isActiveFullPath("/admin/billing/profiles")}`} href="/admin/billing/profiles">Billing Profiles</Link>
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link className={`${isActiveFullPath("/admin/billing/new")}`} href="/admin/billing/new">
+                    Send New Invoice
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className={`${isActivePath('more')} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
+                <Button className={`${isActivePath("more")} font-semibold rounded-sm text-[14px] h-7 w-22`} variant="pill" size="sm">
                   More <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className='w-auto'>
-                <div className='flex flex-row p-5 gap-4'>
-                  <div className='flex flex-col'>
-                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Clinic</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
+              <DropdownMenuContent className="w-auto">
+                <div className="flex flex-row p-5 gap-4">
+                  <div className="flex flex-col">
+                    <p className="font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg">Clinic</p>
+                    <ul className="ml-2 space-y-1 text-sm">
                       <li>Authorizations</li>
                       <li>Client Compliance</li>
                       <li>Clinic Files</li>
                       <li>Default Goals</li>
-                      <li>Document Templates</li>
-                      <li>Portal Parental Access (CP)</li>
+                      <li>
+                        <Link className={`${isActiveFullPath("/admin/more/templates")} p-1 rounded-lg`} href="/admin/more/templates">
+                          Document Templates
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className={`${isActiveFullPath("/admin/more/cp")} p-1 rounded-lg`} href="/admin/more/cp">
+                          Portal Parental Access (CP)
+                        </Link>
+                      </li>
                       <li>Roles</li>
                       <li>Services</li>
                       <li>Settings</li>
-                      <li>Sites</li>
+                      <li>
+                        <Link className={`${isActiveFullPath("/admin/more/sites")} p-1 rounded-lg`} href="/admin/more/sites">
+                          Sites
+                        </Link>
+                      </li>
                       <li>Staff Documents</li>
                     </ul>
-
                   </div>
-                  <div className='flex flex-col'>
-                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg'>Audit</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
+                  <div className="flex flex-col">
+                    <p className="font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg">Audit</p>
+                    <ul className="ml-2 space-y-1 text-sm">
                       <li>Staff Audit</li>
                       <li>Client Audit</li>
                     </ul>
 
-                    <p className='font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg mt-5'>Misc.</p>
-                    <ul className='ml-2 space-y-1 text-sm'>
+                    <p className="font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg mt-5">Misc.</p>
+                    <ul className="ml-2 space-y-1 text-sm">
                       <li>Task Manager</li>
                       <li>Admin. Board</li>
                       <li>Time Clock</li>
                       <li>Knowledge Base</li>
                     </ul>
-
                   </div>
-
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-
           </div>
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default AdminHeader

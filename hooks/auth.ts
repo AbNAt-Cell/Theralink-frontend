@@ -77,15 +77,17 @@ export const getStoredUser = async (): Promise<User | null> => {
   };
 };
 
-export const sendForgotPassword = async (email: string) => {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+export const sendForgotPassword = async (data: { email: string }) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
     redirectTo: `${window.location.origin}/reset-password`,
   });
   if (error) throw error;
+  return { message: "Password reset link sent to your email." };
 };
 
-export const sendResetPassword = async (password: string) => {
-  const { error } = await supabase.auth.updateUser({ password });
+export const sendResetPassword = async (data: { password: string; token?: string | null }) => {
+  const { error } = await supabase.auth.updateUser({ password: data.password });
   if (error) throw error;
+  return { message: "Password updated successfully." };
 };
 
