@@ -1,22 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import AdminStaffProfile from '@/components/AdminStaffProfile';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import Image from 'next/image';
+import { getStaffById } from '@/hooks/admin/staff';
 
 export default function StaffDashboard() {
+  const params = useParams();
+  const id = params.id as string;
+  const [staff, setStaff] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
   const [isExpiredOpen, setIsExpiredOpen] = useState(true);
   const [isSignatureOpen, setIsSignatureOpen] = useState(true);
   const [isBillingOpen, setIsBillingOpen] = useState(true);
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const data = await getStaffById(id);
+        setStaff(data);
+      } catch (error) {
+        console.error("Error fetching staff:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStaff();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <span className="ml-3 text-lg font-medium text-gray-500">Loading staff data...</span>
+      </div>
+    );
+  }
+
+  if (!staff) {
+    return <div>Staff member not found.</div>;
+  }
+
+  const name = `${staff.firstName} ${staff.lastName}`;
+
   return (
     <div className='space-y-6'>
-      <AdminStaffProfile />
+      <AdminStaffProfile
+        name={name}
+        email={staff.email}
+        phone={staff.phone}
+        site={staff.site}
+      />
 
       {/* Personal Information */}
       <div className='border rounded-md p-6 bg-white'>
@@ -25,51 +67,41 @@ export default function StaffDashboard() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-y-8'>
           <div>
             <h3 className='text-sm font-medium text-gray-500'>Username</h3>
-            <p>acsvidusuyi</p>
+            <p>{staff.username || 'N/A'}</p>
           </div>
 
           <div>
             <h3 className='text-sm font-medium text-gray-500'>Gender</h3>
-            <p>Male</p>
+            <p>{staff.gender || 'N/A'}</p>
           </div>
 
           <div>
             <h3 className='text-sm font-medium text-gray-500'>Date of Birth</h3>
-            <p>2/28/1983 (41 years)</p>
+            <p>{staff.date_of_birth || 'N/A'}</p>
           </div>
 
           <div>
             <h3 className='text-sm font-medium text-gray-500'>
-              Gender at Birth
+              Position
             </h3>
-            <p>Male</p>
+            <p>{staff.position || 'N/A'}</p>
           </div>
 
           <div>
             <h3 className='text-sm font-medium text-gray-500'>
-              Marital Status
+              Role
             </h3>
-            <p>Married</p>
+            <p>{staff.role || 'N/A'}</p>
           </div>
 
           <div>
-            <h3 className='text-sm font-medium text-gray-500'>Credentials</h3>
-            <p>OMH-P-CS</p>
+            <h3 className='text-sm font-medium text-gray-500'>Race</h3>
+            <p>{staff.race || 'N/A'}</p>
           </div>
 
           <div>
-            <h3 className='text-sm font-medium text-gray-500'>Pronouns</h3>
-            <p>Male</p>
-          </div>
-
-          <div>
-            <h3 className='text-sm font-medium text-gray-500'>Suffix</h3>
-            <p>Male</p>
-          </div>
-
-          <div>
-            <h3 className='text-sm font-medium text-gray-500'>SSN</h3>
-            <p>Male</p>
+            <h3 className='text-sm font-medium text-gray-500'>Position Effective Date</h3>
+            <p>{staff.position_effective_date || 'N/A'}</p>
           </div>
         </div>
       </div>

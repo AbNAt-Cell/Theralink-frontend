@@ -8,7 +8,10 @@ export const getStaffs = async (clinicId?: string) => {
 
     const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+            *,
+            staff_details (*)
+        `)
         .eq('clinic_id', clinicId)
         .in('role', ['ADMIN', 'STAFF']);
 
@@ -21,12 +24,12 @@ export const getStaffs = async (clinicId?: string) => {
     const staffMembers: Staff[] = (data || []).map(profile => ({
         id: profile.id,
         name: `${profile.first_name} ${profile.last_name}`,
-        credentials: '', // Placeholder
+        credentials: '', // Placeholder mapping if needed
         role: profile.role,
-        gender: profile.gender || 'Other',
-        race: profile.race || '',
-        site: '', // Placeholder
-        phone: profile.phone || '',
+        gender: profile.staff_details?.[0]?.gender || 'Other',
+        race: profile.staff_details?.[0]?.race || '',
+        site: '',
+        phone: profile.staff_details?.[0]?.phone || '',
         email: profile.email || '',
         lastDocument: '',
         lastLogin: '',
@@ -36,15 +39,32 @@ export const getStaffs = async (clinicId?: string) => {
     return { users: staffMembers };
 };
 
-export const createStaff = async (staffData: any, clinicId: string) => {
-    // In production, you would call a server action that uses service_role
-    // to create an auth user: supabase.auth.admin.createUser()
+export const getStaffById = async (id: string) => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+            *,
+            staff_details (*)
+        `)
+        .eq('id', id)
+        .single();
 
-    // For this demonstration, we'll create a profile with a random ID 
-    // to simulate the staff member being added to the database.
+    if (error) throw error;
+
+    return {
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email,
+        role: data.role,
+        ...data.staff_details?.[0]
+    };
+};
+
+export const createStaff = async (staffData: any, clinicId: string) => {
     const tempProfileId = crypto.randomUUID();
 
-    // 1. Create Profile
+    // 1. Create Profile (with email)
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert([
@@ -53,6 +73,7 @@ export const createStaff = async (staffData: any, clinicId: string) => {
                 clinic_id: clinicId,
                 first_name: staffData.firstName,
                 last_name: staffData.lastName,
+                email: staffData.email,
                 role: staffData.accessLevel || 'STAFF'
             }
         ])
