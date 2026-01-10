@@ -57,7 +57,9 @@ export const getStaffById = async (id: string) => {
         lastName: data.last_name,
         email: data.email,
         role: data.role,
-        ...data.staff_details?.[0]
+        ...data.staff_details?.[0],
+        max_capacity: data.staff_details?.[0]?.max_capacity,
+        accepting_new_clients: data.staff_details?.[0]?.accepting_new_clients ?? true
     };
 };
 
@@ -104,4 +106,216 @@ export const createStaff = async (staffData: any, clinicId: string) => {
     }
 
     return profile;
+};
+
+export const getStaffCredentials = async (staffId: string) => {
+    const { data, error } = await supabase
+        .from('staff_credentials')
+        .select('*')
+        .eq('staff_id', staffId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+};
+
+export const addStaffCredential = async (credential: {
+    staff_id: string;
+    name: string;
+    effective_date?: string;
+    expiration_date?: string;
+}) => {
+    const { data, error } = await supabase
+        .from('staff_credentials')
+        .insert([credential])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const deleteStaffCredential = async (id: string) => {
+    const { error } = await supabase
+        .from('staff_credentials')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+};
+
+// --- Caseload Management ---
+
+export const getAssignedClients = async (staffId: string) => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('assigned_staff_id', staffId)
+        .eq('role', 'CLIENT');
+
+    if (error) throw error;
+    return data;
+};
+
+export const getAvailableClients = async () => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .is('assigned_staff_id', null)
+        .eq('role', 'CLIENT');
+
+    if (error) throw error;
+    return data;
+};
+
+export const updateStaffCaseloadSettings = async (
+    staffId: string,
+    settings: { max_capacity?: number | null; accepting_new_clients?: boolean }
+) => {
+    // We need to find the staff_details record linked to this profile
+    // Assuming staff_details.profile_id is the foreign key to profiles.id (staffId)
+    const { error } = await supabase
+        .from('staff_details')
+        .update(settings)
+        .eq('profile_id', staffId);
+
+    if (error) throw error;
+};
+
+export const assignClientToStaff = async (clientId: string, staffId: string) => {
+    const { error } = await supabase
+        .from('profiles')
+        .update({ assigned_staff_id: staffId })
+        .eq('id', clientId);
+
+    if (error) throw error;
+};
+
+export const unassignClientFromStaff = async (clientId: string) => {
+    const { error } = await supabase
+        .from('profiles')
+        .update({ assigned_staff_id: null })
+        .eq('id', clientId);
+
+    if (error) throw error;
+};
+
+// --- Staff Sites Management ---
+
+export const getStaffSites = async (staffId: string) => {
+    const { data, error } = await supabase
+        .from('staff_sites')
+        .select(`
+            *,
+            clinics:clinic_id (*)
+        `)
+        .eq('staff_id', staffId);
+
+    if (error) throw error;
+    // Map to a cleaner format if needed, or return as is
+    return data.map((item: any) => item.clinics);
+};
+
+export const getAllClinics = async () => {
+    const { data, error } = await supabase
+        .from('clinics')
+        .select('*');
+
+    if (error) throw error;
+    return data;
+};
+
+export const assignSiteToStaff = async (staffId: string, clinicId: string) => {
+    const { error } = await supabase
+        .from('staff_sites')
+        .insert({ staff_id: staffId, clinic_id: clinicId });
+
+    if (error) throw error;
+};
+
+export const unassignSiteFromStaff = async (staffId: string, clinicId: string) => {
+    const { error } = await supabase
+        .from('staff_sites')
+        .delete()
+        .match({ staff_id: staffId, clinic_id: clinicId });
+
+    if (error) throw error;
+};
+
+// --- Staff Certifications Management ---
+
+export const getStaffCertifications = async (staffId: string) => {
+    const { data, error } = await supabase
+        .from('staff_certifications')
+        .select('*')
+        .eq('staff_id', staffId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+};
+
+export const addStaffCertification = async (certification: {
+    staff_id: string;
+    name: string;
+    issue_date?: string;
+    expiration_date?: string;
+    never_expires?: boolean;
+    completed?: boolean;
+    file_url?: string;
+}) => {
+    const { data, error } = await supabase
+        .from('staff_certifications')
+        .insert([certification])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const deleteStaffCertification = async (id: string) => {
+    const { error } = await supabase
+        .from('staff_certifications')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+};
+
+// --- Staff Files Management ---
+
+export const getStaffFiles = async (staffId: string) => {
+    const { data, error } = await supabase
+        .from('staff_files')
+        .select('*')
+        .eq('staff_id', staffId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+};
+
+export const addStaffFile = async (fileRec: {
+    staff_id: string;
+    name: string;
+    file_url: string;
+}) => {
+    const { data, error } = await supabase
+        .from('staff_files')
+        .insert([fileRec])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
+export const deleteStaffFile = async (id: string) => {
+    const { error } = await supabase
+        .from('staff_files')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
 };

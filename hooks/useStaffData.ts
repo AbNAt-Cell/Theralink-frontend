@@ -18,6 +18,9 @@ interface StaffDetail {
     race?: string;
     position_effective_date?: string;
     site?: string;
+    signature_url?: string;
+    max_capacity?: number | null;
+    accepting_new_clients?: boolean;
 }
 
 export const useStaffData = () => {

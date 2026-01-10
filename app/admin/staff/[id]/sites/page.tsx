@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ChevronFirst,
-  ChevronLast,
   ChevronLeft,
   ChevronRight,
   Loader2
@@ -10,9 +8,78 @@ import {
 import { Button } from '@/components/ui/button';
 import AdminStaffProfile from '@/components/AdminStaffProfile';
 import { useStaffData } from "@/hooks/useStaffData";
+import { useState, useEffect } from "react";
+import { getAllClinics, getStaffSites, assignSiteToStaff, unassignSiteFromStaff } from "@/hooks/admin/staff";
+import { useSnackbar } from "notistack";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SitesPage() {
-  const { staff, loading } = useStaffData();
+  const { staff, loading, id: staffId } = useStaffData();
+  const [assignedSites, setAssignedSites] = useState<any[]>([]);
+  const [availableSites, setAvailableSites] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    if (staffId && staff) {
+      fetchData();
+    }
+  }, [staffId, staff]);
+
+  const fetchData = async () => {
+    try {
+      const [assigned, all] = await Promise.all([
+        getStaffSites(staffId),
+        getAllClinics()
+      ]);
+
+      setAssignedSites(assigned || []);
+
+      // Available = All - Assigned
+      const assignedIds = new Set((assigned || []).map((s: any) => s.id));
+      setAvailableSites((all || []).filter((s: any) => !assignedIds.has(s.id)));
+
+    } catch (error) {
+      console.error("Error fetching sites data:", error);
+      enqueueSnackbar("Failed to fetch sites data", { variant: "error" });
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const handleAssign = async (siteId: string) => {
+    try {
+      await assignSiteToStaff(staffId, siteId);
+      // Optimistic update
+      const siteToMove = availableSites.find(s => s.id === siteId);
+      if (siteToMove) {
+        setAvailableSites(prev => prev.filter(s => s.id !== siteId));
+        setAssignedSites(prev => [...prev, siteToMove]);
+      }
+      enqueueSnackbar("Site assigned successfully", { variant: "success" });
+    } catch (error) {
+      console.error("Error assigning site:", error);
+      enqueueSnackbar("Failed to assign site", { variant: "error" });
+      fetchData(); // Revert
+    }
+  };
+
+  const handleUnassign = async (siteId: string) => {
+    try {
+      await unassignSiteFromStaff(staffId, siteId);
+      // Optimistic update
+      const siteToMove = assignedSites.find(s => s.id === siteId);
+      if (siteToMove) {
+        setAssignedSites(prev => prev.filter(s => s.id !== siteId));
+        setAvailableSites(prev => [...prev, siteToMove]);
+      }
+      enqueueSnackbar("Site unassigned successfully", { variant: "success" });
+    } catch (error) {
+      console.error("Error unassigning site:", error);
+      enqueueSnackbar("Failed to unassign site", { variant: "error" });
+      fetchData();
+    }
+  };
 
   if (loading) {
     return (
@@ -39,33 +106,65 @@ export default function SitesPage() {
       <div className='space-y-4'>
         <h2 className='text-xl font-semibold'>Sites</h2>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <div className='border rounded-md p-4 bg-white'>
-            <h3 className='font-medium mb-2'>Available</h3>
-            <div className='min-h-[200px]'></div>
+        <div className='grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start'>
+          {/* Available Sites */}
+          <div className='border rounded-md shadow-sm bg-white overflow-hidden flex flex-col h-[400px]'>
+            <div className='p-3 bg-blue-600 text-white font-medium'>Available</div>
+            <div className='p-2 overflow-y-auto flex-1 space-y-1'>
+              {loadingData ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                </div>
+              ) : availableSites.length === 0 ? (
+                <div className="text-gray-400 text-center p-4 text-sm">No other sites available.</div>
+              ) : (
+                availableSites.map(site => (
+                  <div key={site.id}
+                    className="group flex justify-between items-center p-2 hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 text-sm cursor-pointer"
+                    onClick={() => handleAssign(site.id)}
+                  >
+                    <span className="truncate">{site.name}</span>
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <div className='border rounded-md p-4 bg-white'>
-            <h3 className='font-medium mb-2'>Assigned (0)</h3>
-            <div className='min-h-[100px]'>
-              <p className='text-sm'>
-                Auspicious Community Services (305 FM 517 Road E.)
-              </p>
+          <div className="flex md:flex-col gap-2 justify-center pt-20">
+            <div className="p-2 border rounded bg-white text-gray-400 cursor-default">
+              <ChevronRight className="w-5 h-5 text-green-600" />
             </div>
+            <div className="p-2 border rounded bg-white text-gray-400 cursor-default">
+              <ChevronLeft className="w-5 h-5 text-red-500" />
+            </div>
+          </div>
 
-            <div className='flex justify-center gap-2 mt-4'>
-              <Button variant='outline' size='icon'>
-                <ChevronRight className='h-4 w-4' />
-              </Button>
-              <Button variant='outline' size='icon'>
-                <ChevronLeft className='h-4 w-4' />
-              </Button>
-              <Button variant='outline' size='icon'>
-                <ChevronLast className='h-4 w-4' />
-              </Button>
-              <Button variant='outline' size='icon'>
-                <ChevronFirst className='h-4 w-4' />
-              </Button>
+          {/* Assigned Sites */}
+          <div className='border rounded-md shadow-sm bg-white overflow-hidden flex flex-col h-[400px]'>
+            <div className='p-3 bg-blue-600 text-white font-medium'>Assigned ({assignedSites.length})</div>
+            <div className='p-2 overflow-y-auto flex-1 space-y-1'>
+              {loadingData ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-full" />
+                </div>
+              ) : assignedSites.length === 0 ? (
+                <div className="text-gray-400 text-center p-4 text-sm">No sites assigned.</div>
+              ) : (
+                assignedSites.map(site => (
+                  <div key={site.id} className="group flex justify-between items-center p-2 hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 text-sm">
+                    <span className="truncate">{site.name}</span>
+                    <button
+                      onClick={() => handleUnassign(site.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-red-500 rounded"
+                      title="Unassign"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
