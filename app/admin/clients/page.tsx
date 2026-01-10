@@ -46,7 +46,7 @@ const AdminClientsPage = () => {
       }
     };
     fetchClient();
-  }, [user?.clinicId]);
+  }, [user]);
 
   const filters: Filter[] = [
     { label: 'Select Date', value: 'date' },
