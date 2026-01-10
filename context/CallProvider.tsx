@@ -66,6 +66,12 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
     const ringToneRef = useRef<HTMLAudioElement | null>(null);
     const dataConnRef = useRef<any>(null);
 
+    const callStateRef = useRef<CallState>("idle");
+
+    useEffect(() => {
+        callStateRef.current = callState;
+    }, [callState]);
+
     useEffect(() => {
         if (!loggedInUser || peer) return;
 
@@ -110,14 +116,21 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
         setPeer(newPeer);
 
         newPeer.on("disconnected", () => {
-            setCallState("disconnected");
+            console.log("Peer disconnected");
+            // Only update state if we are in an active call
+            if (callStateRef.current !== "idle" && callStateRef.current !== "ended") {
+                setCallState("disconnected");
+            }
             newPeer.reconnect();
         });
 
         newPeer.on("error", (err) => {
             console.error("Peer error:", err);
-            sendMissedCall();
-            setCallState("unavailable");
+            // Only update state if we are in an active call
+            if (callStateRef.current !== "idle" && callStateRef.current !== "ended") {
+                sendMissedCall();
+                setCallState("unavailable");
+            }
         });
 
         return () => {
