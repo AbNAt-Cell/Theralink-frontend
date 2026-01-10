@@ -34,8 +34,8 @@ export default function SitesPage() {
       setAssignedSites(assigned || []);
 
       // Available = All - Assigned
-      const assignedIds = new Set((assigned || []).map((s: any) => s.id));
-      setAvailableSites((all || []).filter((s: any) => !assignedIds.has(s.id)));
+      const assignedIds = new Set((assigned || []).map((s: Site) => s.id));
+      setAvailableSites((all || []).filter((s: Site) => !assignedIds.has(s.id)));
 
     } catch (error) {
       console.error("Error fetching sites data:", error);

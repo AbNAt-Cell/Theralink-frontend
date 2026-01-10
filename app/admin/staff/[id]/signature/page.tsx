@@ -24,7 +24,7 @@ export default function SignaturePage() {
   const [isOpen, setIsOpen] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const sigPad = useRef<any>(null);
+  const sigPad = useRef<SignatureCanvas | null>(null);
   const supabase = createClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -70,9 +70,9 @@ export default function SignaturePage() {
       setSignatureUrl(publicUrl);
       setIsOpen(false);
       enqueueSnackbar("Signature saved successfully", { variant: "success" });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving signature:", error);
-      enqueueSnackbar(error.message || "Failed to save signature", { variant: "error" });
+      enqueueSnackbar("Failed to save signature", { variant: "error" });
     } finally {
       setSaving(false);
     }
@@ -109,7 +109,7 @@ export default function SignaturePage() {
 
       setSignatureUrl(null);
       enqueueSnackbar("Signature removed", { variant: "success" });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error removing signature:", error);
       enqueueSnackbar("Failed to remove signature", { variant: "error" });
     }
