@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button"
 import { PenSquare } from "lucide-react"
-import Image from "next/image"
 
 interface AdminStaffProfileProps {
   name: string;

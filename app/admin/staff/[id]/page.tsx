@@ -9,13 +9,28 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import Image from 'next/image';
 import { getStaffById } from '@/hooks/admin/staff';
+
+interface StaffDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  role: string;
+  username?: string;
+  gender?: string;
+  date_of_birth?: string;
+  position?: string;
+  race?: string;
+  position_effective_date?: string;
+  site?: string;
+}
 
 export default function StaffDashboard() {
   const params = useParams();
   const id = params.id as string;
-  const [staff, setStaff] = useState<any>(null);
+  const [staff, setStaff] = useState<StaffDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [isExpiredOpen, setIsExpiredOpen] = useState(true);
@@ -142,13 +157,8 @@ export default function StaffDashboard() {
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className='p-4 bg-white border-t'>
-            <div className='flex items-center justify-center p-4 relative h-20 w-full'>
-              <Image
-                src='/placeholder.svg?height=80&width=150&text=Signature'
-                alt='Signature'
-                fill
-                className='object-contain'
-              />
+            <div className='flex items-center justify-center p-4 h-20 w-full bg-gray-50 border border-dashed rounded italic text-gray-400'>
+              No Signature Captured
             </div>
           </CollapsibleContent>
         </Collapsible>
