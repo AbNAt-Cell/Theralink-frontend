@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import AdminHeader from "@/components/AdminHeader";
 import { useUser } from "@/context/UserContext";
-import SocketContextProvider from "@/context/SocketContextProvider";
+import PresenceProvider from "@/context/PresenceProvider";
 import { PeerProvider } from "@/context/CallProvider";
 import { SnackbarProvider } from "notistack";
 
@@ -27,7 +27,7 @@ export default function AdminLayout({
   }, [user, loading, router]);
 
   return (
-    <SocketContextProvider>
+    <PresenceProvider>
       <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "top", horizontal: "right" }} autoHideDuration={4000}>
         <PeerProvider loggedInUser={user}>
           <div className="min-h-screen bg-gray-50">
@@ -36,6 +36,6 @@ export default function AdminLayout({
           </div>
         </PeerProvider>
       </SnackbarProvider>
-    </SocketContextProvider>
+    </PresenceProvider>
   );
 }

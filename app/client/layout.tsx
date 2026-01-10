@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import ClientHeader from "@/components/ClientHeader";
 import { useUser } from "@/context/UserContext";
-import SocketContextProvider from "@/context/SocketContextProvider";
+import PresenceProvider from "@/context/PresenceProvider";
 
 const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useUser();
@@ -17,12 +17,10 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   }, [user, loading, router]);
 
   return (
-    <SocketContextProvider>
-      <div className="min-h-screen bg-gray-50">
-        <ClientHeader />
-        {children}
-      </div>
-    </SocketContextProvider>
+    <PresenceProvider>
+      <ClientHeader />
+      <main className="container max-w-[1350px] mx-auto p-6 space-y-6">{children}</main>
+    </PresenceProvider>
   );
 };
 

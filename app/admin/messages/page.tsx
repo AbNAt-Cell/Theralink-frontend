@@ -5,7 +5,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, Phone, Video, Smile, Paperclip, Send, MessageSquareDot, Plus, ArrowLeft, SquarePen } from "lucide-react";
 import ContactModal from "@/components/ContactModal";
 import { format } from "date-fns";
-import { useSocketContext } from "@/context/SocketContextProvider";
+import { usePresence } from "@/context/PresenceProvider";
 import { usePeerContext } from "@/context/CallProvider";
 
 interface Contact {
@@ -72,6 +72,7 @@ export default function ChatDashboard() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { selectedContact, setSelectedContact, sending, setSending, loggedInUser, messages, setMessages, conversationId, setConversationId, recipientPeerId, setRecipientPeerId, startAudioCall, startVideoCall } = usePeerContext();
+  const { onlineUsers } = usePresence();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -133,40 +134,6 @@ export default function ChatDashboard() {
     }
   };
 
-  const socket = useSocketContext();
-
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("connect", () => {
-      if (loggedInUser?.id) {
-        socket.emit("join", loggedInUser?.id);
-      }
-    });
-
-    socket.on("user:online", ({ userId }: { userId: string }) => {
-      setConversations((prev: Conversation[] | null) =>
-        prev?.map((conv: Conversation) => ({
-          ...conv,
-          participants: conv.participants?.map((p: Participant) => (String(p._id) === String(userId) ? { ...p, isOnline: true } : p)),
-        })) || null
-      );
-    });
-
-    socket.on("user:offline", ({ userId }: { userId: string }) => {
-      setConversations((prev: Conversation[] | null) =>
-        prev?.map((conv: Conversation) => ({
-          ...conv,
-          participants: conv.participants?.map((p: Participant) => (String(p._id) === String(userId) ? { ...p, isOnline: false } : p)),
-        })) || null
-      );
-    });
-
-    return () => {
-      socket.off("connect");
-      socket.off("user:online");
-      socket.off("user:offline");
-    };
-  }, [loggedInUser, socket]);
 
   const transformedContacts: TransformedContact[] = conversations?.map((contact: Conversation) => {
     const otherParticipant = contact?.participants?.find((p: Participant) => p._id !== loggedInUser?.id);
@@ -176,6 +143,7 @@ export default function ChatDashboard() {
       timestamp: contact?.updated_at || contact?.updatedAt || new Date().toISOString(),
       unread: contact?.unread || 0,
       ...otherParticipant,
+      isOnline: otherParticipant?._id ? onlineUsers.has(otherParticipant._id) : false,
     };
   }) || [];
 
@@ -304,7 +272,7 @@ export default function ChatDashboard() {
                 <img src={selectedContact?.avatar || "/images/Blank_Profile.jpg"} alt={selectedContact?.firstname} className="w-10 h-10 rounded-full object-cover bg-gray-200" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">{selectedContact?.firstname} {selectedContact?.lastname}</h3>
-                  <p className="text-sm text-gray-500">{selectedContact?.isOnline ? "Online" : "Away"}</p>
+                  <p className="text-sm text-gray-500">{onlineUsers.has(selectedContact?._id || "") ? "Online" : "Away"}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
