@@ -26,7 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cleanData } from '@/lib/utils';
-import { createClient } from '@/hooks/admin/client';
+import { createNewClient } from '@/hooks/admin/client';
+import { useUser } from '@/context/UserContext';
 
 const newClientFormSchema = z.object({
   prefix: z.string().optional(),
@@ -69,6 +70,7 @@ const NewClientPage = () => {
   const [loading, setloading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -103,15 +105,24 @@ const NewClientPage = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
+    if (!user?.clinicId) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Clinic information not found. Please log in again.',
+      });
+      return;
+    }
+
     setloading(true);
     try {
       const cleanedData = cleanData(data);
-      const response = await createClient(cleanedData);
+      const response = await createNewClient(cleanedData, user.clinicId);
       toast({
         title: 'Success',
-        description: response.message,
+        description: 'Client created successfully',
       });
-      router.push(`/admin/clients/${response.patient.id}`);
+      router.push(`/admin/clients/${response.id}`);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -120,7 +131,7 @@ const NewClientPage = () => {
         variant: 'destructive',
         title: 'Error:',
         description:
-          error.response?.data?.error ||
+          error.message ||
           'Failed to create Client. Please try again.',
       });
     } finally {

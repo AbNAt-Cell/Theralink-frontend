@@ -53,7 +53,11 @@ export function useDashboardData() {
     });
 
     const fetchData = async () => {
-        if (!user?.clinicId) return;
+        if (!user) return; // Wait for user context
+        if (!user.clinicId) {
+            setData(prev => ({ ...prev, loading: false }));
+            return;
+        }
 
         setData(prev => ({ ...prev, loading: true }));
 

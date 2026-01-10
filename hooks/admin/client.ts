@@ -1,24 +1,41 @@
-import Cookies from 'js-cookie';
-import axiosInstance from '../../lib/axios';
+import { createClient as getSupabaseClient } from '@/utils/supabase/client';
 
-export const getClients = async () => {
-  const token = Cookies.get('token');
-//   const response = await axiosInstance.get('/api/patients');
-  const response = await axiosInstance.get('/api/users?role=CLIENT', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+const supabase = getSupabaseClient();
+
+export const getClients = async (clinicId?: string) => {
+  if (!clinicId) return { players: [] };
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('clinic_id', clinicId)
+    .eq('role', 'CLIENT');
+
+  if (error) {
+    console.error('Error fetching clients:', error);
+    throw error;
+  }
+
+  return { players: data || [] };
 };
 
-export const createClient = async (data: any) => {
-  const token = Cookies.get('token');
-  const response = await axiosInstance.post('api/patients', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data,
-  });
-  return response.data;
+export const createNewClient = async (clientData: any, clinicId: string) => {
+  const tempProfileId = crypto.randomUUID();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert([
+      {
+        id: tempProfileId,
+        clinic_id: clinicId,
+        first_name: clientData.firstName,
+        last_name: clientData.lastName,
+        role: 'CLIENT'
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };

@@ -66,7 +66,7 @@ const NewStaffPage = () => {
       position: "",
       positionEffectiveDate: "",
       dateOfBirth: "",
-      accessLevel: "staff",
+      accessLevel: "STAFF",
     },
   });
 
@@ -271,16 +271,16 @@ const NewStaffPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>Access Level*</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select access level" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="superAdmin">Super Admin</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="staff">Staff</SelectItem>
+                          <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                          <SelectItem value="ADMIN">Admin</SelectItem>
+                          <SelectItem value="STAFF">Staff</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

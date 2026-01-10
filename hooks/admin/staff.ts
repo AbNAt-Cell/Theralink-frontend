@@ -53,7 +53,7 @@ export const createStaff = async (staffData: any, clinicId: string) => {
                 clinic_id: clinicId,
                 first_name: staffData.firstName,
                 last_name: staffData.lastName,
-                role: staffData.accessLevel.toUpperCase() || 'STAFF'
+                role: staffData.accessLevel || 'STAFF'
             }
         ])
         .select()

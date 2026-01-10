@@ -1,30 +1,31 @@
-import axioxInstance from '../lib/axios';
-import Cookies from 'js-cookie';
+import { createClient } from '@/utils/supabase/client';
 
-  // adjusted the response outcome type
-
-interface Res {
-  success: boolean;
-  message: string;
-  data: {
-    users: User[];
-  };
-}
+const supabase = createClient();
 
 export interface User {
   id: string;
   email: string;
-  username: string;
+  firstName: string;
+  lastName: string;
   role: string;
 }
 
 export const userSearch = async ({ email }: { email: string }) => {
-  const response: Res = await axioxInstance.get(`/api/users?email=${email}`, {
-    headers: {
-      Authorization: `Bearer ${Cookies.get('token')}`,
-    },
-  });
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .ilike('email', `%${email}%`);
 
-  // adjusted the result outcome
-  return response.data.users;
+  if (error) {
+    console.error('Error searching users:', error);
+    throw error;
+  }
+
+  return (data || []).map(profile => ({
+    id: profile.id,
+    email: profile.email,
+    firstName: profile.first_name,
+    lastName: profile.last_name,
+    role: profile.role
+  }));
 };

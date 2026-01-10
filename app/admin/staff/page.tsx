@@ -16,12 +16,13 @@ import { useUser } from '@/context/UserContext';
 const AdminStaffPage = () => {
   const { user } = useUser();
   const [showInactiveStaff, setShowInactiveStaff] = React.useState(true);
-  const [loading, setLoading] = React.useState(true);
-  const [users, setUsers] = React.useState<Staff[]>([]);
-
   useEffect(() => {
     const fetchStaffs = async () => {
-      if (!user?.clinicId) return;
+      if (!user) return; // Wait for user context to load
+      if (!user.clinicId) {
+        setLoading(false);
+        return;
+      }
 
       setLoading(true);
       try {

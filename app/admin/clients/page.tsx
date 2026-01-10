@@ -17,19 +17,27 @@ import type { User } from '@/types/user';
 import type { Filter } from '@/components/TableFilters';
 import { DataTable } from '@/components/ui/data-table';
 import { getClients } from '@/hooks/admin/client';
+import { useUser } from '@/context/UserContext';
 
 const AdminClientsPage = () => {
+  const { user } = useUser();
   const [showInactiveStaff, setShowInactiveStaff] = React.useState(true);
   const [loading, setLoading] = React.useState(true);
   const [users, setUsers] = React.useState<User[]>([]);
 
   useEffect(() => {
     const fetchClient = async () => {
+      if (!user) return;
+      if (!user.clinicId) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
-        const response: { users: User[] | null } = await getClients();
-        if (response.users) {
-          setUsers(response.users);
+        const response: { players: User[] | null } = await getClients(user.clinicId);
+        if (response.players) {
+          setUsers(response.players);
         }
       } catch (error) {
         console.log(error);
@@ -38,7 +46,7 @@ const AdminClientsPage = () => {
       }
     };
     fetchClient();
-  }, []);
+  }, [user?.clinicId]);
 
   const filters: Filter[] = [
     { label: 'Select Date', value: 'date' },
@@ -82,7 +90,7 @@ const AdminClientsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant='outlineSecondary' onClick={() => {}}>
+          <Button variant='outlineSecondary' onClick={() => { }}>
             <FileInput />
             Export to Excel
           </Button>
