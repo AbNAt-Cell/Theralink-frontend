@@ -90,29 +90,32 @@ const NewStaffPage = () => {
     }
   };
 
+  const onError = (errors: any) => {
+    console.log("Form Errors:", errors);
+    toast.error("Please fill in all required fields correctly.");
+  };
+
   return (
     <div className="">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Add Staff</h1>
         <div className="flex gap-4">
           <Button variant="outlineSecondary" onClick={() => form.reset()} disabled={isSubmitting}>
-            <Eraser />
+            <Eraser className="mr-2 h-4 w-4" />
             Reset Form
           </Button>
-          <Button variant="outlineDanger" onClick={() => { router.push('/admin/staff') }} disabled={isSubmitting}>
-            <X />
+          <Button variant="outlineDanger" onClick={() => router.push('/admin/staff')} disabled={isSubmitting}>
+            <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-
         </div>
       </div>
-      <div className='mt-4 '>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 grid grid-cols-2 gap-4 mt-4">
-            {/* Demographics Section */}
-            <div className="col-span-2 bg-gray-50 p-4 rounded-lg">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
+      <div className='mt-6'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6">
+            <div className="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg">
+              <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="firstName"
@@ -157,9 +160,9 @@ const NewStaffPage = () => {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Phone Number</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Phone Number*</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="Enter Phone Number" {...field} disabled={isSubmitting} />
+                        <Input placeholder="Enter phone number" {...field} disabled={isSubmitting} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -170,7 +173,7 @@ const NewStaffPage = () => {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Username</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Username*</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter username" {...field} disabled={isSubmitting} />
                       </FormControl>
@@ -178,7 +181,6 @@ const NewStaffPage = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="gender"
@@ -194,19 +196,19 @@ const NewStaffPage = () => {
                         <SelectContent>
                           <SelectItem value="MALE">Male</SelectItem>
                           <SelectItem value="FEMALE">Female</SelectItem>
+                          <SelectItem value="OTHER">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="race"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Race</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Race*</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                         <FormControl>
                           <SelectTrigger>
@@ -217,13 +219,14 @@ const NewStaffPage = () => {
                           <SelectItem value="AFRICAN">African</SelectItem>
                           <SelectItem value="WHITE">White</SelectItem>
                           <SelectItem value="ASIAN">Asian</SelectItem>
+                          <SelectItem value="HISPANIC">Hispanic</SelectItem>
+                          <SelectItem value="OTHER">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="position"
@@ -237,13 +240,12 @@ const NewStaffPage = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="positionEffectiveDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Position Effective Date*</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Effective Date*</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} disabled={isSubmitting} />
                       </FormControl>
@@ -251,7 +253,6 @@ const NewStaffPage = () => {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -265,18 +266,16 @@ const NewStaffPage = () => {
                     </FormItem>
                   )}
                 />
-
-
                 <FormField
                   control={form.control}
                   name="accessLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-gray-800 font-semibold'>Access Level</FormLabel>
+                      <FormLabel className='text-gray-800 font-semibold'>Access Level*</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select Access Level" />
+                            <SelectValue placeholder="Select access level" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -290,38 +289,37 @@ const NewStaffPage = () => {
                   )}
                 />
               </div>
-            </div>
 
-
-            <div className="flex gap-5 col-span-3 bg-gray-50 p-4 rounded-lg">
-              <Button type="submit" className="col-span-1" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    Adding...
-                    <Loader2 className="animate-spin" />
-                  </>
-                ) : (
-                  <>
-                    Add Staff
-                    <ArrowRight />
-                  </>
-                )}
-              </Button>
-              <Link href="/admin/staff" className="col-span-1">
-                <Button variant="outlineDanger" disabled={isSubmitting}>
-                  <X />
+              <div className="col-span-2 flex gap-4 pt-4 border-t">
+                <Button type="submit" disabled={isSubmitting} className="w-40 font-bold">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      Add Staff
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outlineDanger"
+                  onClick={() => router.push('/admin/staff')}
+                  disabled={isSubmitting}
+                >
+                  <X className="mr-2 h-4 w-4" />
                   Cancel
                 </Button>
-              </Link>
-
+              </div>
             </div>
-
           </form>
         </Form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-
-export default NewStaffPage
+export default NewStaffPage;
