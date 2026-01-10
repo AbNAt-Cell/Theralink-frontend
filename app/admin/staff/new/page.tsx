@@ -71,18 +71,22 @@ const NewStaffPage = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
+    console.log("Submit clicked - Form Data:", data);
     if (!user?.clinicId) {
+      console.error("Missing clinicId for user:", user);
       toast.error("Clinic information not found. Please log in again.");
       return;
     }
 
     setIsSubmitting(true);
     try {
+      console.log("Calling createStaff...");
       await createStaff(data, user.clinicId);
+      console.log("createStaff success!");
       toast.success("Staff member added successfully!");
       router.push('/admin/staff');
     } catch (err: unknown) {
-      console.error(err);
+      console.error("Submission failed:", err);
       toast.error(err instanceof Error ? err.message : "Failed to add staff member.");
     } finally {
       setIsSubmitting(false);
@@ -90,8 +94,9 @@ const NewStaffPage = () => {
   };
 
   const onError = (errors: FieldErrors<FormValues>) => {
-    console.log("Form Errors:", errors);
-    toast.error("Please fill in all required fields correctly.");
+    console.log("Form Validation Errors:", errors);
+    const firstError = Object.values(errors)[0];
+    toast.error(firstError?.message?.toString() || "Please fill in all required fields correctly.");
   };
 
   return (
@@ -186,7 +191,7 @@ const NewStaffPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>Gender*</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select gender" />
@@ -208,7 +213,7 @@ const NewStaffPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className='text-gray-800 font-semibold'>Race*</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select race" />
