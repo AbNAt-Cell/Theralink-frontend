@@ -19,8 +19,18 @@ import { useSnackbar } from "notistack";
 import { createClient } from "@/utils/supabase/client";
 
 export default function CertificationsPage() {
+  interface Certification {
+    id: string;
+    name: string;
+    issue_date?: string;
+    expiration_date?: string;
+    never_expires?: boolean;
+    completed?: boolean;
+    file_url?: string;
+  }
+
   const { staff, loading, id: staffId } = useStaffData();
-  const [certifications, setCertifications] = useState<any[]>([]);
+  const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loadingCerts, setLoadingCerts] = useState(true);
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -35,12 +45,6 @@ export default function CertificationsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (staffId) {
-      fetchCertifications();
-    }
-  }, [staffId]);
-
   const fetchCertifications = async () => {
     try {
       setLoadingCerts(true);
@@ -52,6 +56,13 @@ export default function CertificationsPage() {
       setLoadingCerts(false);
     }
   };
+
+  useEffect(() => {
+    if (staffId) {
+      fetchCertifications();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

@@ -2,7 +2,7 @@
 
 import AdminStaffProfile from "@/components/AdminStaffProfile";
 import { useStaffData } from "@/hooks/useStaffData";
-import { Loader2, Plus, PenSquare, Trash2, RotateCcw, Download, Save } from "lucide-react";
+import { Loader2, Plus, Trash2, RotateCcw, Download } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { createClient } from "@/utils/supabase/client";
 import { useSnackbar } from "notistack";
+import Image from "next/image";
 
 export default function SignaturePage() {
   const { staff, loading: staffLoading } = useStaffData();
@@ -45,7 +46,7 @@ export default function SignaturePage() {
       const file = new File([blob], "signature.png", { type: "image/png" });
 
       const fileName = `${staff?.id}-${Date.now()}.png`;
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("signatures")
         .upload(fileName, file, {
           upsert: true,
@@ -203,7 +204,14 @@ export default function SignaturePage() {
                 </div>
               </div>
               <div className="flex justify-center p-4">
-                <img src={signatureUrl} alt="Signature" className="max-h-32 object-contain" />
+                <Image
+                  src={signatureUrl}
+                  alt="Signature"
+                  width={200}
+                  height={100}
+                  className="max-h-32 object-contain"
+                  unoptimized // Signatures might be dynamic
+                />
               </div>
             </div>
           </div>

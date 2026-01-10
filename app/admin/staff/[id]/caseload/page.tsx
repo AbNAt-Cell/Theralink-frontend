@@ -27,9 +27,16 @@ import {
 import { useSnackbar } from "notistack";
 
 export default function CaseloadPage() {
+  // Client interface
+  interface Client {
+    id: string;
+    first_name: string;
+    last_name: string;
+  }
+
   const { staff, loading, id: staffId } = useStaffData();
-  const [assignedClients, setAssignedClients] = useState<any[]>([]);
-  const [availableClients, setAvailableClients] = useState<any[]>([]);
+  const [assignedClients, setAssignedClients] = useState<Client[]>([]);
+  const [availableClients, setAvailableClients] = useState<Client[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { enqueueSnackbar } = useSnackbar();
@@ -39,15 +46,6 @@ export default function CaseloadPage() {
   const [acceptingNewClients, setAcceptingNewClients] = useState(true);
   const [isEditingCapacity, setIsEditingCapacity] = useState(false);
   const [editCapacityValue, setEditCapacityValue] = useState("");
-
-  useEffect(() => {
-    if (staffId && staff) {
-      fetchData();
-      setMaxCapacity(staff.max_capacity ?? null);
-      setAcceptingNewClients(staff.accepting_new_clients ?? true);
-      setEditCapacityValue(staff.max_capacity?.toString() || "");
-    }
-  }, [staffId, staff]);
 
   const fetchData = async () => {
     try {
@@ -64,6 +62,16 @@ export default function CaseloadPage() {
       setLoadingData(false);
     }
   };
+
+  useEffect(() => {
+    if (staffId && staff) {
+      fetchData();
+      setMaxCapacity(staff.max_capacity ?? null);
+      setAcceptingNewClients(staff.accepting_new_clients ?? true);
+      setEditCapacityValue(staff.max_capacity?.toString() || "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffId, staff]);
 
   const filteredAvailableClients = availableClients.filter(c =>
     `${c.first_name} ${c.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())

@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Loader2
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import AdminStaffProfile from '@/components/AdminStaffProfile';
 import { useStaffData } from "@/hooks/useStaffData";
 import { useState, useEffect } from "react";
@@ -14,17 +13,16 @@ import { useSnackbar } from "notistack";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SitesPage() {
+  interface Site {
+    id: string;
+    name: string;
+  }
+
   const { staff, loading, id: staffId } = useStaffData();
-  const [assignedSites, setAssignedSites] = useState<any[]>([]);
-  const [availableSites, setAvailableSites] = useState<any[]>([]);
+  const [assignedSites, setAssignedSites] = useState<Site[]>([]);
+  const [availableSites, setAvailableSites] = useState<Site[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
-
-  useEffect(() => {
-    if (staffId && staff) {
-      fetchData();
-    }
-  }, [staffId, staff]);
 
   const fetchData = async () => {
     try {
@@ -46,6 +44,13 @@ export default function SitesPage() {
       setLoadingData(false);
     }
   };
+
+  useEffect(() => {
+    if (staffId && staff) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffId, staff]);
 
   const handleAssign = async (siteId: string) => {
     try {

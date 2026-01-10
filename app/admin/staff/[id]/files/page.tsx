@@ -4,7 +4,7 @@ import AdminStaffProfile from "@/components/AdminStaffProfile";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useStaffData } from "@/hooks/useStaffData";
-import { Loader2, Plus, Trash2, UploadCloud, X, FileText } from "lucide-react";
+import { Loader2, Plus, Trash2, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getStaffFiles, addStaffFile, deleteStaffFile } from "@/hooks/admin/staff";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -14,8 +14,15 @@ import { useSnackbar } from "notistack";
 import { createClient } from "@/utils/supabase/client";
 
 export default function FilesPage() {
+  interface StaffFile {
+    id: string;
+    name: string;
+    file_url: string;
+    created_at: string;
+  }
+
   const { staff, loading, id: staffId } = useStaffData();
-  const [files, setFiles] = useState<any[]>([]);
+  const [files, setFiles] = useState<StaffFile[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -25,12 +32,6 @@ export default function FilesPage() {
   const [name, setName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (staffId) {
-      fetchFiles();
-    }
-  }, [staffId]);
 
   const fetchFiles = async () => {
     try {
@@ -43,6 +44,13 @@ export default function FilesPage() {
       setLoadingFiles(false);
     }
   };
+
+  useEffect(() => {
+    if (staffId) {
+      fetchFiles();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

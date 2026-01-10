@@ -3,19 +3,26 @@
 import AdminStaffProfile from "@/components/AdminStaffProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useStaffData } from "@/hooks/useStaffData";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, PenSquare } from "lucide-react";
+import { Trash2, PenSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getStaffCredentials, addStaffCredential, deleteStaffCredential } from "@/hooks/admin/staff";
 import { useSnackbar } from "notistack";
 import { format } from "date-fns";
 
 export default function PositionsPage() {
+  interface Credential {
+    id: string;
+    name: string;
+    effective_date?: string;
+    expiration_date?: string;
+  }
+
   const { staff, loading } = useStaffData();
-  const [credentials, setCredentials] = useState<any[]>([]);
+  const [credentials, setCredentials] = useState<Credential[]>([]);
   const [newCredential, setNewCredential] = useState({
     name: "",
     effectiveDate: "",
@@ -23,12 +30,6 @@ export default function PositionsPage() {
   });
   const { enqueueSnackbar } = useSnackbar();
   const [adding, setAdding] = useState(false);
-
-  useEffect(() => {
-    if (staff?.id) {
-      loadCredentials();
-    }
-  }, [staff?.id]);
 
   const loadCredentials = async () => {
     try {
@@ -39,6 +40,13 @@ export default function PositionsPage() {
       console.error("Error loading credentials:", error);
     }
   };
+
+  useEffect(() => {
+    if (staff?.id) {
+      loadCredentials();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staff?.id]);
 
   const handleAddCredential = async () => {
     if (!newCredential.name) {
