@@ -68,6 +68,17 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
 
     const callStateRef = useRef<CallState>("idle");
 
+    // Helper: determines if we should show the call overlay
+    const shouldShowOverlay = [
+        "audio-calling",
+        "video-calling",
+        "ringing",
+        "audio-connected",
+        "video-connected",
+        "connecting",
+        "disconnected", // optional - show during reconnect attempts
+    ].includes(callState);
+
     useEffect(() => {
         callStateRef.current = callState;
     }, [callState]);
@@ -117,7 +128,6 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
 
         newPeer.on("disconnected", () => {
             console.log("Peer disconnected");
-            // Only update state if we are in an active call
             if (callStateRef.current !== "idle" && callStateRef.current !== "ended") {
                 setCallState("disconnected");
             }
@@ -126,7 +136,6 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
 
         newPeer.on("error", (err) => {
             console.error("Peer error:", err);
-            // Only update state if we are in an active call
             if (callStateRef.current !== "idle" && callStateRef.current !== "ended") {
                 sendMissedCall();
                 setCallState("unavailable");
@@ -449,9 +458,12 @@ export const PeerProvider = ({ children, loggedInUser }: { children: React.React
                 toggleVideo,
                 sendMissedCall,
                 sendCall,
-            }}>
+            }}
+        >
             {children}
-            <CallOverlay />
+
+            {/* Only render CallOverlay when there's an active or incoming call */}
+            {shouldShowOverlay && <CallOverlay />}
         </PeerContext.Provider>
     );
 };
