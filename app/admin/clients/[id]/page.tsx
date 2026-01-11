@@ -12,7 +12,7 @@ import {
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
 
-export default function ClientDashboard({ params }: { params: Promise<{ id: string }> }) {
+export default function ClientDashboard({ params }: { params: { id: string } }) {
   const [client, setClient] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,10 +28,8 @@ export default function ClientDashboard({ params }: { params: Promise<{ id: stri
   const [isPediatricianOpen, setIsPediatricianOpen] = useState(true);
 
   useEffect(() => {
-    params.then(unwrappedParams => {
-      fetchClientData(unwrappedParams.id);
-    });
-  }, [params]);
+    fetchClientData(params.id);
+  }, [params.id]);
 
   const fetchClientData = async (clientId: string) => {
     try {
