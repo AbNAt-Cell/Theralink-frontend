@@ -277,20 +277,24 @@ export const updateClient = async (clientId: string, clientData: any) => {
   // Helper to convert empty strings to null for date fields
   const toDateOrNull = (val: string | undefined) => (val && val.trim() !== '' ? val : null);
 
+  console.log('updateClient called with:', { clientId, clientData });
+
   // 1. Update Profile
-  const { error: profileError } = await supabase
+  const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .update({
       first_name: clientData.firstName,
       last_name: clientData.lastName,
       email: clientData.email || null,
     })
-    .eq('id', clientId);
+    .eq('id', clientId)
+    .select();
 
+  console.log('Profile update result:', { profileData, profileError });
   if (profileError) throw profileError;
 
   // 2. Upsert Client Details (insert if not exists, update if exists)
-  const { error: detailsError } = await supabase
+  const { data: detailsData, error: detailsError } = await supabase
     .from('client_details')
     .upsert({
       profile_id: clientId, // Required for upsert to match
@@ -328,8 +332,10 @@ export const updateClient = async (clientId: string, clientData: any) => {
       insurance_start_date: toDateOrNull(clientData.insurance?.startDate),
       insurance_end_date: toDateOrNull(clientData.insurance?.endDate),
       comments: clientData.comments || null
-    }, { onConflict: 'profile_id' });
+    }, { onConflict: 'profile_id' })
+    .select();
 
+  console.log('Client details upsert result:', { detailsData, detailsError });
   if (detailsError) throw detailsError;
 
   return { id: clientId };
