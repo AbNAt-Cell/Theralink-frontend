@@ -100,6 +100,7 @@ export interface ClientProfile {
   };
   comments?: string;
   avatarUrl?: string;
+  signatureUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -276,6 +277,7 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
 
     comments: details.comments,
     avatarUrl: data.avatar_url,
+    signatureUrl: data.signature_url,
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
