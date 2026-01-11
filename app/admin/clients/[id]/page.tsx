@@ -136,6 +136,10 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
             <p>{demographicsData.commonRace}</p>
           </div>
           <div>
+            <h3 className='text-sm font-medium text-gray-500'>Phone</h3>
+            <p>{client.phone || '—'}</p>
+          </div>
+          <div>
             <h3 className='text-sm font-medium text-gray-500'>Site</h3>
             <p>{demographicsData.site}</p>
           </div>
@@ -182,13 +186,16 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
 
             <div className='space-y-4'>
               {/* Display legacy insurance if exists */}
-              {(client.insurance?.insuranceType || client.insurance?.policyNumber) && (
+              {/* Display legacy insurance if exists */}
+              {(client.insurance?.insuranceType || client.insurance?.policyNumber) ? (
                 <div className="border p-3 rounded-md">
                   <p className="font-semibold text-sm">Legacy / Primary</p>
-                  <p className="text-sm"><span className="text-gray-500">Payer:</span> {client.insurance.insuranceType}</p>
-                  <p className="text-sm"><span className="text-gray-500">Policy #:</span> {client.insurance.policyNumber}</p>
-                  <p className="text-sm"><span className="text-gray-500">Dates:</span> {client.insurance.startDate} - {client.insurance.endDate}</p>
+                  <p className="text-sm"><span className="text-gray-500">Payer:</span> {client.insurance.insuranceType || '—'}</p>
+                  <p className="text-sm"><span className="text-gray-500">Policy #:</span> {client.insurance.policyNumber || '—'}</p>
+                  <p className="text-sm"><span className="text-gray-500">Dates:</span> {client.insurance.startDate || '—'} - {client.insurance.endDate || '—'}</p>
                 </div>
+              ) : (
+                <p className="text-gray-500 text-sm italic">No insurance policies found.</p>
               )}
 
               {/* 
