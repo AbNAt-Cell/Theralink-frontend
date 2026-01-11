@@ -1,25 +1,31 @@
-import Image from 'next/image';
+import { User } from 'lucide-react';
+import { ClientProfile } from '@/hooks/admin/client';
 
-export default function AdminClientProfile() {
+interface AdminClientProfileProps {
+  client?: ClientProfile | null;
+}
+
+export default function AdminClientProfile({ client }: AdminClientProfileProps) {
+  // If client is intentionally null/undefined (e.g. from pages that don't fetch it yet),
+  // we can show a placeholder or loading state.
+  // For now, we'll try to extract what we can or fall back safely.
+
   const clientData = {
-    name: 'Jaleigh Bolton',
-    dob: '6/27/2018 (6 years)',
-    email: 'j.caraway520@gmail.com',
-    phone: '(936) 201-2168',
-    insurance: '68519 - SUPERIOR HEALTHPLAN (727333176)',
-    recordNumber: '',
+    name: client ? `${client.firstName} ${client.lastName}` : 'Loading...',
+    dob: client?.dateOfBirth ? new Date(client.dateOfBirth).toLocaleDateString() : '—',
+    email: client?.email || '—',
+    phone: client?.phone || '—',
+    insurance: client?.insurance?.insuranceType
+      ? `${client.insurance.insuranceType} (${client.insurance.policyNumber})`
+      : '—',
+    recordNumber: client?.id?.split('-')[0] || '—',
   };
 
   return (
     <div className='border-b p-4 bg-white flex flex-col md:flex-row gap-4 items-start md:items-center'>
       <div className='flex-shrink-0'>
-        <div className='w-20 h-20 rounded-full bg-red-600 flex items-center justify-center overflow-hidden relative'>
-          <Image
-            src='/placeholder.svg?height=80&width=80'
-            alt='Profile'
-            fill
-            className='object-cover'
-          />
+        <div className='w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden relative'>
+          <User className="w-10 h-10 text-slate-500" />
         </div>
       </div>
 

@@ -1,21 +1,31 @@
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import Link from 'next/link';
 
-export default function SignaturePage() {
+// Helper to extract ID from params
+// In Next.js 13+ app directory, params is a prop
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function SignaturePage({ params }: PageProps) {
   return (
     <div className='space-y-6'>
+      {/* Passing client ID to profile if needed, though profile fetches by param ID usually */}
       <AdminClientProfile />
       <div>
         <h2 className='text-xl font-semibold mb-4'>Signature</h2>
 
         <div className='flex justify-end gap-2 mb-4'>
-          <Button variant='outline' className='border-blue-500 text-blue-500'>
-            + Add Client Signature
-          </Button>
-          <Button variant='outline' className='border-blue-500 text-blue-500'>
-            + Add Parents Signature
-          </Button>
+          <Link href={`/admin/clients/${params.id}/signature/create`}>
+            <Button variant='outline' className='border-blue-500 text-blue-500'>
+              + Add Client Signature
+            </Button>
+          </Link>
+          {/* Parent signature button removed as per request */}
         </div>
 
         <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[300px]'>

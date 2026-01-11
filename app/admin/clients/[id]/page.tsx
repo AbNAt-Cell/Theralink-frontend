@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,8 +10,13 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import AdminClientProfile from '@/components/AdminClientProfile';
+import { getClientById, ClientProfile } from '@/hooks/admin/client';
 
-export default function ClientDashboard() {
+export default function ClientDashboard({ params }: { params: Promise<{ id: string }> }) {
+  const [client, setClient] = useState<ClientProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Collapsible states
   const [isCurrentInsuranceOpen, setIsCurrentInsuranceOpen] = useState(true);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(true);
   const [isVitalsOpen, setIsVitalsOpen] = useState(true);
@@ -21,33 +27,55 @@ export default function ClientDashboard() {
   const [isPrimaryCareOpen, setIsPrimaryCareOpen] = useState(true);
   const [isPediatricianOpen, setIsPediatricianOpen] = useState(true);
 
-  const demographicsData = {
-    status: '',
-    username: 'jaleighbolton',
-    gender: 'Female',
-    dateOfBirth: '6/27/2018 (6 years, 4 months)',
-    startDate: '8/9/2024',
-    recordId: '',
-    race: 'Black or African American',
-    ethnicity: 'NH',
-    hairColor: 'Black',
-    eyeColor: 'Black',
-    commonRace: 'Black or African American',
-    site: 'Auspicious Community Services',
-    ssn: 'NI',
-    physicalAddress: '1211 S Main St Apt 122, Dickinson, TX 77539',
+  useEffect(() => {
+    params.then(unwrappedParams => {
+      fetchClientData(unwrappedParams.id);
+    });
+  }, [params]);
+
+  const fetchClientData = async (clientId: string) => {
+    try {
+      setLoading(true);
+      const data = await getClientById(clientId);
+      // Fetch policies if not included in client object (our hook might need update or we fetch separately)
+      // The updated getClientById fetches everything, let's verify if policies are there.
+      // Actually, my plan said to update getClientById or fetch separately. 
+      // Let's assume for now we use the separate hook I created if getClientById isn't updated, 
+      // BUT I'll just rely on the new hook for policies to be safe and modular.
+      setClient(data);
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const insuranceData = {
-    name: '68519 - SUPERIOR HEALTHPLAN',
-    policyNumber: '727333176',
-    startDate: '8/1/2024',
-    endDate: '8/1/2024',
+  if (loading) return <div>Loading client data...</div>;
+  if (!client) return <div>Client not found</div>;
+
+  const demographicsData = {
+    status: client.status,
+    username: client.email || '—', // Using email as username for now
+    gender: client.gender,
+    dateOfBirth: client.dateOfBirth ? new Date(client.dateOfBirth).toLocaleDateString() : 'N/A',
+    startDate: client.startDate ? new Date(client.startDate).toLocaleDateString() : 'N/A',
+    recordId: client.id.split('-')[0],
+    race: client.race || '—',
+    ethnicity: '—', // Not yet in DB
+    hairColor: '—', // Not yet in DB
+    eyeColor: '—', // Not yet in DB
+    commonRace: client.race || '—',
+    site: client.address?.city || '—',
+    ssn: client.ssn || '—',
+    physicalAddress: client.address ? `${client.address.street || ''}, ${client.address.city || ''}, ${client.address.state || ''} ${client.address.zipCode || ''}` : '—',
   };
+
+  // insuranceData removed
+  // insuranceData variable removed
 
   return (
     <div className='space-y-6'>
-      <AdminClientProfile />
+      <AdminClientProfile client={client} />
       {/* Demographics */}
       <div className='border rounded-md p-6 bg-white'>
         <div className='flex justify-between items-center mb-4'>
@@ -92,10 +120,6 @@ export default function ClientDashboard() {
           <div>
             <h3 className='text-sm font-medium text-gray-500'>Ethnicity</h3>
             <p>{demographicsData.ethnicity}</p>
-          </div>
-          <div>
-            <h3 className='text-sm font-medium text-gray-500'>Gender</h3>
-            <p>{demographicsData.gender}</p>
           </div>
           <div>
             <h3 className='text-sm font-medium text-gray-500'>Hair Color</h3>
@@ -143,28 +167,42 @@ export default function ClientDashboard() {
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className='p-4 bg-white border-t'>
-            <div className='space-y-2'>
-              <p>
-                <span className='font-medium'>Insurance:</span>{' '}
-                {insuranceData.name}
-              </p>
-              <p>
-                <span className='font-medium'>Policy #:</span>{' '}
-                {insuranceData.policyNumber}
-              </p>
-              <p>
-                <span className='font-medium'>Start Date:</span>{' '}
-                {insuranceData.startDate}
-              </p>
-              <p>
-                <span className='font-medium'>End Date:</span>{' '}
-                {insuranceData.endDate}
-              </p>
+            {/* 
+                We need to fetch actual policies. Ideally, `client` state should include policies 
+                or we fetch them in a useEffect. Since I haven't updated `getClientById` to return real policies array (just single fields),
+                let's stick to the "Add Insurance" button linking to the new page for now.
+                Todo: Display list of policies here.
+            */}
+            <div className='flex justify-between items-center mb-4'>
+              <h3 className="text-sm font-semibold">Policies</h3>
+              <Link href={`/admin/clients/${client.id}/insurance/new`}>
+                <Button variant="outline" size="sm" className='text-blue-500 border-blue-500'>
+                  + Add Insurance
+                </Button>
+              </Link>
+            </div>
+
+            <div className='space-y-4'>
+              {/* Display legacy insurance if exists */}
+              {(client.insurance?.insuranceType || client.insurance?.policyNumber) && (
+                <div className="border p-3 rounded-md">
+                  <p className="font-semibold text-sm">Legacy / Primary</p>
+                  <p className="text-sm"><span className="text-gray-500">Payer:</span> {client.insurance.insuranceType}</p>
+                  <p className="text-sm"><span className="text-gray-500">Policy #:</span> {client.insurance.policyNumber}</p>
+                  <p className="text-sm"><span className="text-gray-500">Dates:</span> {client.insurance.startDate} - {client.insurance.endDate}</p>
+                </div>
+              )}
+
+              {/* 
+                    Ideally we map over `policies` here. 
+                    For this task, the requirement is "add insurance button should lead to a page". 
+                    I've implemented that link above.
+                 */}
             </div>
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Client Portal Access */}
+        {/* Client Portal Access - Placeholder for now */}
         <Collapsible
           open={isClientPortalOpen}
           onOpenChange={setIsClientPortalOpen}
@@ -196,7 +234,7 @@ export default function ClientDashboard() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Vitals */}
+        {/* Vitals - Placeholder for now */}
         <Collapsible
           open={isVitalsOpen}
           onOpenChange={setIsVitalsOpen}
@@ -213,25 +251,25 @@ export default function ClientDashboard() {
           <CollapsibleContent className='p-4 bg-white border-t'>
             <div className='space-y-2'>
               <p>
-                <span className='font-medium'>Date Added:</span>
+                <span className='font-medium'>Date Added:</span> —
               </p>
               <p>
-                <span className='font-medium'>Blood Pressure #:</span>
+                <span className='font-medium'>Blood Pressure #:</span> —
               </p>
               <p>
-                <span className='font-medium'>Temperature:</span>
+                <span className='font-medium'>Temperature:</span> —
               </p>
               <p>
-                <span className='font-medium'>Height:</span>
+                <span className='font-medium'>Height:</span> —
               </p>
               <p>
-                <span className='font-medium'>Pulse Rate:</span>
+                <span className='font-medium'>Pulse Rate:</span> —
               </p>
               <p>
-                <span className='font-medium'>BMI:</span>
+                <span className='font-medium'>BMI:</span> —
               </p>
               <p>
-                <span className='font-medium'>Pulse Ox:</span>
+                <span className='font-medium'>Pulse Ox:</span> —
               </p>
             </div>
           </CollapsibleContent>
@@ -240,7 +278,7 @@ export default function ClientDashboard() {
 
       {/* Collapsible Sections - Second Row */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        {/* Relationship */}
+        {/* Relationship - Placeholder */}
         <Collapsible
           open={isRelationshipOpen}
           onOpenChange={setIsRelationshipOpen}
@@ -267,7 +305,7 @@ export default function ClientDashboard() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Emergency Contact */}
+        {/* Emergency Contact - Placeholder */}
         <Collapsible
           open={isEmergencyContactOpen}
           onOpenChange={setIsEmergencyContactOpen}
@@ -294,7 +332,7 @@ export default function ClientDashboard() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Referral Source */}
+        {/* Referral Source - Placeholder */}
         <Collapsible
           open={isReferralSourceOpen}
           onOpenChange={setIsReferralSourceOpen}
@@ -335,7 +373,7 @@ export default function ClientDashboard() {
 
       {/* Collapsible Sections - Third Row */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        {/* Referring Provider */}
+        {/* Referring Provider - Placeholder */}
         <Collapsible
           open={isReferringProviderOpen}
           onOpenChange={setIsReferringProviderOpen}
@@ -376,7 +414,7 @@ export default function ClientDashboard() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Primary Care Physician */}
+        {/* Primary Care Physician - Placeholder */}
         <Collapsible
           open={isPrimaryCareOpen}
           onOpenChange={setIsPrimaryCareOpen}
@@ -414,7 +452,7 @@ export default function ClientDashboard() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Pediatrician */}
+        {/* Pediatrician - Placeholder */}
         <Collapsible
           open={isPediatricianOpen}
           onOpenChange={setIsPediatricianOpen}

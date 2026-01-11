@@ -30,16 +30,39 @@ import { Calendar, Cigarette, Dna, Globe, LoaderCircle, Phone } from 'lucide-rea
 import UpdateClientSignatureForm from "@/components/forms/UpdateClientSignatureForm"
 import ChangePinForm from "@/components/forms/ChangePinForm"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useUser } from "@/context/UserContext"
+import { getClientById, ClientProfile } from "@/hooks/admin/client"
 import Image from "next/image"
 
 export default function ClientDashboard() {
+  const { user } = useUser();
+  const [client, setClient] = useState<ClientProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Signatures & PINs state
   const [openClientSignature, setOpenClientSignature] = useState(false);
   const [openParentSignature, setOpenParentSignature] = useState(false);
   const [openClientPin, setOpenClientPin] = useState(false);
   const [openParentPin, setOpenParentPin] = useState(false);
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchClientData = async () => {
+      if (!user?.id) return;
+      try {
+        setLoading(true);
+        const data = await getClientById(user.id);
+        setClient(data);
+      } catch (error) {
+        console.error("Error fetching client data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchClientData();
+  }, [user]);
 
   const handleClientPinChange = (oldPin: string, newPin: string) => {
     console.log('Changing client PIN:', { oldPin, newPin });
@@ -50,6 +73,9 @@ export default function ClientDashboard() {
     console.log('Changing parent PIN:', { oldPin, newPin });
     // Add API call to change PIN here
   };
+
+  if (loading) return <div>Loading dashboard...</div>;
+  if (!client) return <div>Client profile not found.</div>;
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
@@ -64,9 +90,10 @@ export default function ClientDashboard() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold text-secondary">
-                Auspicious Community Service, LLC
+                {client.clinicName || 'Auspicious Community Service, LLC'}
               </h3>
               <p className="text-sm text-muted-foreground">
+                {/* Clinic address is not yet in DB, keeping hardcoded fallback or empty if preferred */}
                 305 FM 517 Road E.
               </p>
               <p className="text-sm text-muted-foreground">
@@ -81,7 +108,7 @@ export default function ClientDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">DOB:</p>
-                  <p className="font-medium">06/05/1998</p>
+                  <p className="font-medium">{client.dateOfBirth ? new Date(client.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
                 </div>
               </div>
 
@@ -103,7 +130,7 @@ export default function ClientDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Sex:</p>
-                  <p className="font-medium">Male</p>
+                  <p className="font-medium">{client.gender || 'N/A'}</p>
                 </div>
               </div>
 
@@ -123,7 +150,7 @@ export default function ClientDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Race:</p>
-                  <p className="font-medium">African</p>
+                  <p className="font-medium">{client.race || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -140,7 +167,7 @@ export default function ClientDashboard() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold text-secondary">
-                Auspicious Community Service, LLC
+                {client.clinicName || 'Auspicious Community Service, LLC'}
               </h3>
               <p className="text-sm text-muted-foreground">
                 305 FM 517 Road E.
@@ -173,7 +200,14 @@ export default function ClientDashboard() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
-                      <UpdateClientSignatureForm onSignatureUpdate={setClientSignature} setOpen={setOpenClientSignature} />
+                      <UpdateClientSignatureForm
+                        onSignatureUpdate={(sig, pin) => {
+                          setClientSignature(sig);
+                          setOpenClientSignature(false);
+                          console.log("Pin captured:", pin);
+                        }}
+                        onCancel={() => setOpenClientSignature(false)}
+                      />
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
@@ -213,7 +247,14 @@ export default function ClientDashboard() {
                     <DialogHeader>
                       <DialogTitle>Add Parent Signature</DialogTitle>
                     </DialogHeader>
-                    <UpdateClientSignatureForm onSignatureUpdate={setParentSignature} setOpen={setOpenParentSignature} />
+                    <UpdateClientSignatureForm
+                      onSignatureUpdate={(sig, pin) => {
+                        setParentSignature(sig);
+                        setOpenParentSignature(false);
+                        console.log("Pin captured:", pin);
+                      }}
+                      onCancel={() => setOpenParentSignature(false)}
+                    />
                   </DialogContent>
                 </Dialog>
                 {parentSignature && (

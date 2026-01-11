@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SignatureCanvas from 'react-signature-canvas';
 import { Button } from '@/components/ui/button';
@@ -7,12 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight, Eraser } from 'lucide-react';
-import { DialogClose } from '../ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface UpdateClientSignatureFormProps {
-  onSignatureUpdate: (signature: string) => void;
-  setOpen: (open: boolean) => void;
+  onSignatureUpdate: (signature: string, pin: string) => void;
+  onCancel: () => void;
 }
 
 const formSchema = z.object({
@@ -23,8 +22,10 @@ const formSchema = z.object({
   path: ["confirmPin"],
 });
 
-const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientSignatureFormProps) => {
+const UpdateClientSignatureForm = ({ onSignatureUpdate, onCancel }: UpdateClientSignatureFormProps) => {
   const sigCanvas = useRef<SignatureCanvas | null>(null);
+  const [brushColor, setBrushColor] = useState('black');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,39 +34,47 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientS
     },
   });
 
-  const clearSignature = () => sigCanvas.current?.clear();
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (sigCanvas.current) {
+      if (sigCanvas.current.isEmpty()) {
+        // Ideally show an error toast here
+        alert("Please draw a signature");
+        return;
+      }
       const dataURL = sigCanvas.current.getTrimmedCanvas().toDataURL("image/png");
-      onSignatureUpdate(dataURL);
-      console.log('Form values:', values);
-      console.log('Signature:', dataURL);
-      // Handle form submission here
-      setOpen(false);
+      onSignatureUpdate(dataURL, values.pin);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-10">
-        <div className="relative">
-          <label className="mb-2 block text-sm font-medium text-gray-900">
-            Draw your signature here
-          </label>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+        {/* Brush Selection */}
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Brush:</label>
+          <Select value={brushColor} onValueChange={setBrushColor}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Color" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="black"><span className="w-3 h-3 inline-block rounded-full bg-black mr-2"></span> Black</SelectItem>
+              <SelectItem value="red"><span className="w-3 h-3 inline-block rounded-full bg-red-500 mr-2"></span> Red</SelectItem>
+              <SelectItem value="blue"><span className="w-3 h-3 inline-block rounded-full bg-blue-500 mr-2"></span> Blue</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="relative border rounded-md">
           <SignatureCanvas
             ref={sigCanvas}
+            penColor={brushColor}
             canvasProps={{
-              style: {
-                border: "1px solid black",
-                borderRadius: "5px",
-                width: "100%",
-                height: "200px",
-              },
-              className: 'sigCanvas',
+              className: 'sigCanvas w-full h-[300px] border rounded-md bg-white',
             }}
           />
-          <Button
+          {/* <Button
             type="button"
             size="sm"
             variant="destructive"
@@ -74,15 +83,16 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientS
           >
             <Eraser className="w-4 h-4" />
             Clear
-          </Button>
+          </Button> */}
         </div>
-        <div className="flex gap-4">
+
+        <div className="space-y-4 max-w-md">
           <FormField
             control={form.control}
             name="pin"
             render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>PIN</FormLabel>
+              <FormItem>
+                <FormLabel>Pin</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -94,8 +104,8 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientS
             control={form.control}
             name="confirmPin"
             render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Confirm PIN</FormLabel>
+              <FormItem>
+                <FormLabel>Confirm Pin</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -104,16 +114,14 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate, setOpen }: UpdateClientS
             )}
           />
         </div>
-        <div className="flex gap-4 pt-4">
-          <DialogClose asChild>
-            <Button className="w-full" variant="outline">
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button className="w-full" variant="secondary" type="submit">
-            Submit <ArrowRight />
-          </Button>
 
+        <div className="flex gap-4 pt-4">
+          <Button className="w-32 bg-blue-900 hover:bg-blue-800 text-white" type="submit">
+            Save
+          </Button>
+          <Button className="w-32" variant="outline" type="button" onClick={onCancel}>
+            Cancel
+          </Button>
         </div>
       </form>
     </Form>
