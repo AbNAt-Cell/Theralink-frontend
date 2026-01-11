@@ -107,6 +107,7 @@ export default function AdminClientProfile({ client, onAvatarUpdate }: AdminClie
               src={clientData.avatarUrl}
               alt={clientData.name}
               fill
+              unoptimized
               className="object-cover"
             />
           ) : (
