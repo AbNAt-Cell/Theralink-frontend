@@ -204,7 +204,16 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
 
   if (error) throw error;
 
-  const details = data.client_details?.[0] || {};
+  console.log('getClientById raw data:', data);
+  console.log('client_details:', data.client_details);
+
+  // Handle both array and single object cases
+  const details = Array.isArray(data.client_details)
+    ? data.client_details[0] || {}
+    : data.client_details || {};
+
+  console.log('Parsed details:', details);
+
   const clinic = data.clinics;
 
   return {
