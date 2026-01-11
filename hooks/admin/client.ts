@@ -269,3 +269,63 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
     updatedAt: data.updated_at
   };
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updateClient = async (clientId: string, clientData: any) => {
+  // 1. Update Profile
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({
+      first_name: clientData.firstName,
+      last_name: clientData.lastName,
+      email: clientData.email,
+    })
+    .eq('id', clientId);
+
+  if (profileError) throw profileError;
+
+  // 2. Update Client Details
+  const { error: detailsError } = await supabase
+    .from('client_details')
+    .update({
+      prefix: clientData.prefix,
+      middle_name: clientData.middleName,
+      suffix: clientData.suffix,
+      nickname: clientData.nickName,
+      gender: clientData.gender,
+      date_of_birth: clientData.dateOfBirth,
+      ssn: clientData.ssn,
+      race: clientData.race,
+      start_date: clientData.startDate,
+      phone: clientData.phone,
+      record_number: clientData.recordNumber,
+      sexual_orientation: clientData.sexualOrientation,
+      marital_status: clientData.maritalStatus,
+      gender_identity: clientData.genderIdentity,
+      pregnancy_status: clientData.pregnancyStatus,
+      gender_pronouns: clientData.genderPronouns,
+      timezone: clientData.timezone,
+      work_phone: clientData.workPhone,
+      address_street: clientData.address?.street,
+      address_city: clientData.address?.city,
+      address_state: clientData.address?.state,
+      address_zip_code: clientData.address?.zipCode,
+      physical_address_street: clientData.physicalAddress?.street,
+      physical_address_line_2: clientData.physicalAddress?.line2,
+      physical_address_city: clientData.physicalAddress?.city,
+      physical_address_state: clientData.physicalAddress?.state,
+      physical_address_zip_code: clientData.physicalAddress?.zipCode,
+      is_private_pay: clientData.isPrivatePay,
+      assigned_site: clientData.assignedSite,
+      insurance_type: clientData.insurance?.insuranceType,
+      insurance_policy_number: clientData.insurance?.policyNumber,
+      insurance_start_date: clientData.insurance?.startDate,
+      insurance_end_date: clientData.insurance?.endDate,
+      comments: clientData.comments
+    })
+    .eq('profile_id', clientId);
+
+  if (detailsError) throw detailsError;
+
+  return { id: clientId };
+};

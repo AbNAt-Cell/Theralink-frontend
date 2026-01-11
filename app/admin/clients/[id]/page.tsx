@@ -78,12 +78,14 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
       <div className='border rounded-md p-6 bg-white'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-lg font-semibold'>Demographics</h2>
-          <Button
-            variant='outline'
-            className='bg-green-600 text-white hover:bg-green-700'
-          >
-            Manage
-          </Button>
+          <Link href={`/admin/clients/${client.id}/edit`}>
+            <Button
+              variant='outline'
+              className='bg-green-600 text-white hover:bg-green-700'
+            >
+              Edit
+            </Button>
+          </Link>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-y-6'>
