@@ -99,6 +99,7 @@ export interface ClientProfile {
     endDate?: string;
   };
   comments?: string;
+  avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -265,6 +266,7 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
     },
 
     comments: details.comments,
+    avatarUrl: data.avatar_url,
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
@@ -272,58 +274,61 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateClient = async (clientId: string, clientData: any) => {
+  // Helper to convert empty strings to null for date fields
+  const toDateOrNull = (val: string | undefined) => (val && val.trim() !== '' ? val : null);
+
   // 1. Update Profile
   const { error: profileError } = await supabase
     .from('profiles')
     .update({
       first_name: clientData.firstName,
       last_name: clientData.lastName,
-      email: clientData.email,
+      email: clientData.email || null,
     })
     .eq('id', clientId);
 
   if (profileError) throw profileError;
 
-  // 2. Update Client Details
+  // 2. Upsert Client Details (insert if not exists, update if exists)
   const { error: detailsError } = await supabase
     .from('client_details')
-    .update({
-      prefix: clientData.prefix,
-      middle_name: clientData.middleName,
-      suffix: clientData.suffix,
-      nickname: clientData.nickName,
-      gender: clientData.gender,
-      date_of_birth: clientData.dateOfBirth,
-      ssn: clientData.ssn,
-      race: clientData.race,
-      start_date: clientData.startDate,
-      phone: clientData.phone,
-      record_number: clientData.recordNumber,
-      sexual_orientation: clientData.sexualOrientation,
-      marital_status: clientData.maritalStatus,
-      gender_identity: clientData.genderIdentity,
-      pregnancy_status: clientData.pregnancyStatus,
-      gender_pronouns: clientData.genderPronouns,
-      timezone: clientData.timezone,
-      work_phone: clientData.workPhone,
-      address_street: clientData.address?.street,
-      address_city: clientData.address?.city,
-      address_state: clientData.address?.state,
-      address_zip_code: clientData.address?.zipCode,
-      physical_address_street: clientData.physicalAddress?.street,
-      physical_address_line_2: clientData.physicalAddress?.line2,
-      physical_address_city: clientData.physicalAddress?.city,
-      physical_address_state: clientData.physicalAddress?.state,
-      physical_address_zip_code: clientData.physicalAddress?.zipCode,
+    .upsert({
+      profile_id: clientId, // Required for upsert to match
+      prefix: clientData.prefix || null,
+      middle_name: clientData.middleName || null,
+      suffix: clientData.suffix || null,
+      nickname: clientData.nickName || null,
+      gender: clientData.gender || null,
+      date_of_birth: toDateOrNull(clientData.dateOfBirth),
+      ssn: clientData.ssn || null,
+      race: clientData.race || null,
+      start_date: toDateOrNull(clientData.startDate),
+      phone: clientData.phone || null,
+      record_number: clientData.recordNumber || null,
+      sexual_orientation: clientData.sexualOrientation || null,
+      marital_status: clientData.maritalStatus || null,
+      gender_identity: clientData.genderIdentity || null,
+      pregnancy_status: clientData.pregnancyStatus || null,
+      gender_pronouns: clientData.genderPronouns || null,
+      timezone: clientData.timezone || null,
+      work_phone: clientData.workPhone || null,
+      address_street: clientData.address?.street || null,
+      address_city: clientData.address?.city || null,
+      address_state: clientData.address?.state || null,
+      address_zip_code: clientData.address?.zipCode || null,
+      physical_address_street: clientData.physicalAddress?.street || null,
+      physical_address_line_2: clientData.physicalAddress?.line2 || null,
+      physical_address_city: clientData.physicalAddress?.city || null,
+      physical_address_state: clientData.physicalAddress?.state || null,
+      physical_address_zip_code: clientData.physicalAddress?.zipCode || null,
       is_private_pay: clientData.isPrivatePay,
-      assigned_site: clientData.assignedSite,
-      insurance_type: clientData.insurance?.insuranceType,
-      insurance_policy_number: clientData.insurance?.policyNumber,
-      insurance_start_date: clientData.insurance?.startDate,
-      insurance_end_date: clientData.insurance?.endDate,
-      comments: clientData.comments
-    })
-    .eq('profile_id', clientId);
+      assigned_site: clientData.assignedSite || null,
+      insurance_type: clientData.insurance?.insuranceType || null,
+      insurance_policy_number: clientData.insurance?.policyNumber || null,
+      insurance_start_date: toDateOrNull(clientData.insurance?.startDate),
+      insurance_end_date: toDateOrNull(clientData.insurance?.endDate),
+      comments: clientData.comments || null
+    }, { onConflict: 'profile_id' });
 
   if (detailsError) throw detailsError;
 
