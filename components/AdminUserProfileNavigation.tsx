@@ -12,13 +12,9 @@ const links = [
   { label: 'Eligibility', value: '/eligibility/' },
   { label: 'Diagnosis', value: '/diagnosis/' },
   { label: 'Documents', value: '/documents/' },
-  { label: 'Compliance', value: '/compliance/' },
   { label: 'Client Progress', value: '/client-progress/' },
-  { label: 'Client Ledger', value: '/client-ledger/' },
   { label: 'Medications', value: '/medication-management/' },
-  { label: 'eRx', value: '/electronic-prescription/' },
   { label: 'Vitals', value: '/vitals/' },
-  { label: 'Billing Claims', value: '/billing-claims/' },
   { label: 'Services', value: '/services/' },
   { label: 'Treatment Plan', value: '/treatment-plan/' },
   { label: 'Authorizations', value: '/authorization/' },
@@ -29,7 +25,7 @@ const links = [
   { label: 'Contacts & Relations', value: '/contact-relations/' },
   { label: 'Contact Notes', value: '/contact-notes/' },
   { label: 'Immunization', value: '/immunization/' },
-  { label: 'Files', value: '/files/' },
+  { label: 'Files', value: '/file/' },
   { label: 'Discharge', value: '/discharge/' }
 ]
 const AdminUserProfileNavigation = ({ id }: { id: string }) => {

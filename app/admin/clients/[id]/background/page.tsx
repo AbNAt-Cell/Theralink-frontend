@@ -1,124 +1,102 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { Loader, Edit, FileText, Heart, Users, Briefcase, GraduationCap, Scale, Wine } from 'lucide-react';
+import { getClientById, ClientProfile } from '@/hooks/admin/client';
+import { getClientBackground, ClientBackground } from '@/hooks/admin/client-pages';
+import { useToast } from '@/hooks/Partials/use-toast';
 
-export default function BackgroundPage() {
+interface PageProps {
+  params: { id: string };
+}
+
+const sectionConfig = [
+  { type: 'medical', label: 'Medical History', icon: Heart, color: 'text-red-500' },
+  { type: 'social', label: 'Social History', icon: Users, color: 'text-blue-500' },
+  { type: 'family', label: 'Family History', icon: Users, color: 'text-purple-500' },
+  { type: 'education', label: 'Education History', icon: GraduationCap, color: 'text-green-500' },
+  { type: 'employment', label: 'Employment History', icon: Briefcase, color: 'text-orange-500' },
+  { type: 'legal', label: 'Legal History', icon: Scale, color: 'text-gray-500' },
+  { type: 'substance', label: 'Substance Use History', icon: Wine, color: 'text-amber-500' },
+];
+
+export default function BackgroundPage({ params }: PageProps) {
+  const [client, setClient] = useState<ClientProfile | null>(null);
+  const [background, setBackground] = useState<ClientBackground[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const { toast } = useToast();
+
+  const loadData = useCallback(async () => {
+    try {
+      const [clientData, bgData] = await Promise.all([
+        getClientById(params.id),
+        getClientBackground(params.id)
+      ]);
+      setClient(clientData);
+      setBackground(bgData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to load data' });
+    } finally {
+      setLoading(false);
+    }
+  }, [params.id, toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const getBackgroundContent = (sectionType: string) => {
+    return background.find(b => b.sectionType === sectionType)?.content || '';
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className='space-y-10'>
-      <AdminClientProfile />
-      {/* Education Section */}
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-xl font-semibold'>Education</h2>
-          <Button className='bg-blue-900 hover:bg-blue-800'>
-            Add Education
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <AdminClientProfile client={client} />
 
-        <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <div className='relative w-36 h-36 mb-4'>
-            <Image
-              src='/placeholder.svg?height=150&width=150&text=No+Education'
-              alt='No education'
-              fill
-              className='object-contain'
-            />
-          </div>
-          <p className='text-gray-500'>No Education Available</p>
-        </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Background</h2>
       </div>
 
-      {/* Employment Section */}
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-xl font-semibold'>Employment</h2>
-          <Button className='bg-blue-900 hover:bg-blue-800'>
-            Add Employment
-          </Button>
-        </div>
-
-        <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <div className='relative w-36 h-36 mb-4'>
-            <Image
-              src='/placeholder.svg?height=150&width=150&text=No+Employment'
-              alt='No employment'
-              fill
-              className='object-contain'
-            />
-          </div>
-          <p className='text-gray-500'>No Employment Available</p>
-        </div>
-      </div>
-
-      {/* Medical Issues Section */}
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-xl font-semibold'>Medical Issues</h2>
-          <Button className='bg-blue-900 hover:bg-blue-800'>
-            Add Medical Issues
-          </Button>
-        </div>
-
-        <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <div className='relative w-36 h-36 mb-4'>
-            <Image
-              src='/placeholder.svg?height=150&width=150&text=No+Medical+Issues'
-              alt='No medical issues'
-              fill
-              className='object-contain'
-            />
-          </div>
-          <p className='text-gray-500'>No Medical Issues Available</p>
-        </div>
-      </div>
-
-      {/* Family Medical History Section */}
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-xl font-semibold'>Family Medical History</h2>
-          <Button className='bg-blue-900 hover:bg-blue-800'>
-            Add Family Medical History
-          </Button>
-        </div>
-
-        <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <div className='relative w-36 h-36 mb-4'>
-            <Image
-              src='/placeholder.svg?height=150&width=150&text=No+Family+History'
-              alt='No family medical history'
-              fill
-              className='object-contain'
-            />
-          </div>
-          <p className='text-gray-500'>No Family Medical History Available</p>
-        </div>
-      </div>
-
-      {/* Social Determinants Section */}
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-xl font-semibold'>Social Determinants</h2>
-          <div className='flex gap-2'>
-            <Button variant='outline' className='border-blue-500 text-blue-500'>
-              Social Risk Factors
-            </Button>
-            <Button className='bg-blue-900 hover:bg-blue-800'>
-              Add Determinant
-            </Button>
-          </div>
-        </div>
-
-        <div className='border rounded-md p-8 bg-white flex flex-col items-center justify-center min-h-[200px]'>
-          <div className='relative w-36 h-36 mb-4'>
-            <Image
-              src='/placeholder.svg?height=150&width=150&text=No+Social+Determinants'
-              alt='No social determinants'
-              fill
-              className='object-contain'
-            />
-          </div>
-          <p className='text-gray-500'>No Social Determinants Available</p>
-        </div>
+      <div className="space-y-4">
+        {sectionConfig.map(({ type, label, icon: Icon, color }) => {
+          const content = getBackgroundContent(type);
+          return (
+            <div key={type} className="border rounded-lg bg-white overflow-hidden">
+              <div className="flex items-center justify-between p-4 bg-gray-50 border-b">
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-5 h-5 ${color}`} />
+                  <span className="font-medium">{label}</span>
+                </div>
+                <Button variant="ghost" size="sm" className="text-blue-600">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+              </div>
+              <div className="p-4">
+                {content ? (
+                  <p className="text-gray-700 whitespace-pre-wrap">{content}</p>
+                ) : (
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <FileText className="w-4 h-4" />
+                    <span>No {label.toLowerCase()} recorded</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

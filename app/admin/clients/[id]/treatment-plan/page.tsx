@@ -17,6 +17,7 @@ import { generateAITreatmentPlan, GeneratedTreatmentPlan, AIGenerationConfig } f
 import GenerateAITreatmentModal from '@/components/modals/GenerateAITreatmentModal';
 import ReviewAITreatmentPlanModal from '@/components/modals/ReviewAITreatmentPlanModal';
 import EditTreatmentPlanModal from '@/components/modals/EditTreatmentPlanModal';
+import AddTreatmentPlanModal from '@/components/modals/AddTreatmentPlanModal';
 import { useToast } from '@/hooks/Partials/use-toast';
 
 interface PageProps {
@@ -42,6 +43,10 @@ export default function TreatmentPlanPage({ params }: PageProps) {
 
   // Edit Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Add Plan Modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { toast } = useToast();
 
@@ -246,7 +251,10 @@ export default function TreatmentPlanPage({ params }: PageProps) {
             <Sparkles className="w-4 h-4 mr-2" />
             Generate Treatment Plan
           </Button>
-          <Button className='bg-blue-900 hover:bg-blue-800'>
+          <Button
+            className='bg-blue-900 hover:bg-blue-800'
+            onClick={() => setIsAddModalOpen(true)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Plan
           </Button>
@@ -412,6 +420,47 @@ export default function TreatmentPlanPage({ params }: PageProps) {
         plan={generatedPlan}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveEdit}
+      />
+
+      {/* Add Treatment Plan Modal */}
+      <AddTreatmentPlanModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={async (data) => {
+          setIsSubmitting(true);
+          try {
+            await createTreatmentPlan({
+              clientId: params.id,
+              title: data.title,
+              planDate: data.planDate,
+              dischargeDate: data.dischargeDate,
+              startTime: data.startTime,
+              endTime: data.endTime,
+              service: data.service,
+              placeOfService: data.placeOfService,
+              isClientParticipant: data.isClientParticipant,
+              maintenanceRecommendation: data.maintenanceRecommendation,
+              clientStrengths: data.clientStrengths,
+              clientNeeds: data.clientNeeds,
+              clientAbilities: data.clientAbilities,
+              clientPreferences: data.clientPreferences,
+              crisisPlanning: data.crisisPlanning,
+              stepDownServices: data.stepDownServices,
+              dischargePlanning: data.dischargePlanning,
+              otherProviders: data.otherProviders,
+              status: 'active'
+            });
+            toast({ title: 'Success', description: 'Treatment plan created successfully' });
+            setIsAddModalOpen(false);
+            loadData();
+          } catch (error) {
+            console.error('Error creating plan:', error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to create treatment plan' });
+          } finally {
+            setIsSubmitting(false);
+          }
+        }}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
