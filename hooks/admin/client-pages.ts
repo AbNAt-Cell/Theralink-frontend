@@ -329,6 +329,38 @@ export interface AssignedStaff {
     createdAt: string;
 }
 
+export interface AvailableStaff {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    role?: string;
+    isAcceptingNewClients?: boolean;
+    caseloadCurrent?: number;
+    caseloadMax?: number;
+}
+
+export const getAvailableStaff = async (): Promise<AvailableStaff[]> => {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'therapist')
+        .order('last_name');
+
+    if (error) throw error;
+
+    return (data || []).map((s: { id: string; first_name?: string; last_name?: string; email?: string; role?: string; is_accepting_new_clients?: boolean; caseload_current?: number; caseload_max?: number }) => ({
+        id: s.id,
+        firstName: s.first_name,
+        lastName: s.last_name,
+        email: s.email,
+        role: s.role,
+        isAcceptingNewClients: s.is_accepting_new_clients ?? true,
+        caseloadCurrent: s.caseload_current,
+        caseloadMax: s.caseload_max
+    }));
+};
+
 export const getAssignedStaff = async (clientId: string): Promise<AssignedStaff[]> => {
     const { data, error } = await supabase
         .from('client_assigned_staff')
@@ -357,6 +389,25 @@ export const getAssignedStaff = async (clientId: string): Promise<AssignedStaff[
         isPrimary: s.is_primary,
         createdAt: s.created_at
     }));
+};
+
+export const assignStaffToClient = async (clientId: string, staffId: string, isPrimary: boolean = false): Promise<void> => {
+    const { error } = await supabase.from('client_assigned_staff').insert({
+        client_id: clientId,
+        staff_id: staffId,
+        is_primary: isPrimary,
+        start_date: new Date().toISOString().split('T')[0]
+    });
+    if (error) throw error;
+};
+
+export const removeAssignedStaff = async (clientId: string, staffId: string): Promise<void> => {
+    const { error } = await supabase
+        .from('client_assigned_staff')
+        .delete()
+        .eq('client_id', clientId)
+        .eq('staff_id', staffId);
+    if (error) throw error;
 };
 
 export const deleteAssignedStaff = async (id: string): Promise<void> => {
@@ -628,6 +679,46 @@ export const getClientQuestionnaires = async (clientId: string): Promise<ClientQ
         notes: q.notes,
         createdAt: q.created_at
     }));
+};
+
+export const addClientQuestionnaire = async (data: {
+    clientId: string;
+    questionnaireName: string;
+    questionnaireType?: string;
+    completedDate?: string;
+    score?: number;
+    status: string;
+    notes?: string;
+    answers?: Record<string, string | number>;
+}): Promise<void> => {
+    const { error } = await supabase.from('client_questionnaires').insert({
+        client_id: data.clientId,
+        questionnaire_name: data.questionnaireName,
+        questionnaire_type: data.questionnaireType,
+        completed_date: data.completedDate,
+        score: data.score,
+        status: data.status,
+        notes: data.notes
+    });
+    if (error) throw error;
+};
+
+export const sendQuestionnaireEmail = async (
+    clientEmail: string,
+    clientName: string,
+    questionnaireName: string,
+    questionnaireId: string
+): Promise<void> => {
+    // For now, simulating email send - in production, this would call an Edge Function or email API
+    console.log(`Sending ${questionnaireName} questionnaire to ${clientName} at ${clientEmail}`);
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // In production, you would call:
+    // const { error } = await supabase.functions.invoke('send-questionnaire-email', {
+    //     body: { clientEmail, clientName, questionnaireName, questionnaireId }
+    // });
 };
 
 export const deleteClientQuestionnaire = async (id: string): Promise<void> => {

@@ -5,8 +5,9 @@ import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
 import { Loader, Plus, Trash, Shield, Calendar } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
-import { getClientAuthorizations, deleteClientAuthorization, ClientAuthorization } from '@/hooks/admin/client-pages';
+import { getClientAuthorizations, deleteClientAuthorization, addClientAuthorization, ClientAuthorization } from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
+import AddAuthorizationModal, { AuthorizationFormData } from '@/components/modals/AddAuthorizationModal';
 
 interface PageProps {
   params: { id: string };
@@ -17,6 +18,7 @@ export default function AuthorizationPage({ params }: PageProps) {
   const [authorizations, setAuthorizations] = useState<ClientAuthorization[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -56,11 +58,39 @@ export default function AuthorizationPage({ params }: PageProps) {
     }
   };
 
+  const handleAddAuthorization = async (data: AuthorizationFormData) => {
+    try {
+      // Create authorization for each service selected
+      for (const service of data.services) {
+        await addClientAuthorization({
+          clientId: params.id,
+          authorizationNumber: data.authorizationNumber,
+          serviceType: service.serviceName,
+          payerName: data.submittedBy,
+          startDate: data.effectiveDate,
+          endDate: data.endDate,
+          unitsAuthorized: service.totalUnits,
+          unitsUsed: 0,
+          status: data.status,
+          notes: data.comments
+        });
+      }
+      toast({ title: 'Success', description: 'Authorization created successfully' });
+      loadData();
+    } catch (error) {
+      console.error('Error creating authorization:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to create authorization' });
+      throw error;
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-700';
+      case 'active':
+      case 'approved': return 'bg-green-100 text-green-700';
       case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'expired': return 'bg-red-100 text-red-700';
+      case 'expired':
+      case 'denied': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -79,7 +109,10 @@ export default function AuthorizationPage({ params }: PageProps) {
 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Authorizations</h2>
-        <Button className="bg-blue-900 hover:bg-blue-800">
+        <Button
+          className="bg-blue-900 hover:bg-blue-800"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Authorization
         </Button>
@@ -100,7 +133,7 @@ export default function AuthorizationPage({ params }: PageProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="font-medium">{auth.authorizationNumber || 'N/A'}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${getStatusColor(auth.status)}`}>
+                    <span className={`text-xs px-2 py-1 rounded capitalize ${getStatusColor(auth.status)}`}>
                       {auth.status}
                     </span>
                   </div>
@@ -168,6 +201,13 @@ export default function AuthorizationPage({ params }: PageProps) {
           ))}
         </div>
       )}
+
+      {/* Add Authorization Modal */}
+      <AddAuthorizationModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddAuthorization}
+      />
     </div>
   );
 }

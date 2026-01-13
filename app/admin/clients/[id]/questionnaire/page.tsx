@@ -3,10 +3,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import { Loader, Plus, Trash, ClipboardList, Calendar, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Loader, Plus, Trash, ClipboardList, Calendar, CheckCircle, Clock, XCircle, Mail } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
-import { getClientQuestionnaires, deleteClientQuestionnaire, ClientQuestionnaire } from '@/hooks/admin/client-pages';
+import {
+  getClientQuestionnaires,
+  deleteClientQuestionnaire,
+  addClientQuestionnaire,
+  sendQuestionnaireEmail,
+  ClientQuestionnaire
+} from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
+import AddQuestionnaireModal, { QuestionnaireFormData } from '@/components/modals/AddQuestionnaireModal';
+import SendQuestionnaireModal from '@/components/modals/SendQuestionnaireModal';
 
 interface PageProps {
   params: { id: string };
@@ -17,6 +25,8 @@ export default function QuestionnairePage({ params }: PageProps) {
   const [questionnaires, setQuestionnaires] = useState<ClientQuestionnaire[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -56,6 +66,59 @@ export default function QuestionnairePage({ params }: PageProps) {
     }
   };
 
+  const handleAddQuestionnaire = async (data: QuestionnaireFormData) => {
+    try {
+      await addClientQuestionnaire({
+        clientId: params.id,
+        questionnaireName: data.templateName,
+        questionnaireType: data.templateId,
+        completedDate: data.completedDate,
+        score: data.score,
+        status: 'completed',
+        notes: data.comments,
+        answers: data.answers
+      });
+      toast({ title: 'Success', description: 'Questionnaire saved' });
+      loadData();
+    } catch (error) {
+      console.error('Error saving questionnaire:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save questionnaire' });
+      throw error;
+    }
+  };
+
+  const handleSendQuestionnaire = async (templateId: string, templateName: string) => {
+    if (!client?.email) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Client email not found' });
+      return;
+    }
+
+    try {
+      await sendQuestionnaireEmail(
+        client.email,
+        `${client.firstName} ${client.lastName}`,
+        templateName,
+        templateId
+      );
+
+      // Record the sent questionnaire as pending
+      await addClientQuestionnaire({
+        clientId: params.id,
+        questionnaireName: templateName,
+        questionnaireType: templateId,
+        status: 'pending',
+        notes: `Sent to client via email on ${new Date().toLocaleDateString()}`
+      });
+
+      toast({ title: 'Success', description: `Questionnaire sent to ${client.email}` });
+      loadData();
+    } catch (error) {
+      console.error('Error sending questionnaire:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to send questionnaire' });
+      throw error;
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;
@@ -88,10 +151,22 @@ export default function QuestionnairePage({ params }: PageProps) {
 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Questionnaires</h2>
-        <Button className="bg-blue-900 hover:bg-blue-800">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Questionnaire
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            className="bg-blue-900 hover:bg-blue-800"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Questionnaire
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setIsSendModalOpen(true)}
+          >
+            <Mail className="w-4 h-4 mr-2" />
+            Send Questionnaire to Client
+          </Button>
+        </div>
       </div>
 
       {questionnaires.length === 0 ? (
@@ -100,7 +175,7 @@ export default function QuestionnairePage({ params }: PageProps) {
             <ClipboardList className="w-12 h-12 text-gray-300" />
           </div>
           <p className="text-gray-500">No Questionnaires</p>
-          <p className="text-gray-400 text-sm mt-1">Click &quot;Add Questionnaire&quot; to assign a screening tool</p>
+          <p className="text-gray-400 text-sm mt-1">Click &quot;Add Questionnaire&quot; to fill out an assessment or &quot;Send&quot; to email one to the client</p>
         </div>
       ) : (
         <div className="border rounded-lg bg-white overflow-hidden">
@@ -139,8 +214,8 @@ export default function QuestionnairePage({ params }: PageProps) {
                       </span>
                     ) : '-'}
                   </td>
-                  <td className="p-4 text-gray-600">
-                    {quest.score !== undefined ? quest.score : '-'}
+                  <td className="p-4 text-gray-600 font-medium">
+                    {quest.score !== undefined && quest.score !== null ? quest.score : '-'}
                   </td>
                   <td className="p-4">
                     <div className="flex justify-end gap-2">
@@ -165,6 +240,23 @@ export default function QuestionnairePage({ params }: PageProps) {
           </table>
         </div>
       )}
+
+      {/* Add Questionnaire Modal */}
+      <AddQuestionnaireModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddQuestionnaire}
+        clientName={client ? `${client.firstName} ${client.lastName}` : ''}
+      />
+
+      {/* Send Questionnaire Modal */}
+      <SendQuestionnaireModal
+        isOpen={isSendModalOpen}
+        onClose={() => setIsSendModalOpen(false)}
+        clientName={client ? `${client.firstName} ${client.lastName}` : ''}
+        clientEmail={client?.email || ''}
+        onSend={handleSendQuestionnaire}
+      />
     </div>
   );
 }
