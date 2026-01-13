@@ -186,6 +186,58 @@ export const updateTreatmentPlanStatus = async (planId: string, status: string):
     if (error) throw error;
 };
 
+// Update treatment plan details
+export const updateTreatmentPlan = async (planId: string, data: {
+    title?: string;
+    planDate?: string;
+    planEndDate?: string;
+    dischargeDate?: string;
+    startTime?: string;
+    endTime?: string;
+    service?: string;
+    placeOfService?: string;
+    isClientParticipant?: boolean;
+    transitionDischargePlan?: string;
+    maintenanceRecommendation?: string;
+    clientStrengths?: string;
+    clientNeeds?: string;
+    clientAbilities?: string;
+    clientPreferences?: string;
+    crisisPlanning?: string;
+    stepDownServices?: string;
+    dischargePlanning?: string;
+    otherProviders?: string;
+}): Promise<TreatmentPlan> => {
+    const { error } = await supabase
+        .from('treatment_plans')
+        .update({
+            title: data.title,
+            plan_date: data.planDate || null,
+            plan_end_date: data.planEndDate || null,
+            discharge_date: data.dischargeDate || null,
+            start_time: data.startTime || null,
+            end_time: data.endTime || null,
+            service: data.service || null,
+            place_of_service: data.placeOfService || null,
+            is_client_participant: data.isClientParticipant || false,
+            transition_discharge_plan: data.transitionDischargePlan || null,
+            maintenance_recommendation: data.maintenanceRecommendation || null,
+            client_strengths: data.clientStrengths || null,
+            client_needs: data.clientNeeds || null,
+            client_abilities: data.clientAbilities || null,
+            client_preferences: data.clientPreferences || null,
+            crisis_planning: data.crisisPlanning || null,
+            step_down_services: data.stepDownServices || null,
+            discharge_planning: data.dischargePlanning || null,
+            other_providers: data.otherProviders || null,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', planId);
+
+    if (error) throw error;
+    return getTreatmentPlanById(planId);
+};
+
 // Delete a treatment plan
 export const deleteTreatmentPlan = async (planId: string): Promise<void> => {
     const { error } = await supabase

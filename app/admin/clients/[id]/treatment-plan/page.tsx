@@ -16,6 +16,7 @@ import {
 import { generateAITreatmentPlan, GeneratedTreatmentPlan, AIGenerationConfig } from '@/hooks/admin/ai-treatment';
 import GenerateAITreatmentModal from '@/components/modals/GenerateAITreatmentModal';
 import ReviewAITreatmentPlanModal from '@/components/modals/ReviewAITreatmentPlanModal';
+import EditTreatmentPlanModal from '@/components/modals/EditTreatmentPlanModal';
 import { useToast } from '@/hooks/Partials/use-toast';
 
 interface PageProps {
@@ -38,6 +39,9 @@ export default function TreatmentPlanPage({ params }: PageProps) {
   // Review Modal state (step 2)
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState<GeneratedTreatmentPlan | null>(null);
+
+  // Edit Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -135,6 +139,49 @@ export default function TreatmentPlanPage({ params }: PageProps) {
   const handleDeleteDraft = () => {
     setGeneratedPlan(null);
     setIsReviewModalOpen(false);
+  };
+
+  // Handle Edit Plan from Review modal
+  const handleEditPlan = () => {
+    setIsEditModalOpen(true);
+  };
+
+  // Handle Save from Edit modal - updates the generated plan
+  const handleSaveEdit = (data: {
+    id?: string;
+    title: string;
+    planDate: string;
+    planEndDate?: string;
+    dischargeDate?: string;
+    startTime?: string;
+    endTime?: string;
+    service?: string;
+    placeOfService?: string;
+    isClientParticipant?: boolean;
+    transitionDischargePlan?: string;
+    maintenanceRecommendation?: string;
+    clientStrengths?: string;
+    clientNeeds?: string;
+    clientAbilities?: string;
+    clientPreferences?: string;
+    crisisPlanning?: string;
+    stepDownServices?: string;
+    dischargePlanning?: string;
+    otherProviders?: string;
+  } | null) => {
+    if (data && generatedPlan) {
+      setGeneratedPlan({
+        ...generatedPlan,
+        title: data.title,
+        planDate: data.planDate,
+        clientStrengths: data.clientStrengths || generatedPlan.clientStrengths,
+        clientNeeds: data.clientNeeds || generatedPlan.clientNeeds,
+        clientAbilities: data.clientAbilities || generatedPlan.clientAbilities,
+        clientPreferences: data.clientPreferences || generatedPlan.clientPreferences,
+        crisisPlanning: data.crisisPlanning || generatedPlan.crisisPlanning
+      });
+    }
+    setIsEditModalOpen(false);
   };
 
   // Delete existing plan
@@ -356,6 +403,15 @@ export default function TreatmentPlanPage({ params }: PageProps) {
         onClose={() => { setIsReviewModalOpen(false); setGeneratedPlan(null); }}
         onAccept={handleAcceptPlan}
         onDelete={handleDeleteDraft}
+        onEdit={handleEditPlan}
+      />
+
+      {/* Edit Treatment Plan Modal */}
+      <EditTreatmentPlanModal
+        isOpen={isEditModalOpen}
+        plan={generatedPlan}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveEdit}
       />
     </div>
   );

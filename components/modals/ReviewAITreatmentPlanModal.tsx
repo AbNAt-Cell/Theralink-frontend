@@ -12,6 +12,7 @@ interface ReviewAITreatmentPlanModalProps {
     onClose: () => void;
     onAccept: () => void;
     onDelete: () => void;
+    onEdit?: () => void;
 }
 
 export default function ReviewAITreatmentPlanModal({
@@ -20,7 +21,8 @@ export default function ReviewAITreatmentPlanModal({
     isLoading,
     onClose,
     onAccept,
-    onDelete
+    onDelete,
+    onEdit
 }: ReviewAITreatmentPlanModalProps) {
     const [isPlanExpanded, setIsPlanExpanded] = useState(true);
     const [expandedGoals, setExpandedGoals] = useState<Record<number, boolean>>({});
@@ -77,7 +79,12 @@ export default function ReviewAITreatmentPlanModal({
                                     <div className="p-4 border-t">
                                         {/* Edit Button */}
                                         <div className="flex justify-end mb-3">
-                                            <Button variant="ghost" size="sm" className="text-blue-600">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-blue-600"
+                                                onClick={(e) => { e.stopPropagation(); onEdit?.(); }}
+                                            >
                                                 <Pencil className="w-4 h-4 mr-2" />
                                                 Edit Plan
                                             </Button>
