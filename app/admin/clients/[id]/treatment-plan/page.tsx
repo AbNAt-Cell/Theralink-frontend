@@ -13,7 +13,8 @@ import {
   updateTreatmentPlanStatus,
   TreatmentPlan
 } from '@/hooks/admin/treatment-plan';
-import { generateAITreatmentPlan, GeneratedTreatmentPlan } from '@/hooks/admin/ai-treatment';
+import { generateAITreatmentPlan, GeneratedTreatmentPlan, AIGenerationConfig } from '@/hooks/admin/ai-treatment';
+import GenerateAITreatmentModal from '@/components/modals/GenerateAITreatmentModal';
 import ReviewAITreatmentPlanModal from '@/components/modals/ReviewAITreatmentPlanModal';
 import { useToast } from '@/hooks/Partials/use-toast';
 
@@ -30,9 +31,12 @@ export default function TreatmentPlanPage({ params }: PageProps) {
   const [expandedGoals, setExpandedGoals] = useState<Record<string, boolean>>({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // AI Modal state
-  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  // Config Modal state (step 1)
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Review Modal state (step 2)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState<GeneratedTreatmentPlan | null>(null);
 
   const { toast } = useToast();
@@ -65,20 +69,26 @@ export default function TreatmentPlanPage({ params }: PageProps) {
     setExpandedGoals(prev => ({ ...prev, [goalId]: !prev[goalId] }));
   };
 
-  // Generate AI Treatment Plan
-  const handleGeneratePlan = async () => {
-    setIsAIModalOpen(true);
+  // Step 1: Open config modal when "Generate Treatment Plan" is clicked
+  const handleGeneratePlanClick = () => {
+    setIsConfigModalOpen(true);
+  };
+
+  // Step 2: Generate AI plan with user-specified config, then show review modal
+  const handleGenerateWithConfig = async (config: AIGenerationConfig) => {
+    setIsConfigModalOpen(false);
+    setIsReviewModalOpen(true);
     setIsGenerating(true);
     setGeneratedPlan(null);
 
     try {
-      const plan = await generateAITreatmentPlan(params.id);
+      const plan = await generateAITreatmentPlan(params.id, config);
       setGeneratedPlan(plan);
     } catch (error) {
       console.error('Error generating plan:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate treatment plan';
       toast({ variant: 'destructive', title: 'Error', description: errorMessage });
-      setIsAIModalOpen(false);
+      setIsReviewModalOpen(false);
     } finally {
       setIsGenerating(false);
     }
@@ -112,7 +122,7 @@ export default function TreatmentPlanPage({ params }: PageProps) {
       });
 
       toast({ title: 'Success', description: 'Treatment plan created successfully' });
-      setIsAIModalOpen(false);
+      setIsReviewModalOpen(false);
       setGeneratedPlan(null);
       loadData();
     } catch (error) {
@@ -124,7 +134,7 @@ export default function TreatmentPlanPage({ params }: PageProps) {
   // Delete generated draft
   const handleDeleteDraft = () => {
     setGeneratedPlan(null);
-    setIsAIModalOpen(false);
+    setIsReviewModalOpen(false);
   };
 
   // Delete existing plan
@@ -184,7 +194,7 @@ export default function TreatmentPlanPage({ params }: PageProps) {
           <Button
             variant='outline'
             className='border-blue-500 text-blue-500'
-            onClick={handleGeneratePlan}
+            onClick={handleGeneratePlanClick}
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Generate Treatment Plan
@@ -330,12 +340,20 @@ export default function TreatmentPlanPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* AI Review Modal */}
+      {/* Config Modal (Step 1) */}
+      <GenerateAITreatmentModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        onGenerate={handleGenerateWithConfig}
+        isGenerating={isGenerating}
+      />
+
+      {/* AI Review Modal (Step 2) */}
       <ReviewAITreatmentPlanModal
-        isOpen={isAIModalOpen}
+        isOpen={isReviewModalOpen}
         plan={generatedPlan}
         isLoading={isGenerating}
-        onClose={() => { setIsAIModalOpen(false); setGeneratedPlan(null); }}
+        onClose={() => { setIsReviewModalOpen(false); setGeneratedPlan(null); }}
         onAccept={handleAcceptPlan}
         onDelete={handleDeleteDraft}
       />

@@ -20,12 +20,22 @@ export interface GeneratedTreatmentPlan {
     }>;
 }
 
+// AI generation configuration
+export interface AIGenerationConfig {
+    numGoals: number;
+    numObjectives: number;
+    numInterventions: number;
+}
+
 // Gemini API configuration
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyDCKbigg3VlaVhEnW11t_bcQVrUJiWbJac';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // Generate treatment plan using Gemini AI
-export const generateAITreatmentPlan = async (clientId: string): Promise<GeneratedTreatmentPlan> => {
+export const generateAITreatmentPlan = async (
+    clientId: string,
+    config: AIGenerationConfig = { numGoals: 2, numObjectives: 3, numInterventions: 2 }
+): Promise<GeneratedTreatmentPlan> => {
     // 1. Fetch client diagnoses
     const diagnoses = await getClientDiagnoses(clientId);
 
@@ -33,7 +43,7 @@ export const generateAITreatmentPlan = async (clientId: string): Promise<Generat
         throw new Error('No diagnoses found for this client. Please add diagnoses before generating a treatment plan.');
     }
 
-    // 2. Build the prompt for Gemini
+    // 2. Build the prompt for Gemini with user-specified counts
     const diagnosisList = diagnoses.map(d => `${d.icd10Code} - ${d.diagnosisName}`).join('\n');
 
     const prompt = `You are an expert mental health treatment planner. Generate a comprehensive treatment plan for a client with the following diagnoses:
@@ -62,9 +72,10 @@ Generate a JSON response with the following structure (respond ONLY with valid J
   ]
 }
 
-Requirements:
-- Generate 2-4 treatment goals based on the diagnoses
-- Each goal should have 2-4 specific objectives/interventions
+CRITICAL REQUIREMENTS:
+- Generate EXACTLY ${config.numGoals} treatment goals based on the diagnoses
+- Each goal should have EXACTLY ${config.numObjectives} specific objectives
+- Each objective should describe ${config.numInterventions > 1 ? `${config.numInterventions} interventions combined or ` : ''}a specific intervention
 - Goals should be SMART (Specific, Measurable, Achievable, Relevant, Time-bound)
 - Include evidence-based interventions appropriate for the diagnoses
 - Be specific and clinically appropriate`;
@@ -84,7 +95,7 @@ Requirements:
                 }],
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 2048,
+                    maxOutputTokens: 4096,
                 }
             })
         });
@@ -145,17 +156,54 @@ Requirements:
     } catch (error) {
         console.error('Error generating AI treatment plan:', error);
         // Fallback to template-based generation if AI fails
-        return generateFallbackPlan(diagnoses);
+        return generateFallbackPlan(diagnoses, config);
     }
 };
 
 // Fallback template-based generation if Gemini API fails
-const generateFallbackPlan = (diagnoses: ClientDiagnosis[]): GeneratedTreatmentPlan => {
+const generateFallbackPlan = (diagnoses: ClientDiagnosis[], config: AIGenerationConfig): GeneratedTreatmentPlan => {
     const targetDate = new Date();
     targetDate.setMonth(targetDate.getMonth() + 3);
     const targetDateStr = targetDate.toISOString().split('T')[0];
 
     const diagnosisNames = diagnoses.map(d => d.diagnosisName).slice(0, 2);
+
+    // Generate goals based on config
+    const goals = [];
+    const goalTemplates = [
+        'Improve Overall Mental Health and Well-being',
+        'Develop Effective Coping Skills',
+        'Enhance Emotional Regulation',
+        'Build Healthy Relationships',
+        'Reduce Symptoms and Improve Functioning'
+    ];
+
+    const objectiveTemplates = [
+        'Client will identify personal mental health goals',
+        'Client will learn and practice stress management techniques',
+        'Client will maintain consistent self-care routines',
+        'Client will identify triggers and warning signs',
+        'Client will build a personal coping skills toolkit',
+        'Client will practice new coping skills in real-life situations',
+        'Client will engage in behavioral activation activities',
+        'Client will practice mindfulness and relaxation techniques'
+    ];
+
+    for (let i = 0; i < config.numGoals; i++) {
+        const objectives = [];
+        for (let j = 0; j < config.numObjectives; j++) {
+            objectives.push({
+                objectiveText: objectiveTemplates[(i * config.numObjectives + j) % objectiveTemplates.length],
+                frequency: ['Weekly', 'Daily', 'Bi-weekly', 'Monthly'][j % 4],
+                responsibleParty: ['Therapist/Client', 'Client', 'Therapist'][j % 3]
+            });
+        }
+        goals.push({
+            goalText: goalTemplates[i % goalTemplates.length],
+            targetDate: targetDateStr,
+            objectives
+        });
+    }
 
     return {
         title: `Management and Treatment for ${diagnosisNames.join(' and ')}`,
@@ -165,26 +213,7 @@ const generateFallbackPlan = (diagnoses: ClientDiagnosis[]): GeneratedTreatmentP
         clientAbilities: 'To be assessed during treatment',
         clientPreferences: 'To be discussed with client',
         crisisPlanning: 'If client experiences crisis, contact emergency services (911) or crisis hotline. Safety plan to be developed with client.',
-        goals: [
-            {
-                goalText: 'Improve Overall Mental Health and Well-being',
-                targetDate: targetDateStr,
-                objectives: [
-                    { objectiveText: 'Client will identify personal mental health goals', frequency: 'Monthly', responsibleParty: 'Therapist/Client' },
-                    { objectiveText: 'Client will learn and practice stress management techniques', frequency: 'Weekly', responsibleParty: 'Therapist/Client' },
-                    { objectiveText: 'Client will maintain consistent self-care routines', frequency: 'Daily', responsibleParty: 'Client' }
-                ]
-            },
-            {
-                goalText: 'Develop Effective Coping Skills',
-                targetDate: targetDateStr,
-                objectives: [
-                    { objectiveText: 'Client will identify triggers and warning signs', frequency: 'Weekly', responsibleParty: 'Therapist/Client' },
-                    { objectiveText: 'Client will build a personal coping skills toolkit', frequency: 'Monthly', responsibleParty: 'Therapist/Client' },
-                    { objectiveText: 'Client will practice new coping skills in real-life situations', frequency: 'Ongoing', responsibleParty: 'Client' }
-                ]
-            }
-        ]
+        goals
     };
 };
 
