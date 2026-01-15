@@ -43,40 +43,25 @@ export function useCalendarData() {
             setError(null);
 
             try {
-                // Fetch appointments for current month and next 3 months
-                const today = new Date();
-                const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                const endDate = new Date(today.getFullYear(), today.getMonth() + 4, 0);
-
+                // Fetch all appointments for the clinic (simpler query to avoid column issues)
                 const { data: appointments, error: fetchError } = await supabase
                     .from('appointments')
-                    .select(`
-            id,
-            appointment_date,
-            appointment_time,
-            appointment_type,
-            status,
-            location,
-            notes,
-            client:profiles!client_id(id, first_name, last_name),
-            staff:profiles!staff_id(id, first_name, last_name)
-          `)
+                    .select('*')
                     .eq('clinic_id', user.clinicId)
-                    .gte('appointment_date', startDate.toISOString().split('T')[0])
-                    .lte('appointment_date', endDate.toISOString().split('T')[0])
                     .order('appointment_date', { ascending: true });
 
-                if (fetchError) throw fetchError;
+                if (fetchError) {
+                    console.error('Calendar fetch error:', fetchError);
+                    throw fetchError;
+                }
 
                 // Transform appointments to Event format
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const calendarEvents: Event[] = (appointments || []).map((appt: any) => {
+                    // Handle both joined and flat data
                     const clientName = appt.client
                         ? `${appt.client.first_name} ${appt.client.last_name}`
-                        : 'Unknown Client';
-                    const staffName = appt.staff
-                        ? `${appt.staff.first_name} ${appt.staff.last_name}`
-                        : 'Unassigned';
+                        : 'Client';
 
                     // Map appointment type to event type
                     let eventType: Event['type'] = 'client-meeting';
@@ -92,7 +77,7 @@ export function useCalendarData() {
                         title: `${clientName} - ${appt.appointment_type || 'Appointment'}`,
                         date: appt.appointment_date,
                         time: appt.appointment_time || '9:00 AM',
-                        location: appt.location || `With ${staffName}`,
+                        location: appt.location || 'Office',
                         type: eventType,
                     };
                 });
