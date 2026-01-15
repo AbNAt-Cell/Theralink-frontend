@@ -36,36 +36,67 @@ export const activeMessages = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
-  // This is a complex join. For now, we'll use a simplified version.
-  // We need to get conversations where the user is a participant.
-  // Assuming a 'conversations' table and 'conversation_participants' table.
-  // If those don't exist yet, we might need a different approach.
+  // Get conversation IDs where the user is a participant
+  const { data: userConversations, error: convError } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id")
+    .eq("user_id", user.id);
 
+  if (convError || !userConversations || userConversations.length === 0) {
+    return [];
+  }
+
+  const conversationIds = userConversations.map((c: any) => c.conversation_id);
+
+  // Get all conversations the user is part of
   const { data: conversations, error } = await supabase
     .from("conversations")
-    .select(`
-      *,
-      participants:profiles!inner(*)
-    `)
-  // Filter by user participation
-  // This part depends on how participants are stored.
-  // If it's a join table, we need to handle that.
+    .select("*")
+    .in("id", conversationIds)
+    .order("updated_at", { ascending: false });
 
   if (error) {
     console.error("Error fetching active messages:", error);
     return [];
   }
 
+  // Get all participants for these conversations
+  const { data: allParticipants } = await supabase
+    .from("conversation_participants")
+    .select(`
+      conversation_id,
+      user_id,
+      profiles:user_id (
+        id,
+        first_name,
+        last_name,
+        email,
+        avatar_url
+      )
+    `)
+    .in("conversation_id", conversationIds);
+
+  // Group participants by conversation
+  const participantsByConvo: Record<string, any[]> = {};
+  allParticipants?.forEach((p: any) => {
+    if (!participantsByConvo[p.conversation_id]) {
+      participantsByConvo[p.conversation_id] = [];
+    }
+    if (p.profiles) {
+      participantsByConvo[p.conversation_id].push({
+        ...p.profiles,
+        _id: p.profiles.id,
+        firstname: p.profiles.first_name,
+        lastname: p.profiles.last_name,
+        avatar: p.profiles.avatar_url || "/images/Blank_Profile.jpg"
+      });
+    }
+  });
+
   return conversations.map((conv: any) => ({
     ...conv,
     _id: conv.id,
-    participants: conv.participants.map((p: any) => ({
-      ...p,
-      _id: p.id,
-      firstname: p.first_name,
-      lastname: p.last_name,
-      avatarUrl: p.avatar_url || "/images/Blank_Profile.jpg"
-    }))
+    participants: participantsByConvo[conv.id] || []
   }));
 };
 
@@ -73,25 +104,58 @@ export const contactMessage = async (recipientId: string) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  // Check if conversation already exists between these two users
-  // This usually requires a server function or complex join in Supabase.
-  // For now, let's look for a conversation with both participants.
+  // First, try to find an existing conversation between the two users
+  const { data: existingConversations } = await supabase
+    .from("conversation_participants")
+    .select(`
+      conversation_id,
+      conversations:conversation_id (*)
+    `)
+    .eq("user_id", user.id);
 
-  // Create or return existing. 
-  // Simplified: create new and let DB handle unique constraints if any.
+  // Check if any of these conversations also have the recipient
+  if (existingConversations && existingConversations.length > 0) {
+    const conversationIds = existingConversations.map((c: any) => c.conversation_id);
+
+    const { data: recipientConvos } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", recipientId)
+      .in("conversation_id", conversationIds);
+
+    if (recipientConvos && recipientConvos.length > 0) {
+      // Found existing conversation
+      const existingConvoId = recipientConvos[0].conversation_id;
+      const { data: convo } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("id", existingConvoId)
+        .single();
+
+      return { ...convo, _id: convo?.id };
+    }
+  }
+
+  // No existing conversation found, create a new one
   const { data, error } = await supabase
     .from("conversations")
-    .insert({}) // Create new conversation
+    .insert({})
     .select()
     .single();
 
   if (error) throw error;
 
   // Add participants
-  await supabase.from("conversation_participants").insert([
-    { conversation_id: data.id, user_id: user.id },
-    { conversation_id: data.id, user_id: recipientId }
-  ]);
+  const { error: participantError } = await supabase
+    .from("conversation_participants")
+    .insert([
+      { conversation_id: data.id, user_id: user.id },
+      { conversation_id: data.id, user_id: recipientId }
+    ]);
+
+  if (participantError) {
+    console.error("Error adding participants:", participantError);
+  }
 
   return { ...data, _id: data.id };
 };
