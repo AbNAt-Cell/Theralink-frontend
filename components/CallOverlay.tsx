@@ -287,6 +287,13 @@ export default function CallOverlay() {
                             <PhoneOff className="w-8 h-8" />
                         </button>
                     </>
+                ) : callState === "no-answer" || callState === "ended" || callState === "unavailable" ? (
+                    <button
+                        onClick={() => setCallState("idle")}
+                        className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors font-medium"
+                    >
+                        Dismiss
+                    </button>
                 ) : (
                     <>
                         <button onClick={toggleMute} className={`p-4 rounded-full ${isMuted ? "bg-red-500" : "bg-white/10 hover:bg-white/20"} transition-colors`}>

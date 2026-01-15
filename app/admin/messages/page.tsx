@@ -97,30 +97,48 @@ export default function ChatDashboard() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Handle audio call with feedback
-  const handleAudioCall = () => {
-    if (!recipientPeerId) {
+  // Handle audio call - fetch peer ID if not available and attempt call
+  const handleAudioCall = async () => {
+    let peerId = recipientPeerId;
+
+    // Try to fetch peer ID if we don't have it
+    if (!peerId && selectedContact?._id) {
+      const response = await fetchPeerId(selectedContact._id);
+      peerId = response?.peerId || null;
+      if (peerId) setRecipientPeerId(peerId);
+    }
+
+    if (!peerId) {
       toast({
         variant: 'destructive',
         title: 'Cannot start call',
-        description: 'This user is currently unavailable for calls. They need to be online.',
+        description: 'Unable to reach this user. They may not have used the messaging feature yet.',
       });
       return;
     }
-    startAudioCall(recipientPeerId);
+    startAudioCall(peerId);
   };
 
-  // Handle video call with feedback
-  const handleVideoCall = () => {
-    if (!recipientPeerId) {
+  // Handle video call - fetch peer ID if not available and attempt call
+  const handleVideoCall = async () => {
+    let peerId = recipientPeerId;
+
+    // Try to fetch peer ID if we don't have it
+    if (!peerId && selectedContact?._id) {
+      const response = await fetchPeerId(selectedContact._id);
+      peerId = response?.peerId || null;
+      if (peerId) setRecipientPeerId(peerId);
+    }
+
+    if (!peerId) {
       toast({
         variant: 'destructive',
         title: 'Cannot start call',
-        description: 'This user is currently unavailable for calls. They need to be online.',
+        description: 'Unable to reach this user. They may not have used the messaging feature yet.',
       });
       return;
     }
-    startVideoCall(recipientPeerId);
+    startVideoCall(peerId);
   };
 
   // Scroll to bottom when messages change
