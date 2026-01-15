@@ -35,9 +35,32 @@ ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own participation" ON public.conversation_participants
     FOR SELECT USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can view other participants in their conversations" ON public.conversation_participants
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.conversation_participants cp
+            WHERE cp.conversation_id = conversation_participants.conversation_id 
+            AND cp.user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Users can add participants to conversations" ON public.conversation_participants
+    FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
 -- Policies for conversations
 CREATE POLICY "Users can view conversations they are part of" ON public.conversations
     FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.conversation_participants
+            WHERE conversation_id = conversations.id AND user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Authenticated users can create conversations" ON public.conversations
+    FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
+CREATE POLICY "Users can update conversations they are part of" ON public.conversations
+    FOR UPDATE USING (
         EXISTS (
             SELECT 1 FROM public.conversation_participants
             WHERE conversation_id = conversations.id AND user_id = auth.uid()
