@@ -11,6 +11,7 @@ import MessageBubble from "@/components/messaging/MessageBubble";
 import DateSeparator from "@/components/messaging/DateSeparator";
 import TypingIndicator from "@/components/messaging/TypingIndicator";
 import FileUploadButton from "@/components/messaging/FileUploadButton";
+import { useToast } from "@/hooks/Partials/use-toast";
 
 interface Contact {
   email: string;
@@ -92,8 +93,35 @@ export default function ChatDashboard() {
 
   const { selectedContact, setSelectedContact, sending, setSending, loggedInUser, messages, setMessages, conversationId, setConversationId, recipientPeerId, setRecipientPeerId, startAudioCall, startVideoCall } = usePeerContext();
   const { onlineUsers } = usePresence();
+  const { toast } = useToast();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle audio call with feedback
+  const handleAudioCall = () => {
+    if (!recipientPeerId) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot start call',
+        description: 'This user is currently unavailable for calls. They need to be online.',
+      });
+      return;
+    }
+    startAudioCall(recipientPeerId);
+  };
+
+  // Handle video call with feedback
+  const handleVideoCall = () => {
+    if (!recipientPeerId) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot start call',
+        description: 'This user is currently unavailable for calls. They need to be online.',
+      });
+      return;
+    }
+    startVideoCall(recipientPeerId);
+  };
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -379,8 +407,8 @@ export default function ChatDashboard() {
                 </div>
               </div>
               <div className="flex items-center space-x-1">
-                <button onClick={() => recipientPeerId && startAudioCall(recipientPeerId)} className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition"><Phone className="w-5 h-5 text-gray-600" /></button>
-                <button onClick={() => recipientPeerId && startVideoCall(recipientPeerId)} className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition"><Video className="w-5 h-5 text-gray-600" /></button>
+                <button onClick={() => handleAudioCall()} className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition"><Phone className="w-5 h-5 text-gray-600" /></button>
+                <button onClick={() => handleVideoCall()} className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition"><Video className="w-5 h-5 text-gray-600" /></button>
                 <button onClick={() => setShowChatSearch(!showChatSearch)} className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition"><Search className="w-5 h-5 text-gray-600" /></button>
               </div>
             </div>
