@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import { Loader, Plus, Trash, Stethoscope, Phone, Mail, Star } from 'lucide-react';
+import { Loader, Plus, Trash, Stethoscope, Phone, Mail, Star, Edit } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
-import { getClientPhysicians, deleteClientPhysician, ClientPhysician } from '@/hooks/admin/client-pages';
+import { getClientPhysicians, deleteClientPhysician, addClientPhysician, ClientPhysician } from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
+import AddPhysicianModal, { PhysicianFormData } from '@/components/modals/AddPhysicianModal';
 
 interface PageProps {
   params: { id: string };
@@ -17,6 +18,7 @@ export default function PhysicianPage({ params }: PageProps) {
   const [physicians, setPhysicians] = useState<ClientPhysician[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -56,6 +58,25 @@ export default function PhysicianPage({ params }: PageProps) {
     }
   };
 
+  const handleAddPhysician = async (data: PhysicianFormData) => {
+    try {
+      await addClientPhysician({
+        clientId: params.id,
+        physicianName: `${data.firstName} ${data.lastName}`,
+        phone: data.phone,
+        address: data.address,
+        notes: data.comment,
+        isPrimary: physicians.length === 0 // First physician is primary
+      });
+      toast({ title: 'Success', description: 'Physician added' });
+      loadData();
+    } catch (error) {
+      console.error('Error adding physician:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add physician' });
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -70,7 +91,10 @@ export default function PhysicianPage({ params }: PageProps) {
 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Physicians</h2>
-        <Button className="bg-blue-900 hover:bg-blue-800">
+        <Button
+          className="bg-blue-900 hover:bg-blue-800"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Physician
         </Button>
@@ -120,29 +144,48 @@ export default function PhysicianPage({ params }: PageProps) {
                     {phys.address && (
                       <p className="text-sm text-gray-500 mt-2">{phys.address}</p>
                     )}
+                    {phys.notes && (
+                      <p className="text-sm text-gray-400 mt-1 italic">{phys.notes}</p>
+                    )}
                     {phys.npi && (
                       <p className="text-xs text-gray-400 mt-1">NPI: {phys.npi}</p>
                     )}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(phys.id)}
-                  disabled={deletingId === phys.id}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  {deletingId === phys.id ? (
-                    <Loader className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash className="w-4 h-4" />
-                  )}
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(phys.id)}
+                    disabled={deletingId === phys.id}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    {deletingId === phys.id ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Add Physician Modal */}
+      <AddPhysicianModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddPhysician}
+      />
     </div>
   );
 }

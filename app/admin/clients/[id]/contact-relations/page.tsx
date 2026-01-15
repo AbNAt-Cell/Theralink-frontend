@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import { Loader, Plus, Trash, Users, Phone, Mail, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader, Plus, Trash, Users, Phone, Mail, AlertTriangle, CheckCircle, Edit } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
-import { getClientContacts, deleteClientContact, ClientContact } from '@/hooks/admin/client-pages';
+import { getClientContacts, deleteClientContact, addClientContact, ClientContact } from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
+import AddContactModal, { ContactFormData } from '@/components/modals/AddContactModal';
 
 interface PageProps {
   params: { id: string };
@@ -17,6 +18,7 @@ export default function ContactRelationsPage({ params }: PageProps) {
   const [contacts, setContacts] = useState<ClientContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -56,6 +58,33 @@ export default function ContactRelationsPage({ params }: PageProps) {
     }
   };
 
+  const handleAddContact = async (data: ContactFormData) => {
+    try {
+      // Build full address from address, city, state
+      const fullAddress = [data.address, data.city, data.state]
+        .filter(Boolean)
+        .join(', ');
+
+      await addClientContact({
+        clientId: params.id,
+        contactName: `${data.firstName} ${data.lastName}`,
+        relationship: data.relationship,
+        phone: data.phoneNo,
+        address: fullAddress,
+        isEmergencyContact: data.isEmergencyContact,
+        isAuthorizedContact: data.isAuthorizedContact,
+        canPickup: data.canPickup,
+        notes: data.comments
+      });
+      toast({ title: 'Success', description: 'Contact added' });
+      loadData();
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add contact' });
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -70,7 +99,10 @@ export default function ContactRelationsPage({ params }: PageProps) {
 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Contacts & Relations</h2>
-        <Button className="bg-blue-900 hover:bg-blue-800">
+        <Button
+          className="bg-blue-900 hover:bg-blue-800"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Contact
         </Button>
@@ -132,26 +164,45 @@ export default function ContactRelationsPage({ params }: PageProps) {
                     {contact.canPickup && (
                       <p className="text-xs text-green-600 mt-2">✓ Can pick up client</p>
                     )}
+                    {contact.notes && (
+                      <p className="text-sm text-gray-400 mt-2 italic">{contact.notes}</p>
+                    )}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(contact.id)}
-                  disabled={deletingId === contact.id}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  {deletingId === contact.id ? (
-                    <Loader className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash className="w-4 h-4" />
-                  )}
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(contact.id)}
+                    disabled={deletingId === contact.id}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    {deletingId === contact.id ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Add Contact Modal */}
+      <AddContactModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddContact}
+      />
     </div>
   );
 }

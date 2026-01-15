@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import { Loader, Edit, FileText, Heart, Users, Briefcase, GraduationCap, Scale, Wine } from 'lucide-react';
+import { Loader, Edit, FileText, Heart, Users, Briefcase, GraduationCap, Scale, Wine, Plus } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
-import { getClientBackground, ClientBackground } from '@/hooks/admin/client-pages';
+import { getClientBackground, upsertClientBackground, ClientBackground } from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
+import EditBackgroundModal from '@/components/modals/EditBackgroundModal';
 
 interface PageProps {
   params: { id: string };
@@ -26,6 +27,8 @@ export default function BackgroundPage({ params }: PageProps) {
   const [client, setClient] = useState<ClientProfile | null>(null);
   const [background, setBackground] = useState<ClientBackground[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<{ type: string; label: string } | null>(null);
 
   const { toast } = useToast();
 
@@ -49,8 +52,32 @@ export default function BackgroundPage({ params }: PageProps) {
     loadData();
   }, [loadData]);
 
-  const getBackgroundContent = (sectionType: string) => {
-    return background.find(b => b.sectionType === sectionType)?.content || '';
+  const getBackgroundData = (sectionType: string) => {
+    return background.find(b => b.sectionType === sectionType);
+  };
+
+  const handleOpenEdit = (type: string, label: string) => {
+    setSelectedSection({ type, label });
+    setEditModalOpen(true);
+  };
+
+  const handleSaveBackground = async (content: string, notes: string) => {
+    if (!selectedSection) return;
+
+    try {
+      await upsertClientBackground({
+        clientId: params.id,
+        sectionType: selectedSection.type,
+        content,
+        notes
+      });
+      toast({ title: 'Success', description: `${selectedSection.label} saved` });
+      loadData();
+    } catch (error) {
+      console.error('Error saving background:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save' });
+      throw error;
+    }
   };
 
   if (loading) {
@@ -60,6 +87,8 @@ export default function BackgroundPage({ params }: PageProps) {
       </div>
     );
   }
+
+  const selectedBg = selectedSection ? getBackgroundData(selectedSection.type) : null;
 
   return (
     <div className="space-y-6">
@@ -71,7 +100,8 @@ export default function BackgroundPage({ params }: PageProps) {
 
       <div className="space-y-4">
         {sectionConfig.map(({ type, label, icon: Icon, color }) => {
-          const content = getBackgroundContent(type);
+          const bgData = getBackgroundData(type);
+          const hasContent = !!bgData?.content;
           return (
             <div key={type} className="border rounded-lg bg-white overflow-hidden">
               <div className="flex items-center justify-between p-4 bg-gray-50 border-b">
@@ -79,14 +109,35 @@ export default function BackgroundPage({ params }: PageProps) {
                   <Icon className={`w-5 h-5 ${color}`} />
                   <span className="font-medium">{label}</span>
                 </div>
-                <Button variant="ghost" size="sm" className="text-blue-600">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-600"
+                  onClick={() => handleOpenEdit(type, label)}
+                >
+                  {hasContent ? (
+                    <>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add
+                    </>
+                  )}
                 </Button>
               </div>
               <div className="p-4">
-                {content ? (
-                  <p className="text-gray-700 whitespace-pre-wrap">{content}</p>
+                {hasContent ? (
+                  <div>
+                    <p className="text-gray-700 whitespace-pre-wrap">{bgData.content}</p>
+                    {bgData.notes && (
+                      <p className="text-sm text-gray-500 mt-3 pt-3 border-t italic">
+                        Notes: {bgData.notes}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex items-center gap-2 text-gray-400">
                     <FileText className="w-4 h-4" />
@@ -98,6 +149,19 @@ export default function BackgroundPage({ params }: PageProps) {
           );
         })}
       </div>
+
+      {/* Edit/Add Background Modal */}
+      <EditBackgroundModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedSection(null);
+        }}
+        onSave={handleSaveBackground}
+        sectionLabel={selectedSection?.label || ''}
+        currentContent={selectedBg?.content || ''}
+        currentNotes={selectedBg?.notes || ''}
+      />
     </div>
   );
 }

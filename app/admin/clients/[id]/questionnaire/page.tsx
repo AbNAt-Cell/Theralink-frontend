@@ -3,18 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { Button } from '@/components/ui/button';
-import { Loader, Plus, Trash, ClipboardList, Calendar, CheckCircle, Clock, XCircle, Mail } from 'lucide-react';
+import { Loader, Plus, Trash, ClipboardList, Calendar, CheckCircle, Clock, XCircle, Mail, Edit, Download } from 'lucide-react';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
 import {
   getClientQuestionnaires,
   deleteClientQuestionnaire,
   addClientQuestionnaire,
+  updateClientQuestionnaire,
   sendQuestionnaireEmail,
   ClientQuestionnaire
 } from '@/hooks/admin/client-pages';
 import { useToast } from '@/hooks/Partials/use-toast';
 import AddQuestionnaireModal, { QuestionnaireFormData } from '@/components/modals/AddQuestionnaireModal';
 import SendQuestionnaireModal from '@/components/modals/SendQuestionnaireModal';
+import ViewEditQuestionnaireModal, { QuestionnaireEditData } from '@/components/modals/ViewEditQuestionnaireModal';
 
 interface PageProps {
   params: { id: string };
@@ -27,6 +29,8 @@ export default function QuestionnairePage({ params }: PageProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<ClientQuestionnaire | null>(null);
 
   const { toast } = useToast();
 
@@ -87,6 +91,30 @@ export default function QuestionnairePage({ params }: PageProps) {
     }
   };
 
+  const handleEditQuestionnaire = (quest: ClientQuestionnaire) => {
+    setSelectedQuestionnaire(quest);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (data: QuestionnaireEditData) => {
+    try {
+      await updateClientQuestionnaire(data.id, {
+        questionnaireName: data.questionnaireName,
+        questionnaireType: data.questionnaireType,
+        completedDate: data.completedDate,
+        score: data.score,
+        status: data.status,
+        notes: data.notes
+      });
+      toast({ title: 'Success', description: 'Questionnaire updated' });
+      loadData();
+    } catch (error) {
+      console.error('Error updating questionnaire:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update questionnaire' });
+      throw error;
+    }
+  };
+
   const handleSendQuestionnaire = async (templateId: string, templateName: string) => {
     if (!client?.email) {
       toast({ variant: 'destructive', title: 'Error', description: 'Client email not found' });
@@ -117,6 +145,36 @@ export default function QuestionnairePage({ params }: PageProps) {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to send questionnaire' });
       throw error;
     }
+  };
+
+  const exportAllToCSV = () => {
+    if (questionnaires.length === 0) return;
+
+    const headers = ['Name', 'Type', 'Status', 'Date', 'Score', 'Notes'];
+    const rows = questionnaires.map(q => [
+      q.questionnaireName,
+      q.questionnaireType || '',
+      q.status,
+      q.completedDate ? new Date(q.completedDate).toLocaleDateString() : '',
+      q.score?.toString() || '',
+      q.notes || ''
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `questionnaires_${client?.firstName}_${client?.lastName}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({ title: 'Export Complete', description: 'All questionnaires exported to CSV' });
   };
 
   const getStatusIcon = (status: string) => {
@@ -164,8 +222,17 @@ export default function QuestionnairePage({ params }: PageProps) {
             onClick={() => setIsSendModalOpen(true)}
           >
             <Mail className="w-4 h-4 mr-2" />
-            Send Questionnaire to Client
+            Send to Client
           </Button>
+          {questionnaires.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={exportAllToCSV}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export All
+            </Button>
+          )}
         </div>
       </div>
 
@@ -222,6 +289,14 @@ export default function QuestionnairePage({ params }: PageProps) {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleEditQuestionnaire(quest)}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleDelete(quest.id)}
                         disabled={deletingId === quest.id}
                         className="text-red-500 hover:text-red-700"
@@ -256,6 +331,18 @@ export default function QuestionnairePage({ params }: PageProps) {
         clientName={client ? `${client.firstName} ${client.lastName}` : ''}
         clientEmail={client?.email || ''}
         onSend={handleSendQuestionnaire}
+      />
+
+      {/* View/Edit Questionnaire Modal */}
+      <ViewEditQuestionnaireModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedQuestionnaire(null);
+        }}
+        onSave={handleSaveEdit}
+        questionnaire={selectedQuestionnaire}
+        clientName={client ? `${client.firstName} ${client.lastName}` : ''}
       />
     </div>
   );

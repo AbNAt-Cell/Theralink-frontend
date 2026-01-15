@@ -721,6 +721,29 @@ export const sendQuestionnaireEmail = async (
     // });
 };
 
+export const updateClientQuestionnaire = async (id: string, data: {
+    questionnaireName?: string;
+    questionnaireType?: string;
+    completedDate?: string;
+    score?: number;
+    status?: string;
+    notes?: string;
+}): Promise<void> => {
+    const updateData: Record<string, unknown> = {};
+    if (data.questionnaireName !== undefined) updateData.questionnaire_name = data.questionnaireName;
+    if (data.questionnaireType !== undefined) updateData.questionnaire_type = data.questionnaireType;
+    if (data.completedDate !== undefined) updateData.completed_date = data.completedDate;
+    if (data.score !== undefined) updateData.score = data.score;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+
+    const { error } = await supabase
+        .from('client_questionnaires')
+        .update(updateData)
+        .eq('id', id);
+    if (error) throw error;
+};
+
 export const deleteClientQuestionnaire = async (id: string): Promise<void> => {
     const { error } = await supabase.from('client_questionnaires').delete().eq('id', id);
     if (error) throw error;
@@ -734,9 +757,15 @@ export interface ClientImmunization {
     clientId: string;
     vaccineName: string;
     administrationDate?: string;
+    administeredBy?: string;
+    expirationDate?: string;
+    amountMl?: string;
+    manufacturer?: string;
     lotNumber?: string;
     site?: string;
-    administeredBy?: string;
+    route?: string;
+    isRejected: boolean;
+    rejectedReason?: string;
     nextDueDate?: string;
     notes?: string;
     createdAt: string;
@@ -756,9 +785,15 @@ export const getClientImmunizations = async (clientId: string): Promise<ClientIm
         clientId: i.client_id,
         vaccineName: i.vaccine_name,
         administrationDate: i.administration_date,
+        administeredBy: i.administered_by,
+        expirationDate: i.expiration_date,
+        amountMl: i.amount_ml,
+        manufacturer: i.manufacturer,
         lotNumber: i.lot_number,
         site: i.site,
-        administeredBy: i.administered_by,
+        route: i.route,
+        isRejected: i.is_rejected || false,
+        rejectedReason: i.rejected_reason,
         nextDueDate: i.next_due_date,
         notes: i.notes,
         createdAt: i.created_at
@@ -770,9 +805,15 @@ export const addClientImmunization = async (data: Omit<ClientImmunization, 'id' 
         client_id: data.clientId,
         vaccine_name: data.vaccineName,
         administration_date: data.administrationDate,
+        administered_by: data.administeredBy,
+        expiration_date: data.expirationDate,
+        amount_ml: data.amountMl,
+        manufacturer: data.manufacturer,
         lot_number: data.lotNumber,
         site: data.site,
-        administered_by: data.administeredBy,
+        route: data.route,
+        is_rejected: data.isRejected,
+        rejected_reason: data.rejectedReason,
         next_due_date: data.nextDueDate,
         notes: data.notes
     });
