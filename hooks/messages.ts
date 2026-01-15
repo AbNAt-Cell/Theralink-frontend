@@ -188,3 +188,169 @@ export const deleteConvo = async (id: string) => {
 // Legacy placeholders
 export const messages = async () => { return { conversations: [] }; };
 export const message = async (id: string) => { return null; };
+
+// ============================================
+// MESSAGING ENHANCEMENTS
+// ============================================
+
+// Mark message as read
+export const markMessageAsRead = async (messageId: string) => {
+  const { error } = await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("id", messageId);
+
+  if (error) console.error("Error marking message as read:", error);
+};
+
+// Mark all messages in conversation as read
+export const markConversationAsRead = async (conversationId: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { error } = await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("conversation_id", conversationId)
+    .neq("sender_id", user.id)
+    .is("read_at", null);
+
+  if (error) console.error("Error marking conversation as read:", error);
+};
+
+// Add reaction to message
+export const addReaction = async (messageId: string, emoji: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("message_reactions")
+    .insert({
+      message_id: messageId,
+      user_id: user.id,
+      emoji: emoji
+    });
+
+  if (error && error.code !== '23505') throw error; // Ignore duplicate key errors
+};
+
+// Remove reaction from message
+export const removeReaction = async (messageId: string, emoji: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("message_reactions")
+    .delete()
+    .eq("message_id", messageId)
+    .eq("user_id", user.id)
+    .eq("emoji", emoji);
+
+  if (error) throw error;
+};
+
+// Get reactions for messages
+export const getMessageReactions = async (messageIds: string[]) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || messageIds.length === 0) return {};
+
+  const { data, error } = await supabase
+    .from("message_reactions")
+    .select("*")
+    .in("message_id", messageIds);
+
+  if (error) {
+    console.error("Error fetching reactions:", error);
+    return {};
+  }
+
+  // Group reactions by message
+  const reactionsByMessage: Record<string, { emoji: string; count: number; userReacted: boolean }[]> = {};
+
+  data.forEach((r: any) => {
+    if (!reactionsByMessage[r.message_id]) {
+      reactionsByMessage[r.message_id] = [];
+    }
+
+    const existing = reactionsByMessage[r.message_id].find(e => e.emoji === r.emoji);
+    if (existing) {
+      existing.count++;
+      if (r.user_id === user.id) existing.userReacted = true;
+    } else {
+      reactionsByMessage[r.message_id].push({
+        emoji: r.emoji,
+        count: 1,
+        userReacted: r.user_id === user.id
+      });
+    }
+  });
+
+  return reactionsByMessage;
+};
+
+// Upload file attachment
+export const uploadMessageFile = async (file: File, conversationId: string): Promise<{ url: string; fileName: string; fileType: string }> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${conversationId}/${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("message-attachments")
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from("message-attachments")
+    .getPublicUrl(fileName);
+
+  return {
+    url: publicUrl,
+    fileName: file.name,
+    fileType: file.type
+  };
+};
+
+// Send message with file
+export const sendMessageWithFile = async (
+  conversationId: string,
+  text: string,
+  file: File
+) => {
+  const { url, fileName, fileType } = await uploadMessageFile(file, conversationId);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const messageType = fileType.startsWith('image/') ? 'image' : 'file';
+
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      content: text,
+      type: messageType,
+      url: url,
+      file_url: url,
+      file_name: fileName,
+      file_type: fileType,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Update conversation last_message
+  await supabase
+    .from("conversations")
+    .update({
+      last_message: text || `📎 ${fileName}`,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", conversationId);
+
+  return data;
+};
