@@ -195,7 +195,7 @@ export default function ChatDashboard() {
     contact?.lastname?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredMessages = messages?.filter((message: Message) =>
+  const filteredMessages = (messages || []).filter((message: Message) =>
     chatSearchQuery === "" || (message?.text && message.text.toLowerCase().includes(chatSearchQuery.toLowerCase()))
   );
 
@@ -261,7 +261,7 @@ export default function ChatDashboard() {
   }, [isModalOpen]);
 
   // Group messages by date and sender
-  const groupedMessages = filteredMessages?.reduce((acc: { date: Date; messages: Message[] }[], message: Message, index: number) => {
+  const groupedMessages = filteredMessages.reduce((acc: { date: Date; messages: Message[] }[], message: Message, index: number) => {
     const messageDate = new Date(message.timestamp || Date.now());
     const prevMessage = filteredMessages[index - 1];
     const prevDate = prevMessage ? new Date(prevMessage.timestamp || Date.now()) : null;
@@ -274,7 +274,7 @@ export default function ChatDashboard() {
     }
 
     return acc;
-  }, []) || [];
+  }, []);
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">
