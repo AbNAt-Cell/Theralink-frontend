@@ -11,6 +11,8 @@ import { Loader2, FileText, Calendar, Search, User, X, AlertCircle } from 'lucid
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
 import { useToast } from '@/hooks/Partials/use-toast';
+import { getTemplateDefinition } from '@/lib/templateDefinitions';
+import TemplateFormRenderer from '@/components/TemplateFormRenderer';
 
 interface Profile {
     id: string;
@@ -39,12 +41,15 @@ const DOCUMENT_TEMPLATES = [
     { id: 'columbia', name: 'COLUMBIA-SUICIDE SEVERITY RATING SCALE', category: 'Assessment' },
     { id: 'consent-treatment', name: 'Consent for Treatment', category: 'Consent' },
     { id: 'consent-telehealth', name: 'Consent to Tele Mental Health', category: 'Consent' },
-    { id: 'progress-note', name: 'Progress Note', category: 'Progress Note' },
-    { id: 'treatment-plan', name: 'Treatment Plan', category: 'Treatment' },
-    { id: 'discharge-summary', name: 'Discharge Summary', category: 'Discharge' },
-    { id: 'intake-form', name: 'Intake Form', category: 'Intake' },
-    { id: 'safety-plan', name: 'Safety Plan', category: 'Crisis' },
-    { id: 'crisis-assessment', name: 'Crisis Assessment', category: 'Crisis' },
+    { id: 'diagnostic-assessment', name: 'Diagnostic Assessment', category: 'Assessment' },
+    { id: 'informed-consent-medication', name: 'Informed Consent FOR Medication', category: 'Consent' },
+    { id: 'medication-consent-child', name: 'Medication Consent Child', category: 'Consent' },
+    { id: 'medication-informed-consent', name: 'Medication Informed Consent Form', category: 'Consent' },
+    { id: 'monthly-staff-form', name: 'Monthly Staff Form', category: 'Staff' },
+    { id: 'pie', name: 'P.I.E.', category: 'Progress Note' },
+    { id: 'psychiatric-assessment', name: 'Psychiatric Assessment', category: 'Assessment' },
+    { id: 'referral-intake', name: 'Referral and Intake', category: 'Intake' },
+    { id: 'treatment-plan-consent', name: 'Treatment Plan Consent', category: 'Consent' },
 ];
 
 export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocumentModalProps) {
@@ -65,6 +70,7 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
     const [clientSearch, setClientSearch] = useState('');
     const [showClientSearch, setShowClientSearch] = useState(false);
     const [dateOfService, setDateOfService] = useState('');
+    const [templateFormData, setTemplateFormData] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (isOpen && user?.clinicId) {
@@ -382,6 +388,17 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
                                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
                             </div>
+
+                            {/* Dynamic Template Form Sections */}
+                            {selectedTemplate && getTemplateDefinition(selectedTemplate) && (
+                                <TemplateFormRenderer
+                                    template={getTemplateDefinition(selectedTemplate)!}
+                                    formData={templateFormData}
+                                    onChange={(fieldId, value) => {
+                                        setTemplateFormData(prev => ({ ...prev, [fieldId]: value }));
+                                    }}
+                                />
+                            )}
 
                             <hr className="border-gray-200" />
 
