@@ -1,15 +1,22 @@
 'use client';
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { EventList } from '@/components/EventList'
 import CalendarView from '@/components/CalendarView/index'
 import { Button } from '@/components/ui/button'
 import { PlusIcon, Loader2, CalendarX } from 'lucide-react'
 import { useCalendarData } from '@/hooks/useCalendarData'
+import AddAppointmentModal from '@/components/modals/AddAppointmentModal'
 
 const AdminCalendar = () => {
-  const { events, loading, error } = useCalendarData();
+  const { events, loading, error, refresh } = useCalendarData();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAppointmentCreated = () => {
+    // Refresh calendar data after creating appointment
+    refresh?.();
+  };
 
   if (loading) {
     return (
@@ -47,9 +54,9 @@ const AdminCalendar = () => {
         <CardContent className='flex'>
           <div className=" border-r bg-background">
             <div className='p-4 border-b'>
-              <Button className='w-full gap-2'>
+              <Button className='w-full gap-2' onClick={() => setIsModalOpen(true)}>
                 <PlusIcon className="mr-2 h-4 w-4" />
-                Add New Event
+                Add Appointment
               </Button>
             </div>
             <EventList events={events} />
@@ -59,6 +66,12 @@ const AdminCalendar = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AddAppointmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleAppointmentCreated}
+      />
     </div>
   )
 }

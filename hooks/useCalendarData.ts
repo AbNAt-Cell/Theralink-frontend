@@ -32,67 +32,68 @@ export function useCalendarData() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchAppointments = async () => {
-            if (!user?.clinicId) {
-                setLoading(false);
-                return;
+    const fetchAppointments = async () => {
+        if (!user?.clinicId) {
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Fetch all appointments for the clinic (simpler query to avoid column issues)
+            const { data: appointments, error: fetchError } = await supabase
+                .from('appointments')
+                .select('*')
+                .eq('clinic_id', user.clinicId)
+                .order('appointment_date', { ascending: true });
+
+            if (fetchError) {
+                console.error('Calendar fetch error:', fetchError);
+                throw fetchError;
             }
 
-            setLoading(true);
-            setError(null);
+            // Transform appointments to Event format
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const calendarEvents: Event[] = (appointments || []).map((appt: any) => {
+                // Handle both joined and flat data
+                const clientName = appt.client
+                    ? `${appt.client.first_name} ${appt.client.last_name}`
+                    : 'Client';
 
-            try {
-                // Fetch all appointments for the clinic (simpler query to avoid column issues)
-                const { data: appointments, error: fetchError } = await supabase
-                    .from('appointments')
-                    .select('*')
-                    .eq('clinic_id', user.clinicId)
-                    .order('appointment_date', { ascending: true });
-
-                if (fetchError) {
-                    console.error('Calendar fetch error:', fetchError);
-                    throw fetchError;
+                // Map appointment type to event type
+                let eventType: Event['type'] = 'client-meeting';
+                const apptType = appt.appointment_type?.toLowerCase() || '';
+                if (apptType.includes('staff') || apptType.includes('team')) {
+                    eventType = 'staff-meeting';
+                } else if (apptType.includes('general') || apptType.includes('admin')) {
+                    eventType = 'general-meeting';
                 }
 
-                // Transform appointments to Event format
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const calendarEvents: Event[] = (appointments || []).map((appt: any) => {
-                    // Handle both joined and flat data
-                    const clientName = appt.client
-                        ? `${appt.client.first_name} ${appt.client.last_name}`
-                        : 'Client';
+                return {
+                    id: appt.id,
+                    title: `${clientName} - ${appt.appointment_type || 'Appointment'}`,
+                    date: appt.appointment_date,
+                    time: appt.appointment_time || '9:00 AM',
+                    location: appt.location || 'Office',
+                    type: eventType,
+                };
+            });
 
-                    // Map appointment type to event type
-                    let eventType: Event['type'] = 'client-meeting';
-                    const apptType = appt.appointment_type?.toLowerCase() || '';
-                    if (apptType.includes('staff') || apptType.includes('team')) {
-                        eventType = 'staff-meeting';
-                    } else if (apptType.includes('general') || apptType.includes('admin')) {
-                        eventType = 'general-meeting';
-                    }
+            setEvents(calendarEvents);
+        } catch (err: unknown) {
+            console.error('Error fetching calendar data:', err);
+            setError(err instanceof Error ? err.message : 'Failed to load calendar');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                    return {
-                        id: appt.id,
-                        title: `${clientName} - ${appt.appointment_type || 'Appointment'}`,
-                        date: appt.appointment_date,
-                        time: appt.appointment_time || '9:00 AM',
-                        location: appt.location || 'Office',
-                        type: eventType,
-                    };
-                });
-
-                setEvents(calendarEvents);
-            } catch (err: unknown) {
-                console.error('Error fetching calendar data:', err);
-                setError(err instanceof Error ? err.message : 'Failed to load calendar');
-            } finally {
-                setLoading(false);
-            }
-        };
-
+    useEffect(() => {
         fetchAppointments();
-    }, [user?.clinicId, supabase]);
+    }, [user?.clinicId]);
 
-    return { events, loading, error };
+    return { events, loading, error, refresh: fetchAppointments };
 }
+
