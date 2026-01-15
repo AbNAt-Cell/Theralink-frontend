@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react'
-import { useRouter } from 'nextjs-toploader/app'
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button';
 import { FileInput, FileOutput, FileTerminal, Plus } from 'lucide-react';
 import { columns } from "./table-columns"
 import type { Document } from '@/types/document';
 import type { Filter } from '@/components/TableFilters';
 import { DataTable } from '@/components/ui/data-table';
+import AddDocumentModal from '@/components/modals/AddDocumentModal';
 
 const AdminDocumentsPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const documents: Partial<Document>[] = [
     {
       id: '1',
@@ -67,7 +69,10 @@ const AdminDocumentsPage = () => {
     { label: 'Site', value: 'site' },
   ]
 
-  const router = useRouter();
+  const handleDocumentCreated = () => {
+    // TODO: Refresh documents list when connected to real data
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -85,7 +90,7 @@ const AdminDocumentsPage = () => {
             <FileInput />
             Export to Excel
           </Button>
-          <Button variant="secondary" onClick={() => router.push('/admin/clients/new')}>
+          <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
             <Plus />
             Add Document
           </Button>
@@ -94,6 +99,12 @@ const AdminDocumentsPage = () => {
       <div className='flex flex-col gap-4'>
         <DataTable columns={columns} data={documents} filters={filters} />
       </div>
+
+      <AddDocumentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleDocumentCreated}
+      />
     </div>
   )
 }
