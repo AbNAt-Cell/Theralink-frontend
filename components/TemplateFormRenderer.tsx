@@ -89,6 +89,31 @@ export default function TemplateFormRenderer({ template, formData, onChange }: T
                     </div>
                 );
 
+            case 'radio':
+                return (
+                    <div className="flex items-center gap-4 flex-wrap">
+                        {field.options?.map((opt) => (
+                            <label
+                                key={opt.value}
+                                className={`flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-md border transition-colors ${value === opt.value
+                                        ? 'bg-blue-100 border-blue-400 text-blue-800'
+                                        : 'bg-white border-gray-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name={field.id}
+                                    value={opt.value}
+                                    checked={value === opt.value}
+                                    onChange={() => onChange(field.id, opt.value)}
+                                    className="sr-only"
+                                />
+                                <span className="text-sm font-medium">{opt.label}</span>
+                            </label>
+                        ))}
+                    </div>
+                );
+
             case 'date':
                 return (
                     <Input

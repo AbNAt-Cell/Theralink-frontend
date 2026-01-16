@@ -221,8 +221,8 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden">
-                <DialogHeader className="flex flex-row items-center justify-between">
+            <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
+                <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0">
                     <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-slate-800">
                         <FileText className="w-5 h-5" />
                         Add Document
@@ -243,7 +243,7 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
                         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
                     </div>
                 ) : (
-                    <div className="flex gap-6">
+                    <div className="flex gap-6 overflow-y-auto flex-1 pr-2">
                         {/* Main Form */}
                         <form onSubmit={handleSubmit} className="flex-1 space-y-5">
                             {/* Select Template - Searchable */}
