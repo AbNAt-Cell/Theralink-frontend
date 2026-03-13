@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, FileText, Calendar, Search, User, X, AlertCircle } from 'lucide-react';
+import { Loader2, FileText, Calendar, Search, User, X, AlertCircle, Upload, Trash2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
 import { useToast } from '@/hooks/Partials/use-toast';
@@ -71,6 +71,12 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
     const [showClientSearch, setShowClientSearch] = useState(false);
     const [dateOfService, setDateOfService] = useState('');
     const [templateFormData, setTemplateFormData] = useState<Record<string, string>>({});
+
+    // Scanned document upload state
+    const [scannedFile, setScannedFile] = useState<File | null>(null);
+    const [scannedDocumentType, setScannedDocumentType] = useState('');
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen && user?.clinicId) {
@@ -219,6 +225,122 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
         setSelectedClient(null);
     };
 
+    // Handle scanned file selection
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Invalid file type',
+                    description: 'Please upload a PDF or image file (JPEG, PNG, GIF, WebP).',
+                });
+                return;
+            }
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast({
+                    variant: 'destructive',
+                    title: 'File too large',
+                    description: 'Please upload a file smaller than 10MB.',
+                });
+                return;
+            }
+            setScannedFile(file);
+        }
+    };
+
+    // Handle scanned document upload
+    const handleUploadScannedDocument = async () => {
+        if (!scannedFile || !authorId || !selectedClient || !dateOfService || !scannedDocumentType) {
+            toast({
+                variant: 'destructive',
+                title: 'Missing Fields',
+                description: 'Please fill in document type, select author, client, date, and file.',
+            });
+            return;
+        }
+
+        if (!isClientEligible(selectedClient)) {
+            toast({
+                variant: 'destructive',
+                title: 'Client Ineligible',
+                description: 'This client is inactive and cannot have documentation submitted.',
+            });
+            return;
+        }
+
+        setUploadingFile(true);
+
+        try {
+            // Create unique file name
+            const fileName = `${user?.clinicId}/${selectedClient.id}/${Date.now()}_${scannedFile.name}`;
+
+            // Upload to Supabase storage
+            const { error: uploadError } = await supabase
+                .storage
+                .from('documents')
+                .upload(fileName, scannedFile);
+
+            if (uploadError) throw uploadError;
+
+            // Get public URL
+            const { data: urlData } = supabase
+                .storage
+                .from('documents')
+                .getPublicUrl(fileName);
+
+            // Create document record
+            const { error: dbError } = await supabase
+                .from('documents')
+                .insert({
+                    clinic_id: user?.clinicId,
+                    client_id: selectedClient.id,
+                    staff_id: authorId,
+                    type: scannedDocumentType,
+                    date_of_service: dateOfService,
+                    status: 'COMPLETED',
+                    file_url: urlData.publicUrl,
+                    file_name: scannedFile.name,
+                    is_scanned: true,
+                });
+
+            if (dbError) throw dbError;
+
+            toast({
+                title: 'Document Uploaded!',
+                description: `${scannedFile.name} has been uploaded successfully.`,
+            });
+
+            // Reset form
+            setScannedFile(null);
+            setScannedDocumentType('');
+            setSelectedClient(null);
+            setClientSearch('');
+            setDateOfService('');
+            if (fileInputRef.current) fileInputRef.current.value = '';
+
+            onSuccess?.();
+            onClose();
+        } catch (error) {
+            console.error('Error uploading document:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Upload Failed',
+                description: 'Failed to upload document. Please try again.',
+            });
+        } finally {
+            setUploadingFile(false);
+        }
+    };
+
+    const clearScannedFile = () => {
+        setScannedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
@@ -274,6 +396,84 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
                                         ))}
                                     </div>
                                 </ScrollArea>
+                            </div>
+
+                            {/* Upload Scanned Document Section */}
+                            <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex items-center gap-2 text-blue-800 font-medium">
+                                    <Upload className="w-4 h-4" />
+                                    Upload Scanned Document
+                                </div>
+                                <p className="text-sm text-blue-600">
+                                    Upload a scanned document (PDF or image) instead of filling out a template.
+                                </p>
+                                <div className="space-y-2">
+                                    <Label className="text-slate-700">Document Type</Label>
+                                    <Input
+                                        placeholder="e.g., Medical Records, Lab Results, Consent Form"
+                                        value={scannedDocumentType}
+                                        onChange={(e) => setScannedDocumentType(e.target.value)}
+                                        className="border-gray-300 bg-white"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-slate-700">Select File</Label>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept=".pdf,image/*"
+                                        onChange={handleFileSelect}
+                                        className="hidden"
+                                    />
+                                    {scannedFile ? (
+                                        <div className="flex items-center gap-2 p-3 bg-white border rounded-md">
+                                            <FileText className="w-4 h-4 text-blue-600" />
+                                            <span className="flex-1 text-sm truncate">{scannedFile.name}</span>
+                                            <span className="text-xs text-gray-500">
+                                                {(scannedFile.size / 1024 / 1024).toFixed(2)} MB
+                                            </span>
+                                            <button type="button" onClick={clearScannedFile}>
+                                                <Trash2 className="w-4 h-4 text-red-500 hover:text-red-700" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="w-full border-dashed border-2 border-blue-300 text-blue-600 hover:bg-blue-100"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            <Upload className="w-4 h-4 mr-2" />
+                                            Choose File (PDF or Image)
+                                        </Button>
+                                    )}
+                                </div>
+                                {scannedFile && (
+                                    <Button
+                                        type="button"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                                        onClick={handleUploadScannedDocument}
+                                        disabled={uploadingFile || !scannedDocumentType}
+                                    >
+                                        {uploadingFile ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Uploading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4 mr-2" />
+                                                Upload Scanned Document
+                                            </>
+                                        )}
+                                    </Button>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-4 my-2">
+                                <hr className="flex-1 border-gray-200" />
+                                <span className="text-sm text-gray-500">OR fill out template below</span>
+                                <hr className="flex-1 border-gray-200" />
                             </div>
 
                             {/* Choose Author */}

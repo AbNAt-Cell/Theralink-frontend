@@ -181,9 +181,17 @@ const AdminHeader = () => {
                   <div className="flex flex-col">
                     <p className="font-bold bg-blue-100 px-3 py-[0.2px] mb-2 rounded-md text-lg">Clinic</p>
                     <ul className="ml-2 space-y-1 text-sm">
-                      <li>Authorizations</li>
+                      <li>
+                        <Link className={`${isActiveFullPath("/admin/more/authorizations")} p-1 rounded-lg`} href="/admin/more/authorizations">
+                          Authorizations
+                        </Link>
+                      </li>
                       <li>Client Compliance</li>
-                      <li>Clinic Files</li>
+                      <li>
+                        <Link className={`${isActiveFullPath("/admin/more/clinic-files")} p-1 rounded-lg`} href="/admin/more/clinic-files">
+                          Clinic Files
+                        </Link>
+                      </li>
                       <li>Default Goals</li>
                       <li>
                         <Link className={`${isActiveFullPath("/admin/more/templates")} p-1 rounded-lg`} href="/admin/more/templates">
