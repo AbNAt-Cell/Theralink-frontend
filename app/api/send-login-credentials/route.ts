@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Send login credentials error:', error);
-    const errorMessage = error?.message || 'Failed to send email. Check Resend configuration.';
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send email. Check Resend configuration.';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
