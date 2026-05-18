@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       errorMessage = error.message;
     } else if (typeof error === 'object' && error !== null) {
-      errorMessage = (error as any).message || JSON.stringify(error);
+      errorMessage = 'message' in error ? String(error.message) : JSON.stringify(error);
     }
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
