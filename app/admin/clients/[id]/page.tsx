@@ -81,10 +81,11 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
         title: "Success",
         description: "Login credentials sent to the client.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMessage = error instanceof Error ? error.message : "Something went wrong.";
       toast({
         title: "Error",
-        description: error.message || "Something went wrong.",
+        description: errMessage,
         variant: "destructive"
       });
     } finally {
