@@ -87,7 +87,9 @@ export const columns: ColumnDef<Partial<User>>[] = [
     accessorKey: 'startDate',
     header: 'Start Date',
     cell: ({ row }) => {
-      const date = new Date(row.original.createdAt ?? '');
+      if (!row.original.createdAt) return '-';
+      const date = new Date(row.original.createdAt);
+      if (isNaN(date.getTime())) return '-';
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: '2-digit',
@@ -99,7 +101,9 @@ export const columns: ColumnDef<Partial<User>>[] = [
     accessorKey: 'lastSeenDate',
     header: 'Last Seen Date',
     cell: ({ row }) => {
-      const date = new Date(row.original.updatedAt ?? '');
+      if (!row.original.updatedAt) return '-';
+      const date = new Date(row.original.updatedAt);
+      if (isNaN(date.getTime())) return '-';
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: '2-digit',
