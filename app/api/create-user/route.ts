@@ -40,14 +40,17 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user.id;
 
-    // 2. Update the profile with clinic_id and email (the trigger should have already created the profile)
+    // 2. Upsert the profile with clinic_id and email (in case the trigger doesn't exist)
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .update({
+      .upsert({
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        role: role || 'CLIENT',
         clinic_id: clinicId || null,
         email: email,
-      })
-      .eq('id', userId);
+      });
 
     if (profileError) {
       console.error('Profile update error:', profileError);
