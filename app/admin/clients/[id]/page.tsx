@@ -11,10 +11,13 @@ import {
 } from '@/components/ui/collapsible';
 import AdminClientProfile from '@/components/AdminClientProfile';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
+import { useToast } from '@/hooks/Partials/use-toast';
 
 export default function ClientDashboard({ params }: { params: { id: string } }) {
   const [client, setClient] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sendingCredentials, setSendingCredentials] = useState(false);
+  const { toast } = useToast();
 
   // Collapsible states
   const [isCurrentInsuranceOpen, setIsCurrentInsuranceOpen] = useState(true);
@@ -45,6 +48,47 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
       console.error("Error fetching client data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendCredentials = async () => {
+    if (!client || !client.email) {
+      toast({
+        title: "Error",
+        description: "Client does not have an email address set.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setSendingCredentials(true);
+      const res = await fetch('/api/send-login-credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: client.id,
+          email: client.email,
+          firstName: client.firstName,
+          clinicName: client.clinicName
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send credentials');
+
+      toast({
+        title: "Success",
+        description: "Login credentials sent to the client.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong.",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingCredentials(false);
     }
   };
 
@@ -228,8 +272,10 @@ export default function ClientDashboard({ params }: { params: { id: string } }) 
               <Button
                 variant='outline'
                 className='w-full border-blue-500 text-blue-500'
+                onClick={handleSendCredentials}
+                disabled={sendingCredentials}
               >
-                Send Login Credentials
+                {sendingCredentials ? 'Sending...' : 'Send Login Credentials'}
               </Button>
               <Button
                 variant='outline'
