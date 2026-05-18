@@ -75,8 +75,9 @@ export async function POST(request: NextRequest) {
         role: role || 'CLIENT',
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Create user API error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

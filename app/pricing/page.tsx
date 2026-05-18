@@ -2,8 +2,7 @@
 
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
-import { Check, HelpCircle, ArrowRight, Zap, ShieldCheck, PhoneCall, ClipboardList, CreditCard } from "lucide-react";
-import { Fragment } from "react";
+import { Check, HelpCircle, ArrowRight, Zap, ShieldCheck, PhoneCall } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -135,7 +134,7 @@ export default function PricingPage() {
         {/* Feature Grid Section */}
         <section id="features" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-32">
              <div className="text-center mb-20 max-w-2xl mx-auto">
-                <h2 className="text-sm font-black text-primary uppercase tracking-[0.4em] mb-4">// Full System Audit</h2>
+                <h2 className="text-sm font-black text-primary uppercase tracking-[0.4em] mb-4">{"// Full System Audit"}</h2>
                 <h3 className="text-4xl font-extrabold text-gray-900 mb-6 font-mono tracking-tighter">Everything Included, Standard</h3>
                 <p className="text-lg text-gray-500 font-medium italic">We don&apos;t lock features behind upgrade walls. Every user gets the full TerraLink experience.</p>
              </div>

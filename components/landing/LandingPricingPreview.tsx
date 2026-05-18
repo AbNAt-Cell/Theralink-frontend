@@ -24,7 +24,7 @@ export default function LandingPricingPreview() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
          <div className="text-center mb-24 max-w-2xl mx-auto px-4 sm:px-0">
-          <h2 className="text-sm font-black text-primary uppercase tracking-[0.4em] mb-4">// One Fixed Cost</h2>
+          <h2 className="text-sm font-black text-primary uppercase tracking-[0.4em] mb-4">{"// One Fixed Cost"}</h2>
           <h3 className="text-4xl lg:text-6xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight">
             Transparent, Simple, <br /><span className="text-primary italic">Unlimited</span>.
           </h3>

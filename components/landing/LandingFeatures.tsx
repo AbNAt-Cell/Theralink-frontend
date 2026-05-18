@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Shield, FileCheck, Settings, Workflow, Blocks, UserCheck, CalendarDays, ClipboardList, Lock, MessageSquare, PhoneCall } from "lucide-react";
+import { Users, FileCheck, Settings, Workflow, Blocks, UserCheck, CalendarDays, ClipboardList, Lock, MessageSquare } from "lucide-react";
 
 const staffFeatures = [
     {

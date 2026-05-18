@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { DatePickerWithRange } from '@/components/DatePickerWithRange'
-import { useClientDiagnoses, Diagnosis } from '@/hooks/client/useClientDiagnoses'
+import { useClientDiagnoses } from '@/hooks/client/useClientDiagnoses'
 import { Loader2 } from 'lucide-react'
 
 export default function ClientDiagnosis() {
