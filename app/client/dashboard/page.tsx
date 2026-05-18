@@ -32,8 +32,10 @@ import ChangePinForm from "@/components/forms/ChangePinForm"
 
 import { useState, useEffect } from "react"
 import { useUser } from "@/context/UserContext"
-import { getClientById, ClientProfile } from "@/hooks/admin/client"
+import { getClientById, ClientProfile, updateClient } from "@/hooks/admin/client"
 import Image from "next/image"
+import { useClientDashboard } from "@/hooks/client/useClientDashboard"
+import { format } from "date-fns"
 
 export default function ClientDashboard() {
   const { user } = useUser();
@@ -48,6 +50,8 @@ export default function ClientDashboard() {
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
 
+  const { upcomingAppointments, pendingDocuments, completedDocuments, refresh: refreshDashboardData, loading: dashboardLoading } = useClientDashboard();
+
   useEffect(() => {
     const fetchClientData = async () => {
       if (!user?.id) return;
@@ -55,6 +59,8 @@ export default function ClientDashboard() {
         setLoading(true);
         const data = await getClientById(user.id);
         setClient(data);
+        if (data.clientPin) setClientSignature('/placeholder-signature.png'); // Placeholder if PIN exists
+        if (data.parentPin) setParentSignature('/placeholder-signature.png');
       } catch (error) {
         console.error("Error fetching client data:", error);
       } finally {
@@ -64,18 +70,32 @@ export default function ClientDashboard() {
     fetchClientData();
   }, [user]);
 
-  const handleClientPinChange = (oldPin: string, newPin: string) => {
-    console.log('Changing client PIN:', { oldPin, newPin });
-    // Add API call to change PIN here
+  const handleClientPinChange = async (oldPin: string, newPin: string) => {
+    try {
+        if (!client) return;
+        await updateClient(client.id, { ...client, clientPin: newPin });
+        const updated = await getClientById(client.id);
+        setClient(updated);
+        console.log('Successfully updated Client PIN');
+    } catch (err) {
+        console.error('Failed to change Client PIN', err);
+    }
   };
 
-  const handleParentPinChange = (oldPin: string, newPin: string) => {
-    console.log('Changing parent PIN:', { oldPin, newPin });
-    // Add API call to change PIN here
+  const handleParentPinChange = async (oldPin: string, newPin: string) => {
+    try {
+        if (!client) return;
+        await updateClient(client.id, { ...client, parentPin: newPin });
+        const updated = await getClientById(client.id);
+        setClient(updated);
+        console.log('Successfully updated Parent PIN');
+    } catch (err) {
+        console.error('Failed to change Parent PIN', err);
+    }
   };
 
-  if (loading) return <div>Loading dashboard...</div>;
-  if (!client) return <div>Client profile not found.</div>;
+  if (loading || dashboardLoading) return <div className="p-8">Loading dashboard...</div>;
+  if (!client) return <div className="p-8">Client profile not found.</div>;
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
@@ -90,14 +110,13 @@ export default function ClientDashboard() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold text-secondary">
-                {client.clinicName || 'Auspicious Community Service, LLC'}
+                {client.clinicName || 'Clinic Name Not Set'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {/* Clinic address is not yet in DB, keeping hardcoded fallback or empty if preferred */}
-                305 FM 517 Road E.
+                {client.address?.street || 'No Address Provided'}
               </p>
               <p className="text-sm text-muted-foreground">
-                Dickinson, TX 77539-1628
+                {client.address?.city ? `${client.address.city}, ${client.address.state || ''} ${client.address.zipCode || ''}` : ''}
               </p>
             </div>
 
@@ -120,7 +139,7 @@ export default function ClientDashboard() {
                   <p className="text-sm text-muted-foreground">
                     Smoking Status:
                   </p>
-                  <p className="font-medium">N/A</p>
+                  <p className="font-medium">{client.smokingStatus || 'N/A'}</p>
                 </div>
               </div>
 
@@ -140,7 +159,7 @@ export default function ClientDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Ethnicity:</p>
-                  <p className="font-medium">N/A</p>
+                  <p className="font-medium">{client.ethnicity || 'N/A'}</p>
                 </div>
               </div>
 
@@ -167,17 +186,17 @@ export default function ClientDashboard() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold text-secondary">
-                {client.clinicName || 'Auspicious Community Service, LLC'}
+                {client.clinicName || 'Clinic Name Not Set'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                305 FM 517 Road E.
+                {client.address?.street || 'No Address Provided'}
               </p>
               <p className="text-sm text-muted-foreground">
-                Dickinson, TX 77539-1628
+                {client.address?.city ? `${client.address.city}, ${client.address.state || ''} ${client.address.zipCode || ''}` : ''}
               </p>
               <div className="flex items-center gap-2 border rounded-lg p-2 mt-2 text-emerald-600">
                 <Phone className="w-4 h-4" />
-                <span>(832) 774-7144</span>
+                <span>{client.phone || client.workPhone || 'No Phone on Record'}</span>
               </div>
             </div>
 
@@ -211,21 +230,26 @@ export default function ClientDashboard() {
                     </DialogHeader>
                   </DialogContent>
                 </Dialog>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setOpenClientPin(true)}
-                >
-                  Change PIN?
-                </Button>
-                <Dialog open={openClientPin} onOpenChange={setOpenClientPin}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Change Client PIN</DialogTitle>
-                    </DialogHeader>
-                    <ChangePinForm setOpen={setOpenClientPin} onPinChange={handleClientPinChange} />
-                  </DialogContent>
-                </Dialog>
+                
+                {client.clientPin && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setOpenClientPin(true)}
+                    >
+                      Change PIN?
+                    </Button>
+                    <Dialog open={openClientPin} onOpenChange={setOpenClientPin}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Change Client PIN</DialogTitle>
+                        </DialogHeader>
+                        <ChangePinForm setOpen={setOpenClientPin} onPinChange={handleClientPinChange} />
+                      </DialogContent>
+                    </Dialog>
+                  </>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -249,15 +273,15 @@ export default function ClientDashboard() {
                     </DialogHeader>
                     <UpdateClientSignatureForm
                       onSignatureUpdate={(sig, pin) => {
+                        handleParentPinChange('', pin); // Save initial PIN
                         setParentSignature(sig);
                         setOpenParentSignature(false);
-                        console.log("Pin captured:", pin);
                       }}
                       onCancel={() => setOpenParentSignature(false)}
                     />
                   </DialogContent>
                 </Dialog>
-                {parentSignature && (
+                {client.parentPin && (
                   <>
                     <Button
                       variant="outline"
@@ -322,16 +346,58 @@ export default function ClientDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
-                      No documents found
-                    </TableCell>
-                  </TableRow>
+                  {pendingDocuments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        No pending documents found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pendingDocuments.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium">{doc.id.substring(0,8)}...</TableCell>
+                        <TableCell>{format(new Date(doc.date_of_service), 'MMM dd, yyyy')}</TableCell>
+                        <TableCell>{doc.doc_type || doc.file_name || 'Document'}</TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm">Review & Sign</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TabsContent>
-            <TabsContent value="completed">
-              {/* Similar table structure for completed documents */}
+            <TabsContent value="completed" className="space-y-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Doc ID</TableHead>
+                    <TableHead>Service Date</TableHead>
+                    <TableHead>Document Name</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {completedDocuments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        No completed documents found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    completedDocuments.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium">{doc.id.substring(0,8)}...</TableCell>
+                        <TableCell>{format(new Date(doc.date_of_service), 'MMM dd, yyyy')}</TableCell>
+                        <TableCell>{doc.doc_type || doc.file_name || 'Document'}</TableCell>
+                        <TableCell>
+                          <Button variant="secondary" size="sm">View</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -345,9 +411,33 @@ export default function ClientDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            No Upcoming Appointments in your calendar.
-          </p>
+          {upcomingAppointments.length === 0 ? (
+            <p className="text-muted-foreground">
+              No Upcoming Appointments in your calendar.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {upcomingAppointments.map((appt) => (
+                <div key={appt.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <Calendar className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{format(new Date(appt.appointment_date + 'T' + appt.appointment_time), 'EEEE, MMMM do yyyy')}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date('1970-01-01T' + appt.appointment_time), 'h:mm a')} • {appt.appointment_type}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Provider: {appt.staff?.first_name} {appt.staff?.last_name}
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="outline">Reschedule</Button>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -219,3 +219,66 @@ export async function sendAppointmentCancellationEmail(data: AppointmentEmailDat
     throw error;
   }
 }
+
+interface WelcomeEmailData {
+  clientEmail: string;
+  clientName: string;
+  password?: string;
+  clinicName?: string;
+  loginUrl?: string;
+}
+
+export async function sendClientWelcomeEmail(data: WelcomeEmailData) {
+  const {
+    clientEmail,
+    clientName,
+    password,
+    clinicName = 'TheraLink',
+    loginUrl = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/client/login` : 'https://app.theralink.com/client/login'
+  } = data;
+
+  try {
+    const { data: emailData, error } = await getResend().emails.send({
+      from: process.env.EMAIL_FROM || 'welcome@theralink.com',
+      to: clientEmail,
+      subject: `Welcome to ${clinicName} - Your Login Details`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; margin-top: 20px;">
+            <h1 style="color: #1e3a5f;">Welcome to ${clinicName}!</h1>
+            <p>Hi ${clientName},</p>
+            <p>Your client portal account has been created. You can use it to view your upcoming appointments, complete documents, and more.</p>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 15px; margin: 20px 0;">
+              <p style="margin: 5px 0; color: #333;"><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
+              <p style="margin: 5px 0; color: #333;"><strong>Email:</strong> ${clientEmail}</p>
+              ${password ? `<p style="margin: 5px 0; color: #333;"><strong>Temporary Password:</strong> ${password}</p>` : ''}
+            </div>
+            
+            <p>Please log in and remember to change your password if a temporary one was provided.</p>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${loginUrl}" 
+                 style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Go to Client Portal
+              </a>
+            </div>
+            
+            <p style="color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 15px;">— The ${clinicName} Team</p>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    if (error) throw error;
+    return { success: true, data: emailData };
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
+    throw error;
+  }
+}
+

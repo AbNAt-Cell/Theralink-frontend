@@ -13,15 +13,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { DatePickerWithRange } from '@/components/DatePickerWithRange'
-
-interface Diagnosis {
-  id: string;
-  date: string;
-  diagnosis: string;
-  provider: string;
-  dxCode: string;
-  notes?: string;
-}
+import { useClientDiagnoses, Diagnosis } from '@/hooks/client/useClientDiagnoses'
+import { Loader2 } from 'lucide-react'
 
 export default function ClientDiagnosis() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,30 +22,8 @@ export default function ClientDiagnosis() {
   const [startDate, setStartDate] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [endDate, setEndDate] = useState('');
-
-  const diagnoses: Diagnosis[] = [
-    {
-      id: 'D001',
-      date: '2024-01-15',
-      diagnosis: 'Major Depressive Disorder',
-      provider: 'Dr. John Smith',
-      dxCode: 'D001',
-    },
-    {
-      id: 'D002',
-      date: '2023-12-01',
-      diagnosis: 'Generalized Anxiety Disorder',
-      provider: 'Dr. Sarah Johnson',
-      dxCode: 'D002',
-    },
-    {
-      id: 'D003',
-      date: '2023-10-15',
-      diagnosis: 'Insomnia',
-      provider: 'Dr. John Smith',
-      dxCode: 'D003',
-    },
-  ];
+  
+  const { diagnoses, loading, error } = useClientDiagnoses();
 
   const filteredDiagnoses = diagnoses.filter(diagnosis => {
     const matchesSearch = diagnosis.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,6 +33,25 @@ export default function ClientDiagnosis() {
       (!endDate || diagnosis.date <= endDate);
     return matchesSearch && matchesDateRange;
   });
+
+  if (loading) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+         <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p>Loading your diagnoses...</p>
+         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <p className="text-destructive">Failed to load diagnoses. Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">

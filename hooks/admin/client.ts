@@ -101,38 +101,49 @@ export interface ClientProfile {
   comments?: string;
   avatarUrl?: string;
   signatureUrl?: string;
+  
+  // Dashboard
+  smokingStatus?: string;
+  ethnicity?: string;
+  clientPin?: string;
+  parentPin?: string;
+  
   createdAt: string;
   updatedAt: string;
 }
 
 export const createNewClient = async (clientData: any, clinicId: string) => {
-  const tempProfileId = crypto.randomUUID();
+  // 1. Generate a temporary password if one isn't provided
+  const temporaryPassword = clientData.password || Math.random().toString(36).slice(-8) + 'Aa1!';
+  
+  // 2. Call our secure API to create the Auth user and profile
+  const createResponse = await fetch('/api/create-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: clientData.email,
+      password: temporaryPassword,
+      firstName: clientData.firstName,
+      lastName: clientData.lastName,
+      role: 'CLIENT',
+      clinicId: clinicId
+    })
+  });
 
-  // 1. Create Profile
-  // We include email here if the profile table supports it (added via migration)
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .insert([
-      {
-        id: tempProfileId,
-        clinic_id: clinicId,
-        first_name: clientData.firstName,
-        last_name: clientData.lastName,
-        email: clientData.email,
-        role: 'CLIENT'
-      }
-    ])
-    .select()
-    .single();
+  const createData = await createResponse.json();
 
-  if (profileError) throw profileError;
+  if (!createResponse.ok) {
+    throw new Error(createData.error || 'Failed to create client user');
+  }
 
-  // 2. Create Client Details
+  const profileId = createData.user.id;
+
+  // 3. Create/Update Client Details
   const { error: detailsError } = await supabase
     .from('client_details')
-    .insert([
+    .upsert([
       {
-        profile_id: tempProfileId,
+        profile_id: profileId,
         prefix: clientData.prefix,
         middle_name: clientData.middleName,
         suffix: clientData.suffix,
@@ -179,17 +190,36 @@ export const createNewClient = async (clientData: any, clinicId: string) => {
 
         comments: clientData.comments
       }
-    ]);
+    ], { onConflict: 'profile_id' });
 
   if (detailsError) {
-    // Cleanup profile if details creation fails
     console.error("Error creating client details:", detailsError);
-    // Attempt to delete the profile since the transaction failed "logically"
-    await supabase.from('profiles').delete().eq('id', tempProfileId);
     throw detailsError;
   }
 
-  return profile;
+  // 4. Send Welcome Email with credentials
+  if (clientData.email) {
+    try {
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'welcome',
+          clientEmail: clientData.email,
+          clientName: clientData.firstName,
+          password: temporaryPassword
+        })
+      });
+      
+      if (!emailResponse.ok) {
+        console.error('Failed to send welcome email, but user was created.');
+      }
+    } catch (e) {
+      console.error('Error triggering welcome email:', e);
+    }
+  }
+
+  return { id: profileId, ...createData.user };
 };
 
 export const getClientById = async (clientId: string): Promise<ClientProfile> => {
@@ -249,6 +279,11 @@ export const getClientById = async (clientId: string): Promise<ClientProfile> =>
     phone: details.phone,
     isPrivatePay: details.is_private_pay,
     assignedSite: details.assigned_site,
+
+    smokingStatus: details.smoking_status,
+    ethnicity: details.ethnicity,
+    clientPin: details.client_pin,
+    parentPin: details.parent_pin,
 
     // Address
     address: {
@@ -342,6 +377,10 @@ export const updateClient = async (clientId: string, clientData: any) => {
       insurance_policy_number: clientData.insurance?.policyNumber || null,
       insurance_start_date: toDateOrNull(clientData.insurance?.startDate),
       insurance_end_date: toDateOrNull(clientData.insurance?.endDate),
+      smoking_status: clientData.smokingStatus || null,
+      ethnicity: clientData.ethnicity || null,
+      client_pin: clientData.clientPin || null,
+      parent_pin: clientData.parentPin || null,
       comments: clientData.comments || null
     }, { onConflict: 'profile_id' })
     .select();

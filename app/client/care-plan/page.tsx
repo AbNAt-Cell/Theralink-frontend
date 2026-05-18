@@ -1,50 +1,47 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useClientCarePlans } from '@/hooks/client/useClientCarePlans'
 
 const ClientCarePlan = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [showCompleted, setShowCompleted] = useState(false)
-
-  const carePlanData = useMemo(() => [
-    {
-      id: 'CP001',
-      client: 'John Doe',
-      assignedStaff: 'Dr. Smith',
-      planStartDate: '2023-06-01',
-      planDuration: '3 months',
-      primaryGoal: 'Reduce anxiety symptoms',
-      medicationPlan: 'Sertraline 50mg daily',
-      appointment: 'Weekly therapy sessions',
-      status: 'Active'
-    },
-    {
-      id: 'CP002',
-      client: 'Jane Smith',
-      assignedStaff: 'Dr. Johnson',
-      planStartDate: '2023-05-15',
-      planDuration: '6 months',
-      primaryGoal: 'Manage depression',
-      medicationPlan: 'Fluoxetine 20mg daily',
-      appointment: 'Bi-weekly check-ins',
-      status: 'Completed'
-    }
-  ], [])
+  
+  const { carePlans, loading, error } = useClientCarePlans();
 
   const filteredCarePlanData = useMemo(() => {
-    return carePlanData.filter(plan =>
+    return carePlans.filter(plan =>
       (showCompleted || plan.status === 'Active') &&
       Object.values(plan).some(value =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
-  }, [carePlanData, searchTerm, showCompleted])
+  }, [carePlans, searchTerm, showCompleted])
+
+  if (loading) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+         <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p>Loading your care plans...</p>
+         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <p className="text-destructive">Failed to load care plans. Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
@@ -75,7 +72,7 @@ const ClientCarePlan = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                Showing {filteredCarePlanData.length} of {carePlanData.length} care plans
+                Showing {filteredCarePlanData.length} of {carePlans.length} care plans
               </span>
             </div>
           </div>

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import {
     sendAppointmentConfirmationEmail,
     sendAppointmentReminderEmail,
-    sendAppointmentCancellationEmail
+    sendAppointmentCancellationEmail,
+    sendClientWelcomeEmail
 } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -29,9 +30,12 @@ export async function POST(request: Request) {
             case 'cancellation':
                 result = await sendAppointmentCancellationEmail(emailData);
                 break;
+            case 'welcome':
+                result = await sendClientWelcomeEmail(emailData);
+                break;
             default:
                 return NextResponse.json(
-                    { error: 'Invalid email type. Use: confirmation, reminder, or cancellation' },
+                    { error: 'Invalid email type. Use: confirmation, reminder, cancellation, or welcome' },
                     { status: 400 }
                 );
         }

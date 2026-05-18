@@ -1,65 +1,38 @@
+'use client';
+
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Event } from '@/types/calendar'
 import { EventList } from '@/components/EventList'
 import CalendarView from '@/components/CalendarView/index'
-
-const events: Event[] = [
-  {
-    id: '1',
-    title: 'Client Meeting',
-    date: '2024-11-04',
-    time: '07:15 AM',
-    location: '96 Davion Mission Suite 157',
-    image: '/placeholder.svg?height=400&width=600',
-    type: 'client-meeting'
-  },
-  {
-    id: '90',
-    title: 'Client Meeting',
-    date: '2024-11-04',
-    time: '01:15 AM',
-    location: '96 Davion Mission Suite 157',
-    image: '/placeholder.svg?height=400&width=600',
-    type: 'client-meeting'
-  },
-  {
-    id: '2',
-    title: 'Weekend Festival',
-    date: '2024-11-23',
-    time: '01:00 PM',
-    location: '823 Monte Flats Suite 158',
-    type: 'festival'
-  },
-  {
-    id: '3',
-    title: 'Glastonbury Festival',
-    date: '2024-11-25',
-    time: '08:30 PM',
-    location: '646 Walter Road Apt. 571',
-    type: 'festival'
-  },
-  {
-    id: '4',
-    title: 'Ultra Europe 2019',
-    date: '2024-11-28',
-    time: '10:00 PM',
-    location: '956 Satterfield Tunnel Apt. 965',
-    type: 'festival'
-  }
-]
-
-
+import { useClientAppointments } from '@/hooks/client/useClientAppointments'
 
 const ClientAppointments = () => {
+  const { events, loading, error } = useClientAppointments();
+
+  if (loading) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <p className="text-muted-foreground">Loading your appointments...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container max-w-[1350px] mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <p className="text-destructive">Failed to load appointments. Please try again later.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-[1350px] mx-auto p-6 space-y-6">
       <Card>
-        <CardContent className='flex'>
+        <CardContent className='flex p-0 overflow-hidden min-h-[700px]'>
           <div className="w-80 border-r bg-background">
             <EventList events={events} />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 bg-white">
             <CalendarView events={events} />
           </div>
         </CardContent>
