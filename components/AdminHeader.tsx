@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import Image from 'next/image'
 import { Search, AlarmClock, Mail, Bell, PlusCircle, UserCircle, ChevronDown, LogOut, AtSign, User, UserCog } from 'lucide-react'

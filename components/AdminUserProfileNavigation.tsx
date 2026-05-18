@@ -30,11 +30,9 @@ const links = [
 ]
 const AdminUserProfileNavigation = ({ id }: { id: string }) => {
   const pathname = usePathname() + "/";
-  console.log('pathname: ', pathname)
 
   const isActiveFullPath = (path: string) => {
     const currentPath = pathname.split(`/admin/clients/${id}`)[1];
-    console.log('currentPath: ', currentPath)
     return currentPath === path ? 'bg-gray-200' : '';
   }
 
