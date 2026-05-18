@@ -50,7 +50,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     console.error('Send login credentials error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to send email. Check Resend configuration.';
+    let errorMessage = 'Failed to send email. Check Resend configuration.';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      errorMessage = (error as any).message || JSON.stringify(error);
+    }
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
