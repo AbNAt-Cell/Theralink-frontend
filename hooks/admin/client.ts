@@ -138,12 +138,10 @@ export const createNewClient = async (clientData: any, clinicId: string) => {
 
   const profileId = createData.user.id;
 
-  // 3. Create/Update Client Details
+  // 3. Update Client Details (row was created by /api/create-user)
   const { error: detailsError } = await supabase
     .from('client_details')
-    .upsert([
-      {
-        profile_id: profileId,
+    .update({
         prefix: clientData.prefix,
         middle_name: clientData.middleName,
         suffix: clientData.suffix,
@@ -189,8 +187,8 @@ export const createNewClient = async (clientData: any, clinicId: string) => {
         insurance_end_date: clientData.insurance?.endDate,
 
         comments: clientData.comments
-      }
-    ], { onConflict: 'profile_id' });
+      })
+      .eq('profile_id', profileId);
 
   if (detailsError) {
     console.error("Error creating client details:", detailsError);
@@ -339,11 +337,10 @@ export const updateClient = async (clientId: string, clientData: any) => {
   console.log('Profile update result:', { profileData, profileError });
   if (profileError) throw profileError;
 
-  // 2. Upsert Client Details (insert if not exists, update if exists)
+  // 2. Update Client Details
   const { data: detailsData, error: detailsError } = await supabase
     .from('client_details')
-    .upsert({
-      profile_id: clientId, // Required for upsert to match
+    .update({
       prefix: clientData.prefix || null,
       middle_name: clientData.middleName || null,
       suffix: clientData.suffix || null,
@@ -382,7 +379,8 @@ export const updateClient = async (clientId: string, clientData: any) => {
       client_pin: clientData.clientPin || null,
       parent_pin: clientData.parentPin || null,
       comments: clientData.comments || null
-    }, { onConflict: 'profile_id' })
+    })
+    .eq('profile_id', clientId)
     .select();
 
   console.log('Client details upsert result:', { detailsData, detailsError });
