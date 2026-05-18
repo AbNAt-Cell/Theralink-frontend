@@ -82,6 +82,7 @@ export default function AddDocumentModal({ isOpen, onClose, onSuccess }: AddDocu
         if (isOpen && user?.clinicId) {
             fetchProfiles();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, user?.clinicId]);
 
     const fetchProfiles = async () => {

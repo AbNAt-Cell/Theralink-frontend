@@ -50,7 +50,7 @@ export default function ClientDashboard() {
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
 
-  const { upcomingAppointments, pendingDocuments, completedDocuments, refresh: _refreshDashboardData, loading: dashboardLoading } = useClientDashboard();
+  const { upcomingAppointments, pendingDocuments, completedDocuments, loading: dashboardLoading } = useClientDashboard();
 
   useEffect(() => {
     const fetchClientData = async () => {

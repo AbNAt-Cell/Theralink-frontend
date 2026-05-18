@@ -65,6 +65,7 @@ export default function AddAppointmentModal({ isOpen, onClose, onSuccess }: AddA
         if (isOpen && user?.clinicId) {
             fetchProfiles();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, user?.clinicId]);
 
     const fetchProfiles = async () => {
