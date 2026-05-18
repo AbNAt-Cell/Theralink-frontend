@@ -35,7 +35,7 @@ export async function sendAppointmentConfirmationEmail(data: AppointmentEmailDat
 
   try {
     const { data: emailData, error } = await getResend().emails.send({
-      from: process.env.EMAIL_FROM || 'appointments@theralink.com',
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: clientEmail,
       subject: `Appointment Confirmed - ${appointmentType} on ${appointmentDate}`,
       html: `
@@ -140,7 +140,7 @@ export async function sendAppointmentReminderEmail(data: AppointmentEmailData) {
 
   try {
     const { data: emailData, error } = await getResend().emails.send({
-      from: process.env.EMAIL_FROM || 'appointments@theralink.com',
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: clientEmail,
       subject: `Reminder: ${appointmentType} Tomorrow at ${appointmentTime}`,
       html: `
@@ -188,7 +188,7 @@ export async function sendAppointmentCancellationEmail(data: AppointmentEmailDat
 
   try {
     const { data: emailData, error } = await getResend().emails.send({
-      from: process.env.EMAIL_FROM || 'appointments@theralink.com',
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: clientEmail,
       subject: `Appointment Cancelled - ${appointmentDate}`,
       html: `
@@ -239,7 +239,7 @@ export async function sendClientWelcomeEmail(data: WelcomeEmailData) {
 
   try {
     const { data: emailData, error } = await getResend().emails.send({
-      from: process.env.EMAIL_FROM || 'welcome@theralink.com',
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: clientEmail,
       subject: `Welcome to ${clinicName} - Your Login Details`,
       html: `
