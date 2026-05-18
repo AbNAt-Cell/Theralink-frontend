@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Search, AlarmClock, Mail, Bell, PlusCircle, UserCircle, ChevronDown, LogOut, AtSign, User, UserCog } from 'lucide-react'
 import { Input } from './ui/input'
@@ -41,13 +41,20 @@ const LogoutMenuItem = () => {
 const AdminHeader = () => {
   const { user } = useUser();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isActivePath = (path: string) => {
+    if (!mounted) return "";
     const currentPath = pathname?.split("/")[2];
     return currentPath === path ? "bg-primary text-white" : "";
   };
 
   const isActiveFullPath = (path: string) => {
+    if (!mounted) return "";
     const currentPath = pathname;
     return currentPath === path ? "bg-primary text-white" : "";
   };

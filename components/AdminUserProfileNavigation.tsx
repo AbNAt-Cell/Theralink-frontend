@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
@@ -30,8 +30,14 @@ const links = [
 ]
 const AdminUserProfileNavigation = ({ id }: { id: string }) => {
   const pathname = usePathname() + "/";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isActiveFullPath = (path: string) => {
+    if (!mounted) return '';
     const currentPath = pathname.split(`/admin/clients/${id}`)[1];
     return currentPath === path ? 'bg-gray-200' : '';
   }
