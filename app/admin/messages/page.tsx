@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { activeMessages, contactMessage, contactMessageHistory, fetchPeerId, messageContacts, sendMessage, markConversationAsRead, addReaction, removeReaction, getMessageReactions, sendMessageWithFile } from "@/hooks/messages";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Phone, Video, Smile, Send, MessageSquareDot, Plus, ArrowLeft, SquarePen } from "lucide-react";
