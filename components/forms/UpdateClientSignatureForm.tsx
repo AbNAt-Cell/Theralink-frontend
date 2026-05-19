@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface UpdateClientSignatureFormProps {
   onSignatureUpdate: (signature: string, pin: string) => void;
   onCancel: () => void;
+  saving?: boolean;
 }
 
 const formSchema = z.object({
@@ -22,7 +23,7 @@ const formSchema = z.object({
   path: ["confirmPin"],
 });
 
-const UpdateClientSignatureForm = ({ onSignatureUpdate, onCancel }: UpdateClientSignatureFormProps) => {
+const UpdateClientSignatureForm = ({ onSignatureUpdate, onCancel, saving }: UpdateClientSignatureFormProps) => {
   const sigCanvas = useRef<SignatureCanvas | null>(null);
   const [brushColor, setBrushColor] = useState('black');
 
@@ -116,8 +117,8 @@ const UpdateClientSignatureForm = ({ onSignatureUpdate, onCancel }: UpdateClient
         </div>
 
         <div className="flex gap-4 pt-4">
-          <Button className="w-32 bg-blue-900 hover:bg-blue-800 text-white" type="submit">
-            Save
+          <Button className="w-32 bg-blue-900 hover:bg-blue-800 text-white" type="submit" disabled={saving}>
+            {saving ? 'Saving...' : 'Save'}
           </Button>
           <Button className="w-32" variant="outline" type="button" onClick={onCancel}>
             Cancel

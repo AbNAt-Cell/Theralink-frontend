@@ -36,6 +36,7 @@ import { getClientById, ClientProfile, updateClient } from "@/hooks/admin/client
 import Image from "next/image"
 import { useClientDashboard } from "@/hooks/client/useClientDashboard"
 import { format } from "date-fns"
+import { createClient } from "@/utils/supabase/client"
 
 export default function ClientDashboard() {
   const { user } = useUser();
@@ -49,6 +50,8 @@ export default function ClientDashboard() {
   const [openParentPin, setOpenParentPin] = useState(false);
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
+  const [savingSignature, setSavingSignature] = useState(false);
+  const supabase = createClient();
 
   const { upcomingAppointments, pendingDocuments, completedDocuments, loading: dashboardLoading } = useClientDashboard();
 
@@ -59,7 +62,9 @@ export default function ClientDashboard() {
         setLoading(true);
         const data = await getClientById(user.id);
         setClient(data);
-        if (data.clientPin) setClientSignature('/placeholder-signature.png'); // Placeholder if PIN exists
+        // Use actual signature URL if available
+        if (data.signatureUrl) setClientSignature(data.signatureUrl);
+        else if (data.clientPin) setClientSignature('/placeholder-signature.png');
         if (data.parentPin) setParentSignature('/placeholder-signature.png');
       } catch (error) {
         console.error("Error fetching client data:", error);
@@ -220,10 +225,35 @@ export default function ClientDashboard() {
                     <DialogHeader>
                       <DialogTitle>Update Signature</DialogTitle>
                       <UpdateClientSignatureForm
-                        onSignatureUpdate={(sig, pin) => {
-                          setClientSignature(sig);
-                          setOpenClientSignature(false);
-                          console.log("Pin captured:", pin);
+                        saving={savingSignature}
+                        onSignatureUpdate={async (sig, pin) => {
+                          try {
+                            setSavingSignature(true);
+                            if (!user?.id) return;
+                            // Upload to Supabase Storage
+                            const res = await fetch(sig);
+                            const blob = await res.blob();
+                            const file = new File([blob], 'signature.png', { type: 'image/png' });
+                            const fileName = `${user.id}-client-${Date.now()}.png`;
+                            const { error: uploadError } = await supabase.storage
+                              .from('signatures')
+                              .upload(fileName, file, { upsert: true });
+                            if (uploadError) throw uploadError;
+                            const { data: publicUrlData } = supabase.storage
+                              .from('signatures')
+                              .getPublicUrl(fileName);
+                            const publicUrl = publicUrlData.publicUrl;
+                            // Save URL to profiles and PIN to client_details
+                            await supabase.from('profiles').update({ signature_url: publicUrl }).eq('id', user.id);
+                            await supabase.from('client_details').update({ client_pin: pin }).eq('profile_id', user.id);
+                            setClientSignature(publicUrl);
+                            setOpenClientSignature(false);
+                          } catch (error) {
+                            console.error('Error saving client signature:', error);
+                            alert('Failed to save signature. Please try again.');
+                          } finally {
+                            setSavingSignature(false);
+                          }
                         }}
                         onCancel={() => setOpenClientSignature(false)}
                       />
@@ -272,10 +302,34 @@ export default function ClientDashboard() {
                       <DialogTitle>Add Parent Signature</DialogTitle>
                     </DialogHeader>
                     <UpdateClientSignatureForm
-                      onSignatureUpdate={(sig, pin) => {
-                        handleParentPinChange('', pin); // Save initial PIN
-                        setParentSignature(sig);
-                        setOpenParentSignature(false);
+                      saving={savingSignature}
+                      onSignatureUpdate={async (sig, pin) => {
+                        try {
+                          setSavingSignature(true);
+                          if (!user?.id) return;
+                          // Upload to Supabase Storage
+                          const res = await fetch(sig);
+                          const blob = await res.blob();
+                          const file = new File([blob], 'signature.png', { type: 'image/png' });
+                          const fileName = `${user.id}-parent-${Date.now()}.png`;
+                          const { error: uploadError } = await supabase.storage
+                            .from('signatures')
+                            .upload(fileName, file, { upsert: true });
+                          if (uploadError) throw uploadError;
+                          const { data: publicUrlData } = supabase.storage
+                            .from('signatures')
+                            .getPublicUrl(fileName);
+                          const publicUrl = publicUrlData.publicUrl;
+                          // Save PIN to client_details
+                          await supabase.from('client_details').update({ parent_pin: pin }).eq('profile_id', user.id);
+                          setParentSignature(publicUrl);
+                          setOpenParentSignature(false);
+                        } catch (error) {
+                          console.error('Error saving parent signature:', error);
+                          alert('Failed to save signature. Please try again.');
+                        } finally {
+                          setSavingSignature(false);
+                        }
                       }}
                       onCancel={() => setOpenParentSignature(false)}
                     />
