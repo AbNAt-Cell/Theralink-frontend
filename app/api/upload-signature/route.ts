@@ -78,7 +78,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, publicUrl });
   } catch (error: unknown) {
     console.error('Signature upload error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    let errorMessage = error instanceof Error ? error.message : 'Internal server error';
+
+    // Intercept PGRST204 schema cache errors for pins
+    if (error && typeof error === 'object' && 'code' in error) {
+      const err = error as { code?: string; message?: string };
+      if (err.code === 'PGRST204' || (typeof err.message === 'string' && err.message.includes('schema cache'))) {
+        errorMessage = "The 'client_pin' and 'parent_pin' columns are missing from the database. Please execute the SQL script in 'add_client_dashboard_fields.sql' inside your Supabase Dashboard SQL Editor to add these columns.";
+      }
+    }
+
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
