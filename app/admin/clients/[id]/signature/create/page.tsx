@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import UpdateClientSignatureForm from '@/components/forms/UpdateClientSignatureForm';
 import { useRouter } from 'nextjs-toploader/app';
 import AdminClientProfile from '@/components/AdminClientProfile';
-import { createClient } from '@/utils/supabase/client';
 import { useToast } from '@/hooks/Partials/use-toast';
 import { getClientById, ClientProfile } from '@/hooks/admin/client';
 import { useEffect } from 'react';
@@ -17,7 +16,6 @@ interface PageProps {
 
 const CreateSignaturePage = ({ params }: PageProps) => {
     const router = useRouter();
-    const supabase = createClient();
     const { toast } = useToast();
     const [saving, setSaving] = useState(false);
     const [client, setClient] = useState<ClientProfile | null>(null);
@@ -41,41 +39,23 @@ const CreateSignaturePage = ({ params }: PageProps) => {
         try {
             setSaving(true);
 
-            // 1. Convert base64 data URL to a File
-            const res = await fetch(signatureDataUrl);
-            const blob = await res.blob();
-            const file = new File([blob], 'signature.png', { type: 'image/png' });
+            const res = await fetch('/api/upload-signature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: params.id,
+                    signature: signatureDataUrl,
+                    pin,
+                    type: 'client',
+                }),
+            });
 
-            // 2. Upload to Supabase Storage (signatures bucket)
-            const fileName = `${params.id}-${Date.now()}.png`;
-            const { error: uploadError } = await supabase.storage
-                .from('signatures')
-                .upload(fileName, file, { upsert: true });
-
-            if (uploadError) throw uploadError;
-
-            // 3. Get the public URL
-            const { data: publicUrlData } = supabase.storage
-                .from('signatures')
-                .getPublicUrl(fileName);
-
-            const publicUrl = publicUrlData.publicUrl;
-
-            // 4. Update the profiles table with the signature URL
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .update({ signature_url: publicUrl })
-                .eq('id', params.id);
-
-            if (profileError) throw profileError;
-
-            // 5. Save the client PIN to client_details
-            const { error: pinError } = await supabase
-                .from('client_details')
-                .update({ client_pin: pin })
-                .eq('profile_id', params.id);
-
-            if (pinError) throw pinError;
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Failed to upload signature');
+            }
 
             toast({
                 title: 'Success',
@@ -87,7 +67,7 @@ const CreateSignaturePage = ({ params }: PageProps) => {
             console.error('Error saving signature:', error);
             toast({
                 title: 'Error',
-                description: 'Failed to save signature. Please try again.',
+                description: error instanceof Error ? error.message : 'Failed to save signature. Please try again.',
                 variant: 'destructive',
             });
         } finally {

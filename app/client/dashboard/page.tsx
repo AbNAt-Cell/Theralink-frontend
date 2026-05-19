@@ -36,7 +36,6 @@ import { getClientById, ClientProfile, updateClient } from "@/hooks/admin/client
 import Image from "next/image"
 import { useClientDashboard } from "@/hooks/client/useClientDashboard"
 import { format } from "date-fns"
-import { createClient } from "@/utils/supabase/client"
 
 export default function ClientDashboard() {
   const { user } = useUser();
@@ -51,7 +50,6 @@ export default function ClientDashboard() {
   const [clientSignature, setClientSignature] = useState<string | null>(null);
   const [parentSignature, setParentSignature] = useState<string | null>(null);
   const [savingSignature, setSavingSignature] = useState(false);
-  const supabase = createClient();
 
   const { upcomingAppointments, pendingDocuments, completedDocuments, loading: dashboardLoading } = useClientDashboard();
 
@@ -230,27 +228,31 @@ export default function ClientDashboard() {
                           try {
                             setSavingSignature(true);
                             if (!user?.id) return;
-                            // Upload to Supabase Storage
-                            const res = await fetch(sig);
-                            const blob = await res.blob();
-                            const file = new File([blob], 'signature.png', { type: 'image/png' });
-                            const fileName = `${user.id}-client-${Date.now()}.png`;
-                            const { error: uploadError } = await supabase.storage
-                              .from('signatures')
-                              .upload(fileName, file, { upsert: true });
-                            if (uploadError) throw uploadError;
-                            const { data: publicUrlData } = supabase.storage
-                              .from('signatures')
-                              .getPublicUrl(fileName);
-                            const publicUrl = publicUrlData.publicUrl;
-                            // Save URL to profiles and PIN to client_details
-                            await supabase.from('profiles').update({ signature_url: publicUrl }).eq('id', user.id);
-                            await supabase.from('client_details').update({ client_pin: pin }).eq('profile_id', user.id);
-                            setClientSignature(publicUrl);
+
+                            const res = await fetch('/api/upload-signature', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                userId: user.id,
+                                signature: sig,
+                                pin,
+                                type: 'client',
+                              }),
+                            });
+
+                            if (!res.ok) {
+                              const errData = await res.json();
+                              throw new Error(errData.error || 'Failed to save signature');
+                            }
+
+                            const data = await res.json();
+                            setClientSignature(data.publicUrl);
                             setOpenClientSignature(false);
                           } catch (error) {
                             console.error('Error saving client signature:', error);
-                            alert('Failed to save signature. Please try again.');
+                            alert(error instanceof Error ? error.message : 'Failed to save signature. Please try again.');
                           } finally {
                             setSavingSignature(false);
                           }
@@ -307,26 +309,31 @@ export default function ClientDashboard() {
                         try {
                           setSavingSignature(true);
                           if (!user?.id) return;
-                          // Upload to Supabase Storage
-                          const res = await fetch(sig);
-                          const blob = await res.blob();
-                          const file = new File([blob], 'signature.png', { type: 'image/png' });
-                          const fileName = `${user.id}-parent-${Date.now()}.png`;
-                          const { error: uploadError } = await supabase.storage
-                            .from('signatures')
-                            .upload(fileName, file, { upsert: true });
-                          if (uploadError) throw uploadError;
-                          const { data: publicUrlData } = supabase.storage
-                            .from('signatures')
-                            .getPublicUrl(fileName);
-                          const publicUrl = publicUrlData.publicUrl;
-                          // Save PIN to client_details
-                          await supabase.from('client_details').update({ parent_pin: pin }).eq('profile_id', user.id);
-                          setParentSignature(publicUrl);
+
+                          const res = await fetch('/api/upload-signature', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              userId: user.id,
+                              signature: sig,
+                              pin,
+                              type: 'parent',
+                            }),
+                          });
+
+                          if (!res.ok) {
+                            const errData = await res.json();
+                            throw new Error(errData.error || 'Failed to save signature');
+                          }
+
+                          const data = await res.json();
+                          setParentSignature(data.publicUrl);
                           setOpenParentSignature(false);
                         } catch (error) {
                           console.error('Error saving parent signature:', error);
-                          alert('Failed to save signature. Please try again.');
+                          alert(error instanceof Error ? error.message : 'Failed to save signature. Please try again.');
                         } finally {
                           setSavingSignature(false);
                         }
